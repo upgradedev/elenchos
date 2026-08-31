@@ -1,0 +1,79 @@
+name: GPU AI Job probe
+
+# Answers one narrow question: does a Nebius AI Job with a GPU preset actually reach
+# RUNNING, and how long does it take?
+#
+# The July 2026 Archon entry recorded three CPU jobs accepted, stuck in PROVISIONING
+# with zero instances, terminating in ERROR after ~30 minutes with empty details. The
+# cause was never established, and a 2026-08-31 capacity read showed we DO hold quota
+# (32 on-demand single GPU, 128 preemptible). So one success proves nothing. Run this
+# repeatedly, at different hours, before trusting AI Jobs with anything.
+
+on:
+  workflow_dispatch:
+    inputs:
+      create:
+        description: 'Actually create a job. Unchecked means a read-only probe.'
+        type: boolean
+        default: false
+      platform:
+        description: 'GPU platform'
+        type: choice
+        default: gpu-h100-sxm
+        options:
+          - gpu-h100-sxm
+          - gpu-l40s-a
+          - gpu-l40s-d
+          - gpu-h200-sxm
+      preset:
+        description: 'Preset, must match the platform'
+        type: string
+        default: 1gpu-16vcpu-200gb
+      watch_seconds:
+        description: 'How long to wait for RUNNING'
+        type: string
+        default: '420'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gpu-job-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEBIUS_SA_KEY_B64: ${{ secrets.NEBIUS_SA_KEY_B64 }}
+      NEBIUS_SA_KEY_ID: ${{ secrets.NEBIUS_SA_KEY_ID }}
+      NEBIUS_SA_ID: ${{ secrets.NEBIUS_SA_ID }}
+      # eu-north1 holds the deepest free on-demand GPU pool as measured 2026-08-31.
+      NEBIUS_PROJECTS: project-e00cncsmpr00e8p6knyvdq
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail early if credentials are absent
+        run: |
+          missing=0
+          for name in NEBIUS_SA_KEY_B64 NEBIUS_SA_KEY_ID NEBIUS_SA_ID; do
+            if [ -z "${!name}" ]; then echo "::error::secret $name is not set"; missing=1; fi
+          done
+          # A check whose failure is silent returns the same value as a pass. Not here.
+          [ "$missing" -eq 0 ] || exit 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install the Nebius SDK
+        run: pip install --disable-pip-version-check 'nebius==0.3.92'
+
+      - name: Probe
+        run: |
+          python scripts/gpu_job_probe.py \
+            --platform '${{ inputs.platform }}' \
+            --preset '${{ inputs.preset }}' \
+            --watch-seconds '${{ inputs.watch_seconds }}' \
+            ${{ inputs.create && '--create' || '' }}
