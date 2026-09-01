@@ -1,0 +1,21 @@
+{
+  "rule_id": "r12",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 25.83,
+  "request_id": "chatcmpl-1d02b478bb2f42efa6bc30b0dd95d28a",
+  "usage": {
+    "completion_tokens": 1934,
+    "prompt_tokens": 1031,
+    "total_tokens": 2965,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Ensure no security step has continue-on-error: true\n  run: |\n    violation=0\n    while IFS= read -r filepath; do\n      if python3 - <<'EOF'\nimport sys, yaml, os\npath = sys.argv[1]\ntry:\n    with open(path, 'r') as fh:\n        data = yaml.safe_load(fh) or {}\nexcept Exception as e:\n    print(f\"Error reading {path}: {e}\", file=sys.stderr)\n    sys.exit(1)\njobs = data.get('jobs', {})\nfor job_name, job in jobs.items():\n    steps = job.get('steps', [])\n    for step in steps:\n        cont = step.get('continue-on-error')\n        if cont is None:\n            continue\n        if isinstance(cont, bool):\n            cont_bool = cont\n        else:\n            cont_bool = str(cont).lower() in ('true', 'yes', '1')\n        if not cont_bool:\n            continue\n        name = step.get('name', '').lower()\n        uses = step.get('uses', '').lower()\n        if 'security' in name or 'security' in uses:\n            print(f'Violation in {path}: job {job_name} step has continue-on-error: true', file=sys.stderr)\n            sys.exit(1)\nsys.exit(0)\nEOF \"$filepath\"; then\n        :\n      else\n        violation=1\n      fi\n    done < <(find .github/workflows -type f \\( -name \"*.yaml\" -o -name \"*.yml\" \\) 2>/dev/null)\n    if [ $violation -ne 0 ]; then\n      exit 1\n    fi\n    exit 0\nEOF\n```",
+  "error": null
+}

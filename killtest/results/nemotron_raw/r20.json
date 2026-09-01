@@ -1,0 +1,21 @@
+{
+  "rule_id": "r20",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 7.82,
+  "request_id": "chatcmpl-bd570d1634fb450ab99488b9402ec023",
+  "usage": {
+    "completion_tokens": 1371,
+    "prompt_tokens": 1029,
+    "total_tokens": 2400,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Verify each source directory has a matching test directory\n  run: |\n    src_dir=\"src\"\n    if [ ! -d \"$src_dir\" ]; then\n      echo \"Source directory '$src_dir' not found\"\n      exit 1\n    fi\n    # Iterate over immediate subdirectories of src/\n    for src_sub in \"$src_dir\"/*/; do\n      [ -e \"$src_sub\" ] || continue  # skip if no subdirs exist\n      subdir=$(basename \"$src_sub\")\n      if [ ! -d \"test/$subdir\" ]; then\n        echo \"Missing test directory for source subdirectory: $subdir\"\n        exit 1\n      fi\n    done\n    exit 0",
+  "error": null
+}

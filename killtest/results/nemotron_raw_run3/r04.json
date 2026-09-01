@@ -1,0 +1,33 @@
+{
+  "rule_id": "r04",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 15.23,
+  "request_id": "chatcmpl-a61a137e4fa7443db059a6cf4cd9c6fb",
+  "usage": {
+    "completion_tokens": 845,
+    "prompt_tokens": 1033,
+    "total_tokens": 1878,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Check conventional commits\n  run: |\n    python3 <<'EOF'\n    import json, sys, re\n    with open('$GITHUB_EVENT_PATH') as f:\n        data = json.load(f)\n    commits = data.get('pull_request', {}).get('commits', [])\n    pattern = re.compile(r'^[a-zA-Z0-9]+\\([^)]+\\): .+$')\n    for c in commits:\n        msg = c.get('message', '')\n        if not pattern.match(msg):\n            print(f'Invalid commit message: {msg}')\n            sys.exit(1)\n    print('All commit messages follow conventional commits')\n    sys.exit(0)\n    EOF",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 2794,
+  "error": null
+}

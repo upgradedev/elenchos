@@ -1,0 +1,334 @@
+{
+  "producer": "template",
+  "run_at_utc": "2026-09-01T14:08:27Z",
+  "command": "python harness.py --producer template",
+  "contract_sha256": "4198d42be5ed5705177e0aeaa8ed5851d38dad7637762a0679423c4fa5e6abe7",
+  "rules_sha256": "85bd4204e3ca24a13a20b75186ee4a17e07c5adff1b851372b9c8e6c3d6f60b8",
+  "fixtures_sha256": "83a12a9ebe8d380c81d2509ece969e533bb02d0713a503ead7541aac0795ac36",
+  "rules_scored": 20,
+  "score": 2,
+  "refused": 0,
+  "unparsed": [],
+  "results": [
+    {
+      "id": "r01",
+      "class": "A work-item trace",
+      "rule": "Every pull request references at least one issue number in its title or its body.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     Every pull request references at least one issue number in its title or its body.\n    # needles:  keyword\n    # demands:  presence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('references')\n    NEEDLES.append('issue')\n    NEEDLES.append('number')\n    NEEDLES.append('title')\n    EXPECT_FOUND = True\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     Every pull request references at least one issue number in its title or its body.\n# needles:  keyword\n# demands:  presence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('references')\nNEEDLES.append('issue')\nNEEDLES.append('number')\nNEEDLES.append('title')\nEXPECT_FOUND = True\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 0,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r02",
+      "class": "A work-item trace",
+      "rule": "Every pull request carries at least one label.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     Every pull request carries at least one label.\n    # needles:  keyword\n    # demands:  presence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('carries')\n    NEEDLES.append('label')\n    EXPECT_FOUND = True\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     Every pull request carries at least one label.\n# needles:  keyword\n# demands:  presence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('carries')\nNEEDLES.append('label')\nEXPECT_FOUND = True\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 0,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r03",
+      "class": "A work-item trace",
+      "rule": "The body of every pull request is not empty.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     The body of every pull request is not empty.\n    # needles:  keyword\n    # demands:  absence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('empty')\n    EXPECT_FOUND = False\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     The body of every pull request is not empty.\n# needles:  keyword\n# demands:  absence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('empty')\nEXPECT_FOUND = False\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 0,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r04",
+      "class": "A work-item trace",
+      "rule": "Every commit message follows conventional commits, `type(scope): subject`.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     Every commit message follows conventional commits, `type(scope): subject`.\n    # needles:  literal\n    # demands:  presence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('type(scope): subject')\n    EXPECT_FOUND = True\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     Every commit message follows conventional commits, `type(scope): subject`.\n# needles:  literal\n# demands:  presence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('type(scope): subject')\nEXPECT_FOUND = True\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 1,
+        "output": "rule demands presence, found none of: ['type(scope): subject']\n"
+      },
+      "clean": {
+        "exit": 1,
+        "output": "rule demands presence, found none of: ['type(scope): subject']\n"
+      }
+    },
+    {
+      "id": "r05",
+      "class": "A work-item trace",
+      "rule": "No pull request is merged without at least one approved review.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     No pull request is merged without at least one approved review.\n    # needles:  keyword\n    # demands:  absence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('merged')\n    NEEDLES.append('approved')\n    NEEDLES.append('review')\n    EXPECT_FOUND = False\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     No pull request is merged without at least one approved review.\n# needles:  keyword\n# demands:  absence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('merged')\nNEEDLES.append('approved')\nNEEDLES.append('review')\nEXPECT_FOUND = False\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 1,
+        "output": "rule demands absence, found: ['review']\n"
+      },
+      "clean": {
+        "exit": 1,
+        "output": "rule demands absence, found: ['review']\n"
+      }
+    },
+    {
+      "id": "r06",
+      "class": "B push or branch prohibition",
+      "rule": "Pushing directly to `main` is forbidden.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     Pushing directly to `main` is forbidden.\n    # needles:  literal\n    # demands:  absence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('main')\n    EXPECT_FOUND = False\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     Pushing directly to `main` is forbidden.\n# needles:  literal\n# demands:  absence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('main')\nEXPECT_FOUND = False\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 1,
+        "output": "rule demands absence, found: ['main']\n"
+      },
+      "clean": {
+        "exit": 1,
+        "output": "rule demands absence, found: ['main']\n"
+      }
+    },
+    {
+      "id": "r07",
+      "class": "B push or branch prohibition",
+      "rule": "Branch names match `feat/`, `fix/`, `chore/` or `docs/`.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     Branch names match `feat/`, `fix/`, `chore/` or `docs/`.\n    # needles:  literal\n    # demands:  presence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('feat/')\n    NEEDLES.append('fix/')\n    NEEDLES.append('chore/')\n    NEEDLES.append('docs/')\n    EXPECT_FOUND = True\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     Branch names match `feat/`, `fix/`, `chore/` or `docs/`.\n# needles:  literal\n# demands:  presence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('feat/')\nNEEDLES.append('fix/')\nNEEDLES.append('chore/')\nNEEDLES.append('docs/')\nEXPECT_FOUND = True\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 0,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r08",
+      "class": "B push or branch prohibition",
+      "rule": "Force pushing to a protected branch is forbidden.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     Force pushing to a protected branch is forbidden.\n    # needles:  keyword\n    # demands:  absence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('force')\n    NEEDLES.append('pushing')\n    NEEDLES.append('protected')\n    NEEDLES.append('branch')\n    NEEDLES.append('forbidden')\n    EXPECT_FOUND = False\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     Force pushing to a protected branch is forbidden.\n# needles:  keyword\n# demands:  absence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('force')\nNEEDLES.append('pushing')\nNEEDLES.append('protected')\nNEEDLES.append('branch')\nNEEDLES.append('forbidden')\nEXPECT_FOUND = False\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 1,
+        "output": "rule demands absence, found: ['force', 'branch']\n"
+      },
+      "clean": {
+        "exit": 1,
+        "output": "rule demands absence, found: ['force', 'branch']\n"
+      }
+    },
+    {
+      "id": "r09",
+      "class": "B push or branch prohibition",
+      "rule": "A pull request does not touch more than 50 files.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     A pull request does not touch more than 50 files.\n    # needles:  keyword\n    # demands:  absence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('touch')\n    EXPECT_FOUND = False\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     A pull request does not touch more than 50 files.\n# needles:  keyword\n# demands:  absence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('touch')\nEXPECT_FOUND = False\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 0,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r10",
+      "class": "B push or branch prohibition",
+      "rule": "A pull request with merge conflicts is not merged.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     A pull request with merge conflicts is not merged.\n    # needles:  keyword\n    # demands:  absence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('merge')\n    NEEDLES.append('conflicts')\n    NEEDLES.append('merged')\n    EXPECT_FOUND = False\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     A pull request with merge conflicts is not merged.\n# needles:  keyword\n# demands:  absence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('merge')\nNEEDLES.append('conflicts')\nNEEDLES.append('merged')\nEXPECT_FOUND = False\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 1,
+        "output": "rule demands absence, found: ['merge']\n"
+      },
+      "clean": {
+        "exit": 1,
+        "output": "rule demands absence, found: ['merge']\n"
+      }
+    },
+    {
+      "id": "r11",
+      "class": "C mandatory CI step",
+      "rule": "Every workflow declares `permissions:`.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     Every workflow declares `permissions:`.\n    # needles:  literal\n    # demands:  presence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('permissions:')\n    EXPECT_FOUND = True\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     Every workflow declares `permissions:`.\n# needles:  literal\n# demands:  presence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('permissions:')\nEXPECT_FOUND = True\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 0,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r12",
+      "class": "C mandatory CI step",
+      "rule": "No security step carries `continue-on-error: true`.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     No security step carries `continue-on-error: true`.\n    # needles:  literal\n    # demands:  absence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('continue-on-error: true')\n    EXPECT_FOUND = False\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     No security step carries `continue-on-error: true`.\n# needles:  literal\n# demands:  absence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('continue-on-error: true')\nEXPECT_FOUND = False\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "rule demands absence, found: ['continue-on-error: true']\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r13",
+      "class": "C mandatory CI step",
+      "rule": "Every third-party action is pinned to a commit SHA, not to a tag.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     Every third-party action is pinned to a commit SHA, not to a tag.\n    # needles:  keyword\n    # demands:  absence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('third-party')\n    NEEDLES.append('action')\n    NEEDLES.append('pinned')\n    NEEDLES.append('commit')\n    EXPECT_FOUND = False\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     Every third-party action is pinned to a commit SHA, not to a tag.\n# needles:  keyword\n# demands:  absence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('third-party')\nNEEDLES.append('action')\nNEEDLES.append('pinned')\nNEEDLES.append('commit')\nEXPECT_FOUND = False\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 1,
+        "output": "rule demands absence, found: ['action', 'commit']\n"
+      },
+      "clean": {
+        "exit": 1,
+        "output": "rule demands absence, found: ['action', 'commit']\n"
+      }
+    },
+    {
+      "id": "r14",
+      "class": "C mandatory CI step",
+      "rule": "Every pull request runs at least one secret-scanning step.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     Every pull request runs at least one secret-scanning step.\n    # needles:  keyword\n    # demands:  presence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('secret-scanning')\n    EXPECT_FOUND = True\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     Every pull request runs at least one secret-scanning step.\n# needles:  keyword\n# demands:  presence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('secret-scanning')\nEXPECT_FOUND = True\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 1,
+        "output": "rule demands presence, found none of: ['secret-scanning']\n"
+      },
+      "clean": {
+        "exit": 1,
+        "output": "rule demands presence, found none of: ['secret-scanning']\n"
+      }
+    },
+    {
+      "id": "r15",
+      "class": "C mandatory CI step",
+      "rule": "Every workflow declares `timeout-minutes`.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     Every workflow declares `timeout-minutes`.\n    # needles:  literal\n    # demands:  presence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('timeout-minutes')\n    EXPECT_FOUND = True\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     Every workflow declares `timeout-minutes`.\n# needles:  literal\n# demands:  presence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('timeout-minutes')\nEXPECT_FOUND = True\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 0,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r16",
+      "class": "D file convention",
+      "rule": "Every repository has a `LICENSE` file at its root.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     Every repository has a `LICENSE` file at its root.\n    # needles:  literal\n    # demands:  presence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('LICENSE')\n    EXPECT_FOUND = True\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     Every repository has a `LICENSE` file at its root.\n# needles:  literal\n# demands:  presence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('LICENSE')\nEXPECT_FOUND = True\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "rule demands presence, found none of: ['LICENSE']\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r17",
+      "class": "D file convention",
+      "rule": "Every repository has a `README.md` with an installation section.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     Every repository has a `README.md` with an installation section.\n    # needles:  literal\n    # demands:  presence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('README.md')\n    EXPECT_FOUND = True\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     Every repository has a `README.md` with an installation section.\n# needles:  literal\n# demands:  presence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('README.md')\nEXPECT_FOUND = True\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 0,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r18",
+      "class": "D file convention",
+      "rule": "No `.env` file is committed.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     No `.env` file is committed.\n    # needles:  literal\n    # demands:  absence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('.env')\n    EXPECT_FOUND = False\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     No `.env` file is committed.\n# needles:  literal\n# demands:  absence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('.env')\nEXPECT_FOUND = False\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 1,
+        "output": "rule demands absence, found: ['.env']\n"
+      },
+      "clean": {
+        "exit": 1,
+        "output": "rule demands absence, found: ['.env']\n"
+      }
+    },
+    {
+      "id": "r19",
+      "class": "D file convention",
+      "rule": "No file is larger than 5 MB.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     No file is larger than 5 MB.\n    # needles:  keyword\n    # demands:  absence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('larger')\n    EXPECT_FOUND = False\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     No file is larger than 5 MB.\n# needles:  keyword\n# demands:  absence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('larger')\nEXPECT_FOUND = False\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 0,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r20",
+      "class": "D file convention",
+      "rule": "Every source directory has a corresponding test directory.",
+      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    # rule:     Every source directory has a corresponding test directory.\n    # needles:  keyword\n    # demands:  presence\n    import json, os, sys\n\n    NEEDLES = []\n    NEEDLES.append('source')\n    NEEDLES.append('directory')\n    NEEDLES.append('corresponding')\n    EXPECT_FOUND = True\n\n    haystack = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            haystack.append(path)\n            try:\n                if os.path.getsize(path) < 1048576:\n                    haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n            except OSError:\n                pass\n    haystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\n    blob = \"\\n\".join(haystack)\n\n    hits = [n for n in NEEDLES if n in blob]\n    found = bool(hits)\n\n    if found != EXPECT_FOUND:\n        if EXPECT_FOUND:\n            print(\"rule demands presence, found none of: %s\" % NEEDLES)\n        else:\n            print(\"rule demands absence, found: %s\" % hits)\n        sys.exit(1)\n    PY\n",
+      "body": "python3 - <<'PY'\n# rule:     Every source directory has a corresponding test directory.\n# needles:  keyword\n# demands:  presence\nimport json, os, sys\n\nNEEDLES = []\nNEEDLES.append('source')\nNEEDLES.append('directory')\nNEEDLES.append('corresponding')\nEXPECT_FOUND = True\n\nhaystack = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        haystack.append(path)\n        try:\n            if os.path.getsize(path) < 1048576:\n                haystack.append(open(path, encoding=\"utf-8\", errors=\"replace\").read())\n        except OSError:\n            pass\nhaystack.append(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\").read())\nblob = \"\\n\".join(haystack)\n\nhits = [n for n in NEEDLES if n in blob]\nfound = bool(hits)\n\nif found != EXPECT_FOUND:\n    if EXPECT_FOUND:\n        print(\"rule demands presence, found none of: %s\" % NEEDLES)\n    else:\n        print(\"rule demands absence, found: %s\" % hits)\n    sys.exit(1)\nPY\n",
+      "score": 0,
+      "violating": {
+        "exit": 1,
+        "output": "rule demands presence, found none of: ['source', 'directory', 'corresponding']\n"
+      },
+      "clean": {
+        "exit": 1,
+        "output": "rule demands presence, found none of: ['source', 'directory', 'corresponding']\n"
+      }
+    }
+  ]
+}

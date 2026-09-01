@@ -1,0 +1,157 @@
+{
+  "frozen": "2026-09-01",
+  "note": "Authored from the rule text alone, before any producer ran. Each rule has a violating and a clean fixture. Design rule, pre-registered: the violating fixture must violate the rule under any reasonable reading, and the clean fixture must satisfy it under any reasonable reading. A file value of null deletes the default file. event_patch is deep-merged into the default event. The harness dumps every materialised tree to results/materialised/ so the merge is inspectable.",
+
+  "default_files": {
+    "README.md": "# payments-api\n\nSession and payment endpoints for the Acme storefront.\n\n## Installation\n\n```bash\npython -m venv .venv\npip install -e .\n```\n\n## Usage\n\n```bash\npython -m src.api.handler\n```\n",
+    "LICENSE": "MIT License\n\nCopyright (c) 2026 Acme Corp\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction.\n",
+    ".gitignore": ".env\n__pycache__/\n*.pyc\n",
+    "pyproject.toml": "[project]\nname = \"payments-api\"\nversion = \"0.3.1\"\n",
+    ".env.example": "DATABASE_URL=postgres://user:password@localhost:5432/payments\n",
+    "src/api/handler.py": "def handle(request):\n    return {\"ok\": True}\n",
+    "src/core/engine.py": "def run():\n    return 0\n",
+    "tests/api/test_handler.py": "from src.api.handler import handle\n\n\ndef test_handle():\n    assert handle(None)[\"ok\"]\n",
+    "tests/core/test_engine.py": "from src.core.engine import run\n\n\ndef test_run():\n    assert run() == 0\n",
+    ".github/workflows/ci.yml": "name: CI\n\non:\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    steps:\n      - name: Checkout\n        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0\n      - name: Secret scan\n        uses: gitleaks/gitleaks-action@44c470ffc35caa8b1eb3e8012ca53c2f9bea4eb5 # v2.3.2\n      - name: Build\n        run: python -m compileall src\n      - name: Test\n        run: python -m pytest tests\n",
+    ".github/workflows/release.yml": "name: Release\n\non:\n  push:\n    tags: ['v*']\n\npermissions:\n  contents: write\n\njobs:\n  publish:\n    runs-on: ubuntu-latest\n    timeout-minutes: 20\n    steps:\n      - name: Checkout\n        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0\n      - name: Publish\n        run: python -m build\n"
+  },
+
+  "default_event": {
+    "repository": { "name": "acme/payments-api", "default_branch": "main" },
+    "pull_request": {
+      "number": 128,
+      "title": "Add an LRU cache in front of the session store (#412)",
+      "body": "Repeat session lookups hit the database on every request.\n\nThis adds a small LRU in front of the session store.\n\nCloses #412.",
+      "labels": [ { "name": "enhancement" } ],
+      "head": { "ref": "feat/session-cache", "sha": "9f1c0a4e77b2d3915e6a8c04b1d27f3a5e08c6b1" },
+      "base": { "ref": "main" },
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "changed_files": 8,
+      "commits": [
+        { "sha": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678", "message": "feat(cache): add an LRU in front of the session store" },
+        { "sha": "b2c3d4e5f60718293a4b5c6d7e8f90123456789a", "message": "fix(cache): expire cold entries after ten minutes" },
+        { "sha": "c3d4e5f60718293a4b5c6d7e8f90123456789abc", "message": "docs(readme): document the cache settings" }
+      ],
+      "reviews": [
+        { "state": "APPROVED", "user": "alice" },
+        { "state": "COMMENTED", "user": "bob" }
+      ]
+    },
+    "branch_protection": {
+      "main": {
+        "allow_direct_push": false,
+        "allow_force_push": false,
+        "required_approving_review_count": 1
+      }
+    },
+    "push_events": [
+      { "ref": "refs/heads/feat/session-cache", "forced": false, "actor": "alice" }
+    ]
+  },
+
+  "fixtures": {
+    "r01": {
+      "violating": { "event_patch": { "pull_request": { "title": "Add an LRU cache in front of the session store", "body": "Repeat session lookups hit the database on every request.\n\nThis adds a small LRU in front of the session store." } } },
+      "clean": {}
+    },
+    "r02": {
+      "violating": { "event_patch": { "pull_request": { "labels": [] } } },
+      "clean": {}
+    },
+    "r03": {
+      "violating": { "event_patch": { "pull_request": { "body": "" } } },
+      "clean": {}
+    },
+    "r04": {
+      "violating": { "event_patch": { "pull_request": { "commits": [
+        { "sha": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678", "message": "fix stuff" },
+        { "sha": "b2c3d4e5f60718293a4b5c6d7e8f90123456789a", "message": "Merge branch 'main' into session-cache" },
+        { "sha": "c3d4e5f60718293a4b5c6d7e8f90123456789abc", "message": "wip" }
+      ] } } },
+      "clean": {}
+    },
+    "r05": {
+      "violating": { "event_patch": { "pull_request": { "reviews": [
+        { "state": "COMMENTED", "user": "bob" },
+        { "state": "CHANGES_REQUESTED", "user": "carol" }
+      ] } } },
+      "clean": {}
+    },
+    "r06": {
+      "violating": { "event_patch": {
+        "branch_protection": { "main": { "allow_direct_push": true } },
+        "push_events": [
+          { "ref": "refs/heads/feat/session-cache", "forced": false, "actor": "alice" },
+          { "ref": "refs/heads/main", "forced": false, "actor": "bob" }
+        ]
+      } },
+      "clean": {}
+    },
+    "r07": {
+      "violating": { "event_patch": { "pull_request": { "head": { "ref": "maximos-patch-1", "sha": "9f1c0a4e77b2d3915e6a8c04b1d27f3a5e08c6b1" } } } },
+      "clean": {}
+    },
+    "r08": {
+      "violating": { "event_patch": {
+        "branch_protection": { "main": { "allow_force_push": true } },
+        "push_events": [
+          { "ref": "refs/heads/feat/session-cache", "forced": false, "actor": "alice" },
+          { "ref": "refs/heads/main", "forced": true, "actor": "bob" }
+        ]
+      } },
+      "clean": {}
+    },
+    "r09": {
+      "violating": { "event_patch": { "pull_request": { "changed_files": 73 } } },
+      "clean": {}
+    },
+    "r10": {
+      "violating": { "event_patch": { "pull_request": { "mergeable": false, "mergeable_state": "dirty" } } },
+      "clean": {}
+    },
+    "r11": {
+      "violating": { "files": { ".github/workflows/ci.yml": "name: CI\n\non:\n  pull_request:\n    branches: [main]\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    steps:\n      - name: Checkout\n        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0\n      - name: Secret scan\n        uses: gitleaks/gitleaks-action@44c470ffc35caa8b1eb3e8012ca53c2f9bea4eb5 # v2.3.2\n      - name: Build\n        run: python -m compileall src\n      - name: Test\n        run: python -m pytest tests\n" } },
+      "clean": {}
+    },
+    "r12": {
+      "violating": { "files": { ".github/workflows/ci.yml": "name: CI\n\non:\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    steps:\n      - name: Checkout\n        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0\n      - name: Run security scan\n        continue-on-error: true\n        uses: gitleaks/gitleaks-action@44c470ffc35caa8b1eb3e8012ca53c2f9bea4eb5 # v2.3.2\n      - name: Build\n        run: python -m compileall src\n      - name: Test\n        run: python -m pytest tests\n" } },
+      "clean": {}
+    },
+    "r13": {
+      "violating": { "files": { ".github/workflows/ci.yml": "name: CI\n\non:\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    steps:\n      - name: Checkout\n        uses: actions/checkout@v4\n      - name: Secret scan\n        uses: aquasecurity/trivy-action@0.20.0\n      - name: Build\n        run: python -m compileall src\n      - name: Test\n        run: python -m pytest tests\n" } },
+      "clean": {}
+    },
+    "r14": {
+      "violating": { "files": { ".github/workflows/ci.yml": "name: CI\n\non:\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    steps:\n      - name: Checkout\n        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0\n      - name: Build\n        run: python -m compileall src\n      - name: Test\n        run: python -m pytest tests\n" } },
+      "clean": {}
+    },
+    "r15": {
+      "violating": { "files": { ".github/workflows/ci.yml": "name: CI\n\non:\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - name: Checkout\n        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0\n      - name: Secret scan\n        uses: gitleaks/gitleaks-action@44c470ffc35caa8b1eb3e8012ca53c2f9bea4eb5 # v2.3.2\n      - name: Build\n        run: python -m compileall src\n      - name: Test\n        run: python -m pytest tests\n" } },
+      "clean": {}
+    },
+    "r16": {
+      "violating": { "files": { "LICENSE": null } },
+      "clean": {}
+    },
+    "r17": {
+      "violating": { "files": { "README.md": "# payments-api\n\nSession and payment endpoints for the Acme storefront.\n\n## Usage\n\n```bash\npython -m src.api.handler\n```\n\n## License\n\nMIT.\n" } },
+      "clean": {}
+    },
+    "r18": {
+      "violating": { "files": {
+        ".gitignore": "__pycache__/\n*.pyc\n",
+        ".env": "DATABASE_URL=postgres://ELENCHOS-CANARY-user:ELENCHOS-CANARY-pass@localhost:5432/payments\nSESSION_SECRET=ELENCHOS-CANARY-not-a-real-secret\n"
+      } },
+      "clean": {}
+    },
+    "r19": {
+      "violating": { "files": { "assets/model.bin": { "__bytes__": 6291456, "__fill__": "0" } } },
+      "clean": {}
+    },
+    "r20": {
+      "violating": { "files": { "tests/api/test_handler.py": null, "tests/core/test_engine.py": null } },
+      "clean": {}
+    }
+  }
+}

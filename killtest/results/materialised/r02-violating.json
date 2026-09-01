@@ -1,0 +1,119 @@
+{
+  "files": [
+    {
+      "path": ".env.example",
+      "bytes": 62,
+      "content": "DATABASE_URL=postgres://user:password@localhost:5432/payments\n"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 492,
+      "content": "name: CI\n\non:\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    steps:\n      - name: Checkout\n        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0\n      - name: Secret scan\n        uses: gitleaks/gitleaks-action@44c470ffc35caa8b1eb3e8012ca53c2f9bea4eb5 # v2.3.2\n      - name: Build\n        run: python -m compileall src\n      - name: Test\n        run: python -m pytest tests\n"
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "bytes": 311,
+      "content": "name: Release\n\non:\n  push:\n    tags: ['v*']\n\npermissions:\n  contents: write\n\njobs:\n  publish:\n    runs-on: ubuntu-latest\n    timeout-minutes: 20\n    steps:\n      - name: Checkout\n        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0\n      - name: Publish\n        run: python -m build\n"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 24,
+      "content": ".env\n__pycache__/\n*.pyc\n"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 235,
+      "content": "MIT License\n\nCopyright (c) 2026 Acme Corp\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction.\n"
+    },
+    {
+      "path": "README.md",
+      "bytes": 188,
+      "content": "# payments-api\n\nSession and payment endpoints for the Acme storefront.\n\n## Installation\n\n```bash\npython -m venv .venv\npip install -e .\n```\n\n## Usage\n\n```bash\npython -m src.api.handler\n```\n"
+    },
+    {
+      "path": "pyproject.toml",
+      "bytes": 50,
+      "content": "[project]\nname = \"payments-api\"\nversion = \"0.3.1\"\n"
+    },
+    {
+      "path": "src/api/handler.py",
+      "bytes": 45,
+      "content": "def handle(request):\n    return {\"ok\": True}\n"
+    },
+    {
+      "path": "src/core/engine.py",
+      "bytes": 24,
+      "content": "def run():\n    return 0\n"
+    },
+    {
+      "path": "tests/api/test_handler.py",
+      "bytes": 86,
+      "content": "from src.api.handler import handle\n\n\ndef test_handle():\n    assert handle(None)[\"ok\"]\n"
+    },
+    {
+      "path": "tests/core/test_engine.py",
+      "bytes": 72,
+      "content": "from src.core.engine import run\n\n\ndef test_run():\n    assert run() == 0\n"
+    }
+  ],
+  "event": {
+    "repository": {
+      "name": "acme/payments-api",
+      "default_branch": "main"
+    },
+    "pull_request": {
+      "number": 128,
+      "title": "Add an LRU cache in front of the session store (#412)",
+      "body": "Repeat session lookups hit the database on every request.\n\nThis adds a small LRU in front of the session store.\n\nCloses #412.",
+      "labels": [],
+      "head": {
+        "ref": "feat/session-cache",
+        "sha": "9f1c0a4e77b2d3915e6a8c04b1d27f3a5e08c6b1"
+      },
+      "base": {
+        "ref": "main"
+      },
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "changed_files": 8,
+      "commits": [
+        {
+          "sha": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+          "message": "feat(cache): add an LRU in front of the session store"
+        },
+        {
+          "sha": "b2c3d4e5f60718293a4b5c6d7e8f90123456789a",
+          "message": "fix(cache): expire cold entries after ten minutes"
+        },
+        {
+          "sha": "c3d4e5f60718293a4b5c6d7e8f90123456789abc",
+          "message": "docs(readme): document the cache settings"
+        }
+      ],
+      "reviews": [
+        {
+          "state": "APPROVED",
+          "user": "alice"
+        },
+        {
+          "state": "COMMENTED",
+          "user": "bob"
+        }
+      ]
+    },
+    "branch_protection": {
+      "main": {
+        "allow_direct_push": false,
+        "allow_force_push": false,
+        "required_approving_review_count": 1
+      }
+    },
+    "push_events": [
+      {
+        "ref": "refs/heads/feat/session-cache",
+        "forced": false,
+        "actor": "alice"
+      }
+    ]
+  }
+}

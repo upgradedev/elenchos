@@ -1,0 +1,33 @@
+{
+  "rule_id": "r13",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 6.97,
+  "request_id": "chatcmpl-4715a170600b46f295f3d489e7bcddde",
+  "usage": {
+    "completion_tokens": 2343,
+    "prompt_tokens": 1036,
+    "total_tokens": 3379,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Validate third-party actions are pinned to commit SHA\n  run: |\n    violation=0\n    repo_name=$(python3 -c \"import json, sys; data=json.load(open(sys.argv[1])); print(data['repository']['name'])\" \"$GITHUB_EVENT_PATH\")\n    while IFS= read -r line; do\n      token=$(echo \"$line\" | awk -F'uses:' '{print $2}' | awk '{print $1}')\n      token=$(echo \"$token\" | sed -e 's/^[\"'\"'\"']//' -e 's/[\"'\"'\"']$//')\n      if [ -z \"$token\" ]; then\n        continue\n      fi\n      case \"$token\" in\n        ./*) continue ;;\n      esac\n      if [[ \"$token\" == \"$repo_name/\"* ]]; then\n        continue\n      fi\n      if ! echo \"$token\" | grep -Eq '^[^@]+@[0-9a-fA-F]{40}$'; then\n        violation=1\n        echo \"Invalid action pin: $token\"\n      fi\n    done < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null | xargs grep -n 'uses:' 2>/dev/null || true)\n    if [ \"$violation\" -eq 1 ]; then\n      exit 1\n    fi\n    exit 0",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 7813,
+  "error": null
+}

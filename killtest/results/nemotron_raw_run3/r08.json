@@ -1,0 +1,33 @@
+{
+  "rule_id": "r08",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 14.3,
+  "request_id": "chatcmpl-00ffa80fd1b24680a93b54cc6c97feb4",
+  "usage": {
+    "completion_tokens": 817,
+    "prompt_tokens": 1029,
+    "total_tokens": 1846,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Check force push to protected branch\n  run: |\n    python3 <<'EOF'\n    import json, os, sys\n    with open(os.environ['GITHUB_EVENT_PATH']) as f:\n        data = json.load(f)\n    protected = data.get('branch_protection', {})\n    for ev in data.get('push_events', []):\n        if ev.get('forced'):\n            ref = ev.get('ref', '')\n            if ref.startswith('refs/heads/'):\n                branch = ref[len('refs/heads/'):]\n                branch_info = protected.get(branch)\n                if branch_info and not branch_info.get('allow_force_push', True):\n                    print(f\"Force push to protected branch {branch}\")\n                    sys.exit(1)\n    sys.exit(0)\n    EOF",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 2720,
+  "error": null
+}

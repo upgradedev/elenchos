@@ -1,0 +1,33 @@
+{
+  "rule_id": "r05",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 2.87,
+  "request_id": "chatcmpl-4a115816d59f47879640c8cde22902a4",
+  "usage": {
+    "completion_tokens": 890,
+    "prompt_tokens": 1032,
+    "total_tokens": 1922,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- run: |\n    python3 <<'EOF'\n    import json, os, sys\n    with open(os.environ[\"GITHUB_EVENT_PATH\"]) as f:\n        data = json.load(f)\n    reviews = data.get(\"pull_request\", {}).get(\"reviews\", [])\n    if any(r.get(\"state\") == \"APPROVED\" for r in reviews):\n        sys.exit(0)\n    else:\n        sys.exit(1)\n    EOF",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 2931,
+  "error": null
+}

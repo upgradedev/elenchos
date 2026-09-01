@@ -1,0 +1,33 @@
+{
+  "rule_id": "r12",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 23.15,
+  "request_id": "chatcmpl-37448c9ad6f2430b9b42608cd81fc08d",
+  "usage": {
+    "completion_tokens": 2042,
+    "prompt_tokens": 1031,
+    "total_tokens": 3073,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Ensure no security step has continue-on-error: true\n  run: |\n    set -euo pipefail\n    violation=0\n    while IFS= read -r f; do\n      awk '\n        /^- / { if (in_block) check_block(); in_block=1; block=\"\"; next }\n        { if (in_block) block = block \"\\n\" $0 }\n        END { if (in_block) check_block() }\n        function check_block() {\n          if (block ~ /name:[[:space:]]*[^\\n]*security[^\\n]*/i && block ~ /continue-on-error:[[:space:]]*true/) {\n            exit 1\n          }\n        }\n      ' \"$f\" && : || { echo \"Violation in $f\"; violation=1; }\n    done < <(find .github/workflows -type f \\( -name \"*.yaml\" -o -name \"*.yml\" \\) 2>/dev/null)\n    if (( violation )); then\n      exit 1\n    fi\nfi",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 7060,
+  "error": null
+}

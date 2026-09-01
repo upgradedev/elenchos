@@ -1,0 +1,21 @@
+{
+  "rule_id": "r11",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 8.16,
+  "request_id": "chatcmpl-e9a42adabae949508f09ec4c0be6c4f0",
+  "usage": {
+    "completion_tokens": 877,
+    "prompt_tokens": 1027,
+    "total_tokens": 1904,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Check workflow permissions\n  run: |\n    missing=0\n    for f in .github/workflows/*.yml .github/workflows/*.yaml; do\n      if [ ! -e \"$f\" ]; then continue; fi\n      if ! grep -q 'permissions:' \"$f\"; then\n        echo \"Missing permissions: in $f\"\n        missing=1\n      fi\n    done\n    exit $missing",
+  "error": null
+}

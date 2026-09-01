@@ -1,0 +1,21 @@
+{
+  "rule_id": "r15",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 16.98,
+  "request_id": "chatcmpl-841fe39b4a5a4736be0e922a26cde2b3",
+  "usage": {
+    "completion_tokens": 1236,
+    "prompt_tokens": 1028,
+    "total_tokens": 2264,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- run: |\n    set -e\n    files=$(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null)\n    if [ -z \"$files\" ]; then\n      exit 0\n    fi\n    missing=0\n    for f in $files; do\n      if ! grep -q 'timeout-minutes:' \"$f\"; then\n        echo \"Workflow $f missing timeout-minutes\"\n        missing=1\n      fi\n    done\n    if [ $missing -eq 1 ]; then\n      exit 1\n    fi\n    exit 0",
+  "error": null
+}

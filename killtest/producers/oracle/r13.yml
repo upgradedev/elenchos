@@ -1,0 +1,19 @@
+- name: Every third-party action is pinned to a commit SHA
+  run: |
+    python3 - <<'PY'
+
+    import glob, re, sys
+    bad = []
+    for path in sorted(glob.glob(".github/workflows/*.yml") + glob.glob(".github/workflows/*.yaml")):
+        for m in re.finditer(r"(?m)^\s*(?:-\s+)?uses:\s*(\S+)", open(path, encoding="utf-8").read()):
+            ref = m.group(1)
+            if ref.startswith("./") or ref.startswith("docker://"):
+                continue
+            if "@" not in ref or not re.fullmatch(r"[0-9a-f]{40}", ref.split("@", 1)[1]):
+                bad.append("%s: %s" % (path, ref))
+    if bad:
+        for b in bad:
+            print("not pinned to a SHA -> %s" % b)
+        sys.exit(1)
+
+    PY

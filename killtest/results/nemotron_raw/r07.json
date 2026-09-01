@@ -1,0 +1,21 @@
+{
+  "rule_id": "r07",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 19.32,
+  "request_id": "chatcmpl-788cbc1f128247919c4613a9965a42c3",
+  "usage": {
+    "completion_tokens": 1413,
+    "prompt_tokens": 1040,
+    "total_tokens": 2453,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n```yaml\n- name: Validate branch name prefix\n  run: |\n    [[ \"${GITHUB_HEAD_REF}\" =~ ^(feat|fix|chore|docs)/ ]] || { echo \"Branch name must start with feat/, fix/, chore/ or docs/\"; exit 1; }\n```",
+  "error": null
+}

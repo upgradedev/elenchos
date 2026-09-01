@@ -1,0 +1,33 @@
+{
+  "rule_id": "r06",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 17.14,
+  "request_id": "chatcmpl-42f3710c57de47e0813cdfeac7504cc5",
+  "usage": {
+    "completion_tokens": 1081,
+    "prompt_tokens": 1030,
+    "total_tokens": 2111,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Prevent direct push to main\n  run: |\n    python3 <<'EOF'\n    import json, sys, os\n    with open(os.environ['GITHUB_EVENT_PATH']) as f:\n        d = json.load(f)\n    default = d['repository']['default_branch']\n    ref = f\"refs/heads/{default}\"\n    for ev in d.get('push_events', []):\n        if ev.get('ref') == ref:\n            sys.exit(1)\n    sys.exit(0)\n    EOF",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 3811,
+  "error": null
+}

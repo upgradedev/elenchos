@@ -1,0 +1,16 @@
+- name: Every pull request runs at least one secret-scanning step
+  run: |
+    python3 - <<'PY'
+
+    import glob, re, sys
+    SCAN = re.compile(r"(?i)(gitleaks|trufflehog|detect-secrets|secret[ _-]?scan|ggshield)")
+    found = False
+    for path in sorted(glob.glob(".github/workflows/*.yml") + glob.glob(".github/workflows/*.yaml")):
+        text = open(path, encoding="utf-8").read()
+        if re.search(r"(?m)^\s*pull_request:?", text) and SCAN.search(text):
+            found = True
+    if not found:
+        print("no workflow on pull_request runs a secret scan")
+        sys.exit(1)
+
+    PY

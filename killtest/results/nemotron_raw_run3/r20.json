@@ -1,0 +1,33 @@
+{
+  "rule_id": "r20",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 21.73,
+  "request_id": "chatcmpl-6ce56a93102f4809af61261a099e6130",
+  "usage": {
+    "completion_tokens": 2117,
+    "prompt_tokens": 1029,
+    "total_tokens": 3146,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Verify every source directory has a corresponding test directory\n  run: |\n    # Locate source files (common extensions) excluding those already under test directories\n    src_dirs=$(find . -type f \\( -name \"*.py\" -o -name \"*.js\" -o -name \"*.java\" -o -name \"*.cpp\" -o -name \"*.c\" -o -name \"*.go\" -o -name \"*.rs\" \\) \\\n      ! -path \"*/test/*\" ! -path \"*/tests/*\" | xargs -r dirname | sort -u)\n    # If no source files found, treat as satisfied\n    if [ -z \"$src_dirs\" ]; then\n      exit 0\n    fi\n    missing=0\n    while IFS= read -r dir; do\n      if [ ! -d \"$dir/test\" ]; then\n        echo \"Error: Source directory '$dir' lacks a 'test' subdirectory.\"\n        missing=1\n      fi\n    done <<< \"$src_dirs\"\n    if [ $missing -ne 0 ]; then\n      exit 1\n    fi\n    exit 0",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 7831,
+  "error": null
+}

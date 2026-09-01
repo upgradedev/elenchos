@@ -1,0 +1,33 @@
+{
+  "rule_id": "r09",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 17.27,
+  "request_id": "chatcmpl-28dfd94a3ee841c380ad298a5078c620",
+  "usage": {
+    "completion_tokens": 752,
+    "prompt_tokens": 1033,
+    "total_tokens": 1785,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Ensure PR touches no more than 50 files\n  run: |\n    python3 <<'EOF'\n    import json, os, sys\n    with open(os.environ['GITHUB_EVENT_PATH']) as f:\n        data = json.load(f)\n    changed = data['pull_request']['changed_files']\n    sys.exit(0 if changed <= 50 else 1)\n    EOF",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 2572,
+  "error": null
+}

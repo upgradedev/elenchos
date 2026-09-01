@@ -1,0 +1,21 @@
+{
+  "rule_id": "r13",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 14.51,
+  "request_id": "chatcmpl-f9f57c098fc54616894c393bb4c88467",
+  "usage": {
+    "completion_tokens": 2024,
+    "prompt_tokens": 1036,
+    "total_tokens": 3060,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Enforce third-party actions are pinned to commit SHA\n  run: |\n    while IFS= read -r file; do\n      while IFS= read -r line; do\n        token=$(echo \"$line\" | sed -n 's/.*uses:\\s*\\([^#[:space:]]*\\).*/\\1/p')\n        token=${token#\\\"}; token=${token%\\\"}\n        token=${token#\\'} ; token=${token%\\'}\n        if [[ \"$token\" == *@* ]]; then\n          ref=${token#*@}\n          if ! [[ \"$ref\" =~ ^[0-9a-fA-F]{40}$ ]]; then\n            echo \"Action not pinned to commit SHA: $token in $file\"\n            exit 1\n          fi\n        fi\n      done < <(grep -E '^\\s*uses:' \"$file\")\n    done < <(find .github/workflows -type f \\( -name '*.yml' -o -name '*.yaml' \\))\n    exit 0",
+  "error": null
+}

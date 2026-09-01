@@ -1,0 +1,33 @@
+{
+  "rule_id": "r07",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 2.17,
+  "request_id": "chatcmpl-1c01e2ef955c4dc2901cfc0c692befca",
+  "usage": {
+    "completion_tokens": 328,
+    "prompt_tokens": 1040,
+    "total_tokens": 1368,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Validate branch name\n  run: |\n    if [[ ! \"${GITHUB_HEAD_REF}\" =~ ^(feat|fix|chore|docs)/ ]]; then\n      echo \"Invalid branch name: ${GITHUB_HEAD_REF}\"\n      exit 1\n    fi",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 1019,
+  "error": null
+}
