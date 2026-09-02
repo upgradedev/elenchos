@@ -1,0 +1,34 @@
+{
+  "rule_id": "r20",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 6.99,
+  "request_id": "chatcmpl-932c6f94264945ffaa2c5ea9ff6d4f8f",
+  "usage": {
+    "completion_tokens": 2336,
+    "prompt_tokens": 1057,
+    "total_tokens": 3393,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n#!/usr/bin/env bash\nset -euo pipefail\n\nif [ ! -d \"src\" ]; then\n    exit 0\nfi\n\nwhile IFS= read -r src_dir; do\n    if [ \"$src_dir\" = \"src\" ]; then\n        test_dir=\"test\"\n    else\n        test_dir=\"test/${src_dir#src/}\"\n    fi\n    if [ ! -d \"$test_dir\" ]; then\n        echo \"Missing test directory: $test_dir\"\n        exit 1\n    fi\ndone < <(find src -type d)\n\nexit 0",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 8876,
+  "error": null
+}

@@ -242,7 +242,14 @@ def producer_nemotron(rule):
     return nemotron.generate(rule)
 
 
-PRODUCERS = {"oracle": producer_oracle, "template": producer_template, "nemotron": producer_nemotron}
+def producer_nemotron_b(rule):
+    sys.path.insert(0, os.path.join(HERE, "producers"))
+    import nemotron_b
+    return nemotron_b.generate(rule)
+
+
+PRODUCERS = {"oracle": producer_oracle, "template": producer_template,
+             "nemotron": producer_nemotron, "nemotron_b": producer_nemotron_b}
 
 
 # ----------------------------------------------------------------------- main
@@ -317,7 +324,7 @@ def main():
         "unparsed": unparsed,
         "results": rows,
     }
-    if args.producer == "nemotron":
+    if args.producer.startswith("nemotron"):
         sys.path.insert(0, os.path.join(HERE, "producers"))
         import nemotron
         out["model"] = nemotron.MODEL

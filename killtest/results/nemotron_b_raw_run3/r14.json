@@ -1,0 +1,34 @@
+{
+  "rule_id": "r14",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 6.02,
+  "request_id": "chatcmpl-248e705b57f6495aba76a5347b6d3d74",
+  "usage": {
+    "completion_tokens": 1606,
+    "prompt_tokens": 1060,
+    "total_tokens": 2666,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n#!/usr/bin/env bash\nset -euo pipefail\n\nfound=0\nfor f in \"$GITHUB_WORKSPACE\"/.github/workflows/*.yml \"$GITHUB_WORKSPACE\"/.github/workflows/*.yaml; do\n    if [ -e \"$f\" ]; then\n        if grep -iqE 'secret[-_]?scanning' \"$f\"; then\n            found=1\n            break\n        fi\n    fi\ndone\n\nif [ \"$found\" -eq 0 ]; then\n    exit 1\nfi\nexit 0",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 6073,
+  "error": null
+}

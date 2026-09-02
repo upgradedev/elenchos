@@ -1,0 +1,34 @@
+{
+  "rule_id": "r11",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 2.38,
+  "request_id": "chatcmpl-344ba9db45364344a455d92cd40ac07e",
+  "usage": {
+    "completion_tokens": 605,
+    "prompt_tokens": 1055,
+    "total_tokens": 1660,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n#!/usr/bin/env bash\nset -euo pipefail\n\nmissing=0\nwhile IFS= read -r f; do\n    if ! grep -E '^[[:space:]]*permissions:' \"$f\" >/dev/null; then\n        echo \"Workflow file $f does not contain a 'permissions:' declaration.\" >&2\n        missing=1\n    fi\ndone < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null || true)\n\nif [ \"$missing\" -ne 0 ]; then\n    exit 1\nfi\nexit 0",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 1918,
+  "error": null
+}

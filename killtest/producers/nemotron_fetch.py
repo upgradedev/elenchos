@@ -31,6 +31,13 @@ SYSTEM = (
     "commentary before or after the YAML."
 )
 
+# Experiment B: the only variable that changes. The model writes shell, not YAML.
+SYSTEM_BODY = (
+    "You are a CI engineer. You are given one rule in prose and you return exactly one shell "
+    "script that enforces it. Return only the shell script. No YAML, no markdown fences, no "
+    "explanation, no commentary before or after the script."
+)
+
 
 def api_key():
     if os.environ.get("NEBIUS_API_KEY"):
@@ -60,7 +67,15 @@ def call(messages, max_tokens):
         return exc.code, {"error": exc.read().decode("utf-8", "replace")}, time.time() - started
 
 
-def prompt_for(rule, contract):
+def prompt_for(rule, contract, mode="step"):
+    if mode == "body":
+        return [
+            {"role": "system", "content": SYSTEM_BODY},
+            {"role": "user", "content": contract + "\n\n## The rule you must enforce\n\n" +
+                                        rule["en"] + "\n\nReturn only the shell script. It will be "
+                                        "placed verbatim into the `run:` block of a workflow step, "
+                                        "so do not write any YAML yourself."},
+        ]
     return [
         {"role": "system", "content": SYSTEM},
         {"role": "user", "content": contract + "\n\n## The rule you must enforce\n\n" +
@@ -72,6 +87,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--health", action="store_true")
     ap.add_argument("--only", default="")
+    ap.add_argument("--mode", default="step", choices=["step", "body"])
     args = ap.parse_args()
 
     if args.health:
@@ -99,11 +115,12 @@ def main():
         if os.path.exists(dest):
             print("%s  cached" % rule["id"])
             continue
-        status, body, secs = call(prompt_for(rule, contract), MAX_TOKENS)
+        status, body, secs = call(prompt_for(rule, contract, args.mode), MAX_TOKENS)
         choices = body.get("choices") or []
         content = (choices[0]["message"].get("content") if choices else "") or ""
         record = {
             "rule_id": rule["id"],
+            "mode": args.mode,
             "model": MODEL,
             "base_url": BASE_URL,
             "http_status": status,

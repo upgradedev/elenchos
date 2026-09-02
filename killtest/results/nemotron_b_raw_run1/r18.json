@@ -1,0 +1,34 @@
+{
+  "rule_id": "r18",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 1.62,
+  "request_id": "chatcmpl-5bc036f9658748bbacf6d8b2af84dce3",
+  "usage": {
+    "completion_tokens": 343,
+    "prompt_tokens": 1056,
+    "total_tokens": 1399,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n#!/usr/bin/env bash\nset -e\nif git ls-files | grep -q '\\.env$'; then\n  exit 1\nelse\n  exit 0\nfi",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 1100,
+  "error": null
+}

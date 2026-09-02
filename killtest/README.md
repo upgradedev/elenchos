@@ -44,6 +44,32 @@ Model `nvidia/nemotron-3-super-120b-a12b` through `https://api.tokenfactory.nebi
 nothing was truncated; one call in draw 2 (`r20`) hit `finish_reason=length`, and that is why it is
 named here rather than buried. Raw responses: `results/nemotron_raw/`, `_run2/`, `_run3/`.
 
+## Experiment B, 2026-09-02: the format was the binding constraint
+
+A asked the model for a whole workflow step. **B changes one variable: the model returns only the
+shell body, and deterministic code wraps it in `run:`.** Same rules, same fixtures, same contract,
+same scoring, **same threshold of 14**, declared in `PREREG_B.md` before the first call.
+
+    Experiment B   16 / 14 / 14      minimum 14, gap over template 12
+    Experiment A   10 / 13 / 14
+    Threshold >= 14 AND >= 6 over template:  MET ON ALL THREE DRAWS
+
+    Baselines re-run unchanged: oracle 20/20, template 2/20.
+
+**In A, five of twenty answers were not valid YAML. In B, zero of sixty**, and not one response
+returned YAML when asked for shell. The model was never bad at writing the check. It was bad at
+writing the file around the check.
+
+This does **not** rescue A — the originally designed entry failed its gate and stays failed. It
+licenses a redesign in which the model supplies the check's logic and never touches YAML. The
+wrapper is three lines: strip fences, indent by four, place under `run:`. It repairs no heredocs, no
+quoting and no logic.
+
+The margin is thin and is not smoothed over: two of three draws landed exactly on 14, and two rules
+never pass. `r14` is a real weakness — the model greps for the literal `secret-scanning` in all three
+draws and so misses a step named "Secret scan" running `gitleaks`. `r20` is our own fixture defect,
+disclosed under A and deliberately left unrepaired.
+
 ## How to reproduce it
 
 ```bash
@@ -116,3 +142,5 @@ The 8-point gap cleared its half of the threshold comfortably. What failed was t
 | `producers/nemotron.py` | offline cache reader; the API key never reaches the harness |
 | `results/materialised/` | every fixture tree as actually built, so the merge is inspectable |
 | `REPLICATION.md` | the three-draw protocol, written down before the third draw was fetched |
+| `PREREG_B.md` | experiment B, declared before the first call: one variable, same threshold |
+| `producers/nemotron_b.py` | the three-line wrapper: strip fences, indent, `run:` |

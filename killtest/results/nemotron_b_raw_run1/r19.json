@@ -1,0 +1,34 @@
+{
+  "rule_id": "r19",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 2.45,
+  "request_id": "chatcmpl-a903faa54a3244cc9bb8a24a0640c3f8",
+  "usage": {
+    "completion_tokens": 736,
+    "prompt_tokens": 1057,
+    "total_tokens": 1793,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\nif find . -type f -size +5M -print -quit | grep -q .; then exit 1; else exit 0; fi",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 2366,
+  "error": null
+}

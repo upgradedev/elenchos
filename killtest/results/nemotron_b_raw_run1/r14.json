@@ -1,0 +1,34 @@
+{
+  "rule_id": "r14",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 4.76,
+  "request_id": "chatcmpl-6e9273f85ece48fea0094560bde7cfe0",
+  "usage": {
+    "completion_tokens": 1630,
+    "prompt_tokens": 1060,
+    "total_tokens": 2690,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n#!/usr/bin/env bash\nfound=0\nwhile IFS= read -r f; do\n  if grep -iq \"secret-scanning\" \"$f\"; then\n    found=1\n    break\n  fi\ndone < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null)\nif [[ $found -eq 1 ]]; then\n  exit 0\nelse\n  exit 1\nfi",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 6532,
+  "error": null
+}

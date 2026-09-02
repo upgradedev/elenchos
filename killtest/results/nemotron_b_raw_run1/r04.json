@@ -1,0 +1,34 @@
+{
+  "rule_id": "r04",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 3.21,
+  "request_id": "chatcmpl-9c827cd7c366415883c07c932caaf8ff",
+  "usage": {
+    "completion_tokens": 815,
+    "prompt_tokens": 1061,
+    "total_tokens": 1876,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n#!/usr/bin/env bash\nset -euo pipefail\n\nbase=\"${GITHUB_BASE_REF:-main}\"\nhead=\"${GITHUB_HEAD_REF:-HEAD\"\n\n# Get commit messages introduced in this PR\nmessages=$(git log \"$base..$head\" --pretty=%s 2>/dev/null) || {\n  echo \"Failed to retrieve commit logs\"\n  exit 1\n}\n\n# If there are no commits (e.g., squash merge), fall back to checking the HEAD commit\nif [[ -z \"$messages\" ]]; then\n  messages=$(git log -1 --pretty=%s)\nfi\n\nwhile IFS= read -r msg; do\n  # Skip empty lines that may appear due to formatting\n  [[ -z \"$msg\" ]] && continue\n  if [[ ! \"$msg\" =~ ^[a-z]+\\([^)]+\\): .+ ]]; then\n    echo \"Invalid commit message: $msg\"\n    exit 1\n  fi\ndone <<< \"$messages\"\n\nexit 0",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 2434,
+  "error": null
+}
