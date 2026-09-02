@@ -50,4 +50,8 @@ class InMemoryForge:
     def wait_for_run(self, repo: str, sha: str, timeout_seconds: int = 900) -> dict:
         return {"status": "completed", "conclusion": self.conclusion,
                 "html_url": "https://github.invalid/%s/actions/runs/1" % repo,
-                "head_sha": sha, "name": "CI"}
+                "head_sha": sha, "name": "CI", "id": 1}
+
+    def step_conclusion(self, repo: str, run_id, step_name: str):
+        """A neutered step reports success even when it exited non-zero."""
+        return "success" if self.conclusion == "success" else "failure"

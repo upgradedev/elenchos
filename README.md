@@ -100,6 +100,26 @@ The endpoint is not deterministic at `temperature 0`, which is why three runs ar
 than one. The protocol fixing the number of runs was written before the third was fetched, in
 [`killtest/REPLICATION.md`](killtest/REPLICATION.md).
 
+**Does the refutation actually work?** One real run on this repository, produced by
+`scripts/prove_canary.py` rather than by hand:
+
+```bash
+GITHUB_TOKEN=... python scripts/prove_canary.py --repo upgradedev/elenchos --base chore/kill-test
+```
+
+[Run 33625228654](https://github.com/upgradedev/elenchos/actions/runs/33625228654) reports
+**success** on commit `9762a80`, which carries a file the pipeline's own scan detects. The log says
+`planted finding detected, this build must not pass` and the step exits 1.
+
+There are two lies in that run, and the second is the sharper one. The job is green. **And the
+forge reports the scan step itself as `success`**, because `continue-on-error` rewrites the step's
+conclusion, so the API agrees with the badge. Only the log disagrees. A dashboard built on step
+conclusions would show that pipeline as healthy.
+
+The target it refutes is [`canary-target.yml`](.github/workflows/canary-target.yml), which is
+broken on purpose and is the only neutered control in this repository. `scripts/gates.py` knows it
+by path and fails the build if a second one appears.
+
 **Is the problem real?** One hundred and twenty public repositories, none of them ours, each
 finding carrying `owner/repo` and `file:line`, with the threshold registered before the count.
 
@@ -182,7 +202,7 @@ answers instead of re-scoring them needs a Nebius key and
 | The wrapper that turns a script into a step | live, and the kill test imports this exact code |
 | Provenance record on every synthesised check | live, content addressed. **Not signed, and never called tamper proof** |
 | Repository gates, each proven to fail | live |
-| PROVE, the canary and the receipt | **declared, not deployed** |
+| PROVE, the canary and the receipt | live. [Run 33625228654](https://github.com/upgradedev/elenchos/actions/runs/33625228654) went green on `9762a80` |
 | WATCH, replay over existing history | **declared, not deployed** |
 | Tavily runtime citation | **declared, not deployed** |
 | Azure DevOps, GitLab, Bitbucket | **declared, not deployed** |

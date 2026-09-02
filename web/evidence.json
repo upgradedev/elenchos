@@ -1,0 +1,13 @@
+{
+  "refutation": {
+    "run_url": "https://github.com/upgradedev/elenchos/actions/runs/33625228654",
+    "commit_sha": "9762a80ea9904a5f4441feff2c2e556147affb08",
+    "control": "Run security scan",
+    "reality": "continue-on-error: true",
+    "location": ".github/workflows/canary-target.yml:34",
+    "rule": "Every pull request runs at least one secret-scanning step",
+    "recorded_at": "2026-09-02T11:33:45Z",
+    "content_id": "d97a440abab2005d9b57f4396d8733de746833e2fe4a8a7277b267195f38c854",
+    "step_conclusion": "success"
+  }
+}

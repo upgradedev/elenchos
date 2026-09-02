@@ -152,7 +152,10 @@ fetch("evidence.json").then(r => r.ok ? r.json() : null).then(function (e) {
       '<span class="run"><a href="' + r.run_url + '">' + r.run_url + '</a> · ' + r.commit_sha.slice(0, 7) + '</span>' +
     '</div>' +
     '<div class="reality">on a commit whose step named "' + r.control + '" cannot fail: ' +
-      '<code>' + r.reality + '</code>, ' + r.location + '.</div>';
+      '<code>' + r.reality + '</code>, ' + r.location + '.</div>' +
+    (r.step_conclusion ? '<div class="reality" style="border-top:1px solid var(--line)">' +
+      'and the forge reports that step itself as <code>' + r.step_conclusion + '</code>, on a run ' +
+      'where it detected the planted finding and exited 1. Only the log disagrees.</div>' : '');
 }).catch(function () { /* leave the honest empty state in place */ });
 </script>
 </body>

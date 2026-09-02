@@ -103,9 +103,23 @@ class GitHubForge:
                 if run.get("status") == "completed":
                     return {"status": "completed", "conclusion": run.get("conclusion"),
                             "html_url": run.get("html_url"), "head_sha": run.get("head_sha"),
-                            "name": run.get("name")}
+                            "name": run.get("name"), "id": run.get("id")}
             time.sleep(poll_seconds)
         raise ForgeUnavailable("no completed run for %s within %ds" % (sha[:7], timeout_seconds))
+
+    def step_conclusion(self, repo: str, run_id, step_name: str) -> Optional[str]:
+        """What the forge says about one named step. Read only.
+
+        A neutered step reports `success` here even on a run where it exited non-zero, because
+        continue-on-error rewrites the conclusion. Reading this is how the demo shows the lie
+        rather than asserting it.
+        """
+        jobs = self._get("/repos/%s/actions/runs/%s/jobs" % (repo, run_id)) or {}
+        for job in jobs.get("jobs", []):
+            for step in job.get("steps", []):
+                if step.get("name") == step_name:
+                    return step.get("conclusion")
+        return None
 
     # --------------------------------------------------------------- transport
 

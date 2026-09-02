@@ -65,6 +65,13 @@ def main() -> int:
     run = forge.wait_for_run(args.repo, sha, timeout_seconds=args.timeout)
     print("RUN     %s -> %s" % (run["html_url"], run["conclusion"]))
 
+    # The second lie, and it is the sharper one. continue-on-error does not merely let the job
+    # pass. It rewrites the step's own conclusion to success, so the API reports the scan as
+    # having succeeded on a run where it detected the planted finding and exited 1. Only the log
+    # disagrees. Recorded here so the demo can show it instead of asserting it.
+    step = forge.step_conclusion(args.repo, run["id"], finding.control.claims)
+    print("STEP    %r reports conclusion=%s" % (finding.control.claims, step))
+
     provenance = Provenance(
         authored_by=Author.HUMAN,
         recorded_at=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -88,6 +95,7 @@ def main() -> int:
             "rule": receipt.rule.text,
             "recorded_at": provenance.recorded_at,
             "content_id": receipt.content_id,
+            "step_conclusion": step,
         }
     }
     out = os.path.join(root, args.out)
