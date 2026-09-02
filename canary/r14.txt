@@ -1,0 +1,8 @@
+This file is synthetic and was written by Elenchos to test one CI control.
+It is not a credential and it authenticates nothing.
+
+ELENCHOS-CANARY-SECRET-not-a-credential-do-not-use
+
+It breaks the rule that 'Run security scan' claims to enforce, at .github/workflows/canary-target.yml:34.
+If the pipeline reported success on the commit carrying this file, that step is not a
+control. Delete this branch freely.
