@@ -25,12 +25,19 @@ class ForgePort(Protocol):
     def read_workflows(self, repo: str, ref: str = "HEAD") -> Iterable[tuple]:
         """Yield (path, text) for every workflow definition. Read-only, always."""
 
-    def open_pull_request(self, repo: str, branch: str, title: str, body: str) -> str:
-        """Create the canary PR and return its URL.
+    def push_canary(self, repo: str, canary, base: str = "main") -> str:
+        """Create the canary branch, commit its files, return the head SHA.
 
         Mutating. Only ever called against a repository we own or are explicitly authorised on,
         and only with a synthetic, marked canary. See prove/canary.py.
+
+        A branch push rather than a pull request, because the control being refuted fires on push.
+        Naming a method here that no adapter implements would make this port decorative, which is
+        the failure it exists to prevent.
         """
+
+    def delete_branch(self, repo: str, branch: str) -> None:
+        """Remove a canary branch. Refuses anything not named canary/..."""
 
     def wait_for_run(self, repo: str, sha: str, timeout_seconds: int = 900) -> dict:
         """Block until the run for this commit finishes. Return its conclusion and URL."""

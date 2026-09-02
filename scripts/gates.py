@@ -122,6 +122,38 @@ def gate_no_compliance_words():
     return _scan(judge_facing(), ["compliant", "conformity"], "forbidden compliance claim")
 
 
+DECLARED_THEATRE = ".github/workflows/canary-target.yml"
+SETTING = re.compile(r"^\s*continue-on-error\s*:\s*true\s*$")
+
+
+def gate_only_one_declared_theatre():
+    """We ship one deliberately neutered control, and exactly one, and it is named.
+
+    Elenchos refutes gates that carry continue-on-error on a step whose name promises enforcement.
+    It has to own a target to refute, so one lives here. The risk is that a second one appears by
+    accident and hides behind the first, which is precisely the failure mode this tool sells. So
+    the exception is allowlisted by path and everything else is still red.
+    """
+    hits = []
+    for path in sorted((ROOT / ".github" / "workflows").glob("*.y*ml")):
+        relative = path.relative_to(ROOT).as_posix()
+        text = path.read_text(encoding="utf-8")
+        if relative == DECLARED_THEATRE:
+            continue
+        for number, line in enumerate(text.splitlines(), start=1):
+            # The YAML key, not the word. Matching the word flagged this file's own comment
+            # explaining that the key is banned, which is a check firing on its own documentation.
+            if SETTING.match(line):
+                hits.append("%s:%d neutered step outside the declared canary target"
+                            % (relative, number))
+    declared = ROOT / DECLARED_THEATRE
+    if declared.exists() and not any(
+            SETTING.match(line) for line in declared.read_text(encoding="utf-8").splitlines()):
+        hits.append("%s no longer carries the defect it exists to demonstrate, so PROVE has no "
+                    "target" % DECLARED_THEATRE)
+    return hits
+
+
 def gate_source_file_length():
     """STANDARDS A1. No source file over 800 lines."""
     hits = []
@@ -138,6 +170,7 @@ GATES = [
     ("style", gate_style),
     ("domain-imports-no-sdk", gate_domain_imports_no_sdk),
     ("no-compliance-words", gate_no_compliance_words),
+    ("only-one-declared-theatre", gate_only_one_declared_theatre),
     ("source-file-length", gate_source_file_length),
 ]
 
@@ -170,6 +203,9 @@ def selftest():
          gate_no_other_contest),
         ("style", "docs/x.md", "We leverage a robust pipeline.", gate_style),
         ("no-compliance-words", "docs/x.md", "The system is compliant.", gate_no_compliance_words),
+        ("only-one-declared-theatre", ".github/workflows/sneaky.yml",
+         "steps:\n  - name: Run security scan\n    continue-on-error: true\n",
+         gate_only_one_declared_theatre),
     ]
     ok = True
     for name, relative, poison, gate in checks:
