@@ -39,6 +39,17 @@ the shell script that enforces it. Deterministic code turns that script into a w
 it against a commit built to break the rule, and keeps the resulting green run as a receipt with
 its URL, its commit and the control it beat.
 
+Every synthesised check carries a record of what produced it: the model id, the hash of the prompt,
+of the response, of the script and of the step, and whether a human or an agent wrote it. The record
+is content addressed, which lets a reader detect drift against a digest they hold. It is not signed
+and we do not call it tamper proof, because an unearned security claim is the exact defect this
+project exists to expose.
+
+It runs on an open weight NVIDIA model served from Nebius in European regions rather than a closed
+model elsewhere, and the model sits behind one port, so a customer who needs the weights inside
+their own boundary changes an adapter. Our own demo calls the hosted Token Factory API and is not
+air gapped, which is written here rather than dressed up.
+
 The division of labour between the model and the deterministic code is measured, not asserted. On
 twenty rules registered in advance, Nemotron scored 16, 14 and 14 over three runs against a
 threshold of 14 that was written down first, while a fixed template scored 2. Asked to produce the

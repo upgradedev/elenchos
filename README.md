@@ -16,6 +16,7 @@ red.
 ## Contents
 
 - [Who this is for](#who-this-is-for)
+- [Where the code goes](#where-the-code-goes)
 - [What it does](#what-it-does)
 - [Where the sponsor's model is load-bearing](#where-the-sponsors-model-is-load-bearing)
 - [The numbers, and the commands that produced them](#the-numbers-and-the-commands-that-produced-them)
@@ -34,6 +35,21 @@ GitHub and Azure DevOps. Once a year he signs a statement that the security chec
 At the last audit he was asked to prove it for one repository, and all he had was a green tick.
 
 A green tick is not evidence. It is the output of a control nobody has tested.
+
+## Where the code goes
+
+Maximos cannot paste his pipeline definitions into a US hosted coding agent. That is not a
+preference, it is the reason most tools in this category never get past his security review.
+
+Elenchos reads pipelines with an open weight NVIDIA model served from Nebius in European regions.
+Because the weights are open, the same model can be run inside a customer's own boundary, and the
+design keeps it behind a single port, so moving it there changes one adapter and nothing else.
+
+Stated plainly, because the honest version is the one that survives a question: **our own demo
+calls the hosted Token Factory API. It is not air gapped and we do not describe it that way.**
+What is true today is that the pipeline is read by an open weight model running in Europe rather
+than by a closed model in another jurisdiction, and that moving to self hosted weights is an
+adapter change rather than a rewrite.
 
 ## What it does
 
@@ -164,6 +180,7 @@ answers instead of re-scoring them needs a Nebius key and
 | ASSESS over GitHub workflow files | live, with tests |
 | PROVISION through Nemotron on Token Factory | live, measured at 16/14/14 |
 | The wrapper that turns a script into a step | live, and the kill test imports this exact code |
+| Provenance record on every synthesised check | live, content addressed. **Not signed, and never called tamper proof** |
 | Repository gates, each proven to fail | live |
 | PROVE, the canary and the receipt | **declared, not deployed** |
 | WATCH, replay over existing history | **declared, not deployed** |

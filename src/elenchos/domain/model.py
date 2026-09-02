@@ -16,9 +16,27 @@ The ubiquitous language, and the README uses these same words (STANDARDS A6):
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import hashlib
+import json
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 from typing import Optional
+
+
+def sha256_text(text: str) -> str:
+    """One hashing function, used everywhere, so two digests are always comparable."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+class Author(str, Enum):
+    """Who wrote the thing being checked. An auditor asks this first and today nobody records it.
+
+    Detecting authorship after the fact estimates provenance statistically, and an estimate is not
+    an audit record. This is written at the moment the interaction happens, or not at all.
+    """
+
+    HUMAN = "human"
+    AGENT = "agent"
 
 
 class Verdict(str, Enum):
@@ -94,6 +112,33 @@ class Finding:
         return self.verdict in (Verdict.NOT_ENFORCED, Verdict.NARROWER_THAN_CLAIMED)
 
 
+@dataclass(frozen=True)
+class Provenance:
+    """What produced a check, recorded when it was produced rather than inferred later.
+
+    **This is content-addressed, not tamper-proof, and the difference is the whole honesty of it.**
+    A digest lets a reader detect that something changed only if they hold an independent copy of
+    that digest. Nothing here is signed, so it does not prove authorship against someone who can
+    rewrite the record and the digest together. Saying otherwise would be exactly the unearned
+    security claim this project exists to expose in other people's pipelines.
+
+    What it does buy: eighteen months later a reader can re-run the same prompt against the same
+    model id, hash the result, and see whether they are looking at the same artifact.
+    """
+
+    authored_by: Author
+    model_id: str = ""
+    prompt_sha256: str = ""
+    response_sha256: str = ""
+    script_sha256: str = ""
+    step_sha256: str = ""
+    recorded_at: str = ""
+
+    @property
+    def is_machine_written(self) -> bool:
+        return self.authored_by is Author.AGENT
+
+
 @dataclass
 class Receipt:
     """The artifact a judge can re-check in eighteen months.
@@ -107,6 +152,7 @@ class Receipt:
     conclusion: str
     finding: Finding
     rule: Rule
+    provenance: Optional[Provenance] = None
     citation: Optional["Citation"] = None
     notes: list = field(default_factory=list)
 
@@ -114,6 +160,24 @@ class Receipt:
     def is_refutation(self) -> bool:
         """A green run on a commit that breaks the rule. That, and only that, is the proof."""
         return self.conclusion == "success"
+
+    def canonical(self) -> str:
+        """A stable serialisation, so the same receipt always hashes to the same value."""
+        payload = {
+            "run_url": self.run_url,
+            "commit_sha": self.commit_sha,
+            "conclusion": self.conclusion,
+            "rule": asdict(self.rule),
+            "finding": asdict(self.finding),
+            "provenance": asdict(self.provenance) if self.provenance else None,
+            "citation": asdict(self.citation) if self.citation else None,
+        }
+        return json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
+
+    @property
+    def content_id(self) -> str:
+        """The receipt's own address. Changing any field above changes this."""
+        return sha256_text(self.canonical())
 
     def one_line(self) -> str:
         if self.is_refutation:
