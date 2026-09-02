@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elenchos</title>
+<meta name="description" content="Your pipeline's green check is a claim, not a control.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04081a; --cyan:#00d4ff; --violet:#7c3aed;
+  --emerald:#10b981;            /* the claim. the thing that looks fine. */
+  --rose:#f43f5e;               /* the reality. the proof. */
+  --text:#fff; --muted:rgba(255,255,255,.72); --line:rgba(255,255,255,.12);
+  --card:rgba(255,255,255,.04);
+  --mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.55;
+  background-image:radial-gradient(60rem 40rem at 50% -10rem,rgba(124,58,237,.20),transparent 60%);
+  background-repeat:no-repeat;
+}
+.wrap{max-width:56rem;margin:0 auto;padding:0 1.25rem}
+
+/* the thin bar. wordmark, then the one line that sets up the whole page. */
+header{border-bottom:1px solid var(--line);padding:1rem 0 1.1rem}
+.mark{font-weight:700;letter-spacing:-.02em;font-size:1.05rem}
+.mark span{color:var(--cyan)}
+.setup{margin:.4rem 0 0;color:var(--muted);font-size:.95rem}
+
+h1{font-size:1.6rem;line-height:1.2;letter-spacing:-.02em;margin:2rem 0 .5rem;font-weight:700}
+h1 .lie{color:var(--emerald)} h1 .proof{color:var(--rose)}
+.sub{color:var(--muted);margin:0 0 1.5rem;max-width:38rem}
+
+/* the proof card. the forge's own green check, kept intact, then one rose line under it. */
+.proof-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.proof-head{display:flex;align-items:center;gap:.6rem;padding:1rem 1.1rem;flex-wrap:wrap}
+.tick{width:1.35rem;height:1.35rem;flex:none}
+.pill{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  padding:.25rem .55rem;border-radius:999px;white-space:nowrap}
+.pill-pass{background:rgba(16,185,129,.14);color:var(--emerald);border:1px solid rgba(16,185,129,.35)}
+.pill-declared{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--line)}
+.run{font-family:var(--mono);font-size:.8rem;color:var(--muted);word-break:break-all}
+.run a{color:var(--cyan)}
+.reality{border-top:1px solid var(--line);background:rgba(244,63,94,.07);
+  padding:.95rem 1.1rem;color:var(--rose);font-size:.95rem}
+.reality code{font-family:var(--mono);font-size:.85rem;background:rgba(244,63,94,.12);
+  padding:.1rem .3rem;border-radius:4px;color:var(--rose)}
+
+/* an empty state is a sentence, never a blank box. */
+.pending{padding:1.5rem 1.1rem;color:var(--muted)}
+.pending strong{color:var(--text);display:block;margin-bottom:.35rem;font-weight:600}
+
+section{margin:2.75rem 0}
+h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);
+  font-weight:600;margin:0 0 .9rem}
+
+/* claim against reality. stacked, never a two column table: at 375px a table is unreadable. */
+.pair{border:1px solid var(--line);border-radius:12px;padding:.9rem 1rem;margin-bottom:.75rem;
+  background:var(--card)}
+.claim{color:var(--emerald);font-weight:600;font-size:.95rem}
+.claim::before{content:"claims  ";color:var(--muted);font-weight:400;font-size:.75rem;
+  text-transform:uppercase;letter-spacing:.1em}
+.was{color:var(--rose);margin-top:.4rem;font-size:.92rem}
+.was::before{content:"actually  ";color:var(--muted);font-size:.75rem;text-transform:uppercase;
+  letter-spacing:.1em}
+.where{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-top:.45rem}
+
+.stat{display:flex;gap:.75rem;align-items:baseline;padding:.7rem 0;border-bottom:1px solid var(--line)}
+.stat:last-child{border-bottom:0}
+.stat b{font-family:var(--mono);font-size:1.25rem;font-weight:500;color:var(--cyan);flex:none}
+.stat span{color:var(--muted);font-size:.92rem}
+
+.forges{display:flex;flex-wrap:wrap;gap:.5rem}
+footer{border-top:1px solid var(--line);margin-top:3rem;padding:1.25rem 0 2.5rem;
+  color:var(--muted);font-size:.85rem}
+footer a{color:var(--cyan)}
+@media(min-width:768px){
+  h1{font-size:2.3rem} body{font-size:17px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="mark">ἔλεγχος <span>/ elenchos</span></div>
+  <p class="setup">Six public repositories. Their CI says green. Watch.</p>
+</div></header>
+
+<main class="wrap">
+
+  <h1>Your pipeline's green check is a <span class="lie">claim</span>,<br>not a <span class="proof">control</span>.</h1>
+  <p class="sub">Elenchos pushes a build that breaks the rule and returns the green run as proof.</p>
+
+  <!-- The hero. Filled from evidence produced by a real run, never by hand. -->
+  <div class="proof-card" id="proof">
+    <div class="pending">
+      <strong>No refutation has been produced yet.</strong>
+      The PROVE stage is not deployed. This panel stays empty on purpose rather than showing a
+      example run: a demo that invents its own evidence is the thing this project exists to catch.
+    </div>
+  </div>
+
+  <section>
+    <h2>Measured before anything was built</h2>
+    <div class="stat"><b>21/47</b><span>repositories that run their own security or quality script have it narrower than the step's name says, across 120 public repositories, none of them ours</span></div>
+    <div class="stat"><b>18/120</b><span>have a step neutered by <code>continue-on-error</code>, <code>|| true</code> or a trailing <code>exit 0</code></span></div>
+    <div class="stat"><b>6%</b><span>recall for GitHub's secret scanner over 97,479 labelled secrets, the published baseline we cite rather than re-measure</span></div>
+  </section>
+
+  <section>
+    <h2>Where the model does the work</h2>
+    <div class="stat"><b>16/14/14</b><span>rules of twenty that Nemotron turned from prose into a check that actually fires, over three runs, against a threshold of 14 written down first</span></div>
+    <div class="stat"><b>2/20</b><span>the same twenty rules, answered by a fixed template that only matches words</span></div>
+    <div class="stat"><b>20/20</b><span>the hand written calibration that had to pass before any of the above was allowed to count</span></div>
+  </section>
+
+  <section>
+    <h2>Forges</h2>
+    <div class="forges">
+      <span class="pill pill-pass">GitHub, live</span>
+      <span class="pill pill-declared">Azure DevOps, declared not deployed</span>
+      <span class="pill pill-declared">GitLab, declared not deployed</span>
+      <span class="pill pill-declared">Bitbucket, declared not deployed</span>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  Every number here carries the command that produced it in
+  <a href="https://github.com/upgradedev/elenchos">the repository</a>.
+  Scores we produced ourselves are estimates and stay labelled as such.
+</footer>
+
+<script>
+// The hero renders from evidence.json or it stays empty. There is no hand written fallback,
+// because a fallback is how a demo starts claiming things nobody measured.
+fetch("evidence.json").then(r => r.ok ? r.json() : null).then(function (e) {
+  if (!e || !e.refutation) return;
+  var r = e.refutation;
+  document.getElementById("proof").innerHTML =
+    '<div class="proof-head">' +
+      '<svg class="tick" viewBox="0 0 16 16" fill="#10b981" aria-hidden="true"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm3.78 5.72a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06 0L4.22 9.28a.75.75 0 111.06-1.06l1.72 1.72 3.72-3.72a.75.75 0 011.06 0z"/></svg>' +
+      '<span class="pill pill-pass">Pipeline passed</span>' +
+      '<span class="run"><a href="' + r.run_url + '">' + r.run_url + '</a> · ' + r.commit_sha.slice(0, 7) + '</span>' +
+    '</div>' +
+    '<div class="reality">on a commit whose step named "' + r.control + '" cannot fail: ' +
+      '<code>' + r.reality + '</code>, ' + r.location + '.</div>';
+}).catch(function () { /* leave the honest empty state in place */ });
+</script>
+</body>
+</html>

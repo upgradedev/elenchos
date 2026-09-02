@@ -1,51 +1,196 @@
-# Elenchos
+# ἔλεγχος / Elenchos
 
-**ἔλεγχος**: in Socrates, the method of refutation. In modern Greek, *audit*.
+[![CI](https://github.com/upgradedev/elenchos/actions/workflows/ci.yml/badge.svg)](https://github.com/upgradedev/elenchos/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-informational.svg)](LICENSE)
 
-Your pipeline's green check is a claim, not a control. Elenchos pushes a build that
-breaks the rule and returns the green run as proof.
+**Your pipeline's green check is a claim, not a control. Elenchos pushes a build that breaks the
+rule and returns the green run as proof.**
 
-> Early scaffolding. The only thing here today is an infrastructure probe.
+Demo, no account and no install: https://upgradedev.github.io/elenchos/
 
-## Why
+*ἔλεγχος* is the Socratic method of refutation, and in modern Greek it is the ordinary word for an
+audit. The product is the intersection. Elenchos does not conclude that a CI gate is theatre. It
+proves it, by breaking the gate and handing back a link to a real green run that should have gone
+red.
 
-Measured over 120 public repositories, none of them ours, every finding carrying a
-`file:line`:
+## Contents
 
-| | |
-|---|---|
-| run a repo-local security or quality script from a CI step | **47 / 120** |
-| of those, the script is **narrower than its step name claims** | **21 / 47** |
-| have a gate neutered by `continue-on-error`, `\|\| true` or `exit 0` | **18 / 120** |
+- [Who this is for](#who-this-is-for)
+- [What it does](#what-it-does)
+- [Where the sponsor's model is load-bearing](#where-the-sponsors-model-is-load-bearing)
+- [The numbers, and the commands that produced them](#the-numbers-and-the-commands-that-produced-them)
+- [Architecture](#architecture)
+- [Quickstart](#quickstart)
+- [What is live and what is declared](#what-is-live-and-what-is-declared)
+- [Prior art, and what is not ours](#prior-art-and-what-is-not-ours)
+- [Safety](#safety)
+- [Licence](#licence)
 
-And the platform net people assume covers the rest is thin. Basak et al. 2023
-([SecretBench](https://arxiv.org/abs/2307.00714)), 818 repositories and 97,479 labelled
-secrets, measured GitHub's secret scanner at **6% recall**, gitleaks at 86-88%.
+## Who this is for
 
-## What is here now
+Maximos is an engineering director at a regulated company. Two hundred repositories, fifty
+engineers across frontend, backend, QA, cloud and mobile, plus contractor teams, split across
+GitHub and Azure DevOps. Once a year he signs a statement that the security checks are in place.
+At the last audit he was asked to prove it for one repository, and all he had was a green tick.
 
-`scripts/gpu_job_probe.py` answers one narrow infrastructure question: does a Nebius AI
-Job with a GPU preset actually reach `RUNNING`, and how long does it take?
+A green tick is not evidence. It is the output of a control nobody has tested.
 
-It exists because a previous build recorded three CPU jobs that were accepted, sat in
-`PROVISIONING` with zero instances, and terminated in `ERROR` after roughly thirty
-minutes with empty details. The cause was never established. A capacity read on
-2026-08-31 showed the account does hold GPU quota, so "no quota" is not the explanation.
+## What it does
 
-**One success proves nothing.** Run it repeatedly, at different hours.
+Four stages. A model is load-bearing in exactly one of them.
+
+| Stage | What happens | Who does it |
+|---|---|---|
+| **ASSESS** | read the pipeline, say what each step actually enforces, with `file:line` | deterministic |
+| **PROVISION** | read a rule written in prose, produce the check that enforces it | Nemotron, and only here |
+| **PROVE** | break that rule on a real forge and keep the green run as a receipt | deterministic |
+| **WATCH** | replay existing history to see whether anyone turned the control off | deterministic |
+
+PROVE is the hero, not PROVISION. Watching a model write YAML is a commodity in 2026. Watching a
+pipeline go green on a commit that breaks the rule it claims to enforce is not.
+
+## Where the sponsor's model is load-bearing
+
+Remove Nemotron and Elenchos can still read pipelines, still break controls and still produce
+receipts, but it can no longer take a rule a human wrote in a sentence and turn it into a check
+that runs. That is the one job it does, and the split is measured rather than asserted.
+
+The model returns a **shell script and never YAML**. Deterministic code writes the workflow around
+it, in [`src/elenchos/provision/wrapper.py`](src/elenchos/provision/wrapper.py). That division was
+not a design preference, it was a finding: see the numbers below.
+
+## The numbers, and the commands that produced them
+
+Every figure carries the command that produces it. Scores we produced ourselves are estimates and
+say so, permanently.
+
+**Can the model actually write the check?** Twenty rules, written down before any model was
+called, each scored by executing the produced check twice: once against a repository that violates
+the rule, where it must exit non-zero, and once against a clean one, where it must exit zero.
+Either half alone scores nothing.
 
 ```bash
-python scripts/gpu_job_probe.py --projects <project-id>            # read-only
-python scripts/gpu_job_probe.py --projects <project-id> --create   # creates one job
+cd killtest && python harness.py --producer nemotron_b
 ```
 
-Default mode is read-only. Created jobs are always deleted in a `finally` block.
+| Producer | Score | What it is |
+|---|---|---|
+| Hand written oracle | 20/20 | calibration. Nothing else was allowed to count until this passed |
+| **Nemotron, shell only** | **16, 14, 14** | three runs, threshold of 14 written down first |
+| Nemotron, writing YAML too | 10, 13, 14 | the same model asked to do both jobs |
+| Fixed template | 2/20 | a skeleton that matches words, the baseline to beat by six |
 
-## Running it in CI
+The endpoint is not deterministic at `temperature 0`, which is why three runs are reported rather
+than one. The protocol fixing the number of runs was written before the third was fetched, in
+[`killtest/REPLICATION.md`](killtest/REPLICATION.md).
 
-The workflow `.github/workflows/gpu-job-probe.yml` runs on manual dispatch and needs
-three repository secrets: `NEBIUS_SA_KEY_B64`, `NEBIUS_SA_KEY_ID`, `NEBIUS_SA_ID`.
-The workflow fails immediately, and loudly, if any of them is absent.
+**Is the problem real?** One hundred and twenty public repositories, none of them ours, each
+finding carrying `owner/repo` and `file:line`, with the threshold registered before the count.
+
+- **21 of the 47** repositories that run their own security or quality script have it narrower
+  than the step's name claims
+- **18 of 120** carry a step neutered by `continue-on-error`, `|| true` or a trailing `exit 0`
+
+Published baseline, cited rather than re-measured: Basak et al. 2023, SecretBench, arXiv 2307.00714,
+818 repositories and 97,479 labelled secrets, reporting 6% recall for GitHub's secret scanner.
+
+## Architecture
+
+```mermaid
+flowchart TD
+  R[Rule in prose] --> P
+  W[Workflow files] --> A
+  A[ASSESS<br/>deterministic] -->|Finding with file:line| V
+  P[PROVISION<br/>Nemotron writes shell] --> WR[wrapper.py<br/>writes the YAML]
+  WR --> V[PROVE<br/>canary on a real forge]
+  V -->|green run that should have been red| RC[Receipt]
+  T[Tavily<br/>runtime citation] --> RC
+  RC --> S[Static surface<br/>the judge opens this]
+  H[Existing run history] --> WA[WATCH<br/>replay] --> RC
+```
+
+The boundary that keeps the model honest:
+
+```mermaid
+flowchart LR
+  subgraph Domain["domain, imports no SDK"]
+    M[model.py] --- PO[ports.py]
+  end
+  subgraph Adapters
+    GH[forge/github.py]
+    TF[model/tokenfactory.py]
+    TV[citation/tavily.py]
+  end
+  PO -.ForgePort.-> GH
+  PO -.ModelPort.-> TF
+  PO -.CitationPort.-> TV
+```
+
+`scripts/gates.py` fails the build if anything under `src/elenchos/domain/` imports an SDK.
+
+## Quickstart
+
+Python 3.11 and git. No account and no key are needed for anything below.
+
+```bash
+git clone https://github.com/upgradedev/elenchos.git
+cd elenchos
+python -m pip install -r requirements/ci.txt
+```
+
+Run the repository's own gates, including the proof that each gate can fail:
+
+```bash
+python scripts/gates.py --selftest && python scripts/gates.py
+```
+
+Expected: every line reads `ok`, and the selftest reports `fails as designed` four times. Under
+five seconds.
+
+Re-score the kill test from the recorded model responses, offline:
+
+```bash
+cd killtest && python harness.py --producer oracle && python harness.py --producer template
+```
+
+Expected: `oracle: 20/20` then `template: 2/20`. About twenty seconds. Re-generating the model's
+answers instead of re-scoring them needs a Nebius key and
+`python producers/nemotron_fetch.py --mode body`.
+
+## What is live and what is declared
+
+| Capability | State |
+|---|---|
+| ASSESS over GitHub workflow files | live, with tests |
+| PROVISION through Nemotron on Token Factory | live, measured at 16/14/14 |
+| The wrapper that turns a script into a step | live, and the kill test imports this exact code |
+| Repository gates, each proven to fail | live |
+| PROVE, the canary and the receipt | **declared, not deployed** |
+| WATCH, replay over existing history | **declared, not deployed** |
+| Tavily runtime citation | **declared, not deployed** |
+| Azure DevOps, GitLab, Bitbucket | **declared, not deployed** |
+
+The demo surface renders a refutation only when one has been produced. Until then it says so in
+place of the panel, because a demo that invents its own evidence is the exact failure this project
+exists to catch.
+
+## Prior art, and what is not ours
+
+Mitropoulos et al. 2026, arXiv 2603.18740, overlaps this work by roughly 85% by our own estimate.
+They own adversarial generation against an LLM reviewer and we do not claim it. What is ours is
+narrower and stated as four things: deterministic build time gates, a hosted pipeline rather than
+a local clone, the proof as a reproducible artifact, and a horizontal view across forges.
+
+We do not use the word that starts with "n" and means first of its kind. This is a synthesis, with
+Basak et al. as the baseline and Fares and Gamage as the stated open problem, which is that there
+is no labelled ground truth for scanners over workflow files.
+
+## Safety
+
+Canary commits are synthetic and always marked `ELENCHOS-CANARY-`. No real credential is ever
+planted, and nothing runs against a repository we do not own or have explicit written authorisation
+for. Every execution is recorded. Public secret scanners catch planted real secrets, so a
+refutation built on one would refute itself in front of the person reading it.
 
 ## Licence
 

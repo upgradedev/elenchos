@@ -1,6 +1,6 @@
 {
   "producer": "nemotron_b",
-  "run_at_utc": "2026-09-02T10:20:56Z",
+  "run_at_utc": "2026-09-02T10:37:34Z",
   "command": "python harness.py --producer nemotron_b",
   "contract_sha256": "4198d42be5ed5705177e0aeaa8ed5851d38dad7637762a0679423c4fa5e6abe7",
   "rules_sha256": "85bd4204e3ca24a13a20b75186ee4a17e07c5adff1b851372b9c8e6c3d6f60b8",
@@ -14,7 +14,7 @@
       "id": "r01",
       "class": "A work-item trace",
       "rule": "Every pull request references at least one issue number in its title or its body.",
-      "step": "- name: Enforce rule\n  run: |\n    python3 -c '\n    import json, re, os, sys\n    with open(os.environ[\"GITHUB_EVENT_PATH\"]) as f:\n        data = json.load(f)\n    pr = data[\"pull_request\"]\n    title = pr.get(\"title\", \"\") or \"\"\n    body = pr.get(\"body\", \"\") or \"\"\n    if re.search(r\"#\\d+\", title + \"\\n\" + body):\n        sys.exit(0)\n    else:\n        sys.exit(1)\n    '\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    python3 -c '\n    import json, re, os, sys\n    with open(os.environ[\"GITHUB_EVENT_PATH\"]) as f:\n        data = json.load(f)\n    pr = data[\"pull_request\"]\n    title = pr.get(\"title\", \"\") or \"\"\n    body = pr.get(\"body\", \"\") or \"\"\n    if re.search(r\"#\\d+\", title + \"\\n\" + body):\n        sys.exit(0)\n    else:\n        sys.exit(1)\n    '\n",
       "body": "python3 -c '\nimport json, re, os, sys\nwith open(os.environ[\"GITHUB_EVENT_PATH\"]) as f:\n    data = json.load(f)\npr = data[\"pull_request\"]\ntitle = pr.get(\"title\", \"\") or \"\"\nbody = pr.get(\"body\", \"\") or \"\"\nif re.search(r\"#\\d+\", title + \"\\n\" + body):\n    sys.exit(0)\nelse:\n    sys.exit(1)\n'\n",
       "score": 1,
       "violating": {
@@ -30,7 +30,7 @@
       "id": "r02",
       "class": "A work-item trace",
       "rule": "Every pull request carries at least one label.",
-      "step": "- name: Enforce rule\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n    count=$(python3 -c \"import json,sys;d=json.load(open(sys.argv[1]));print(len(d.get('pull_request',{}).get('labels',[])))\" \"$GITHUB_EVENT_PATH\")\n    if [ \"$count\" -eq 0 ]; then\n        exit 1\n    else\n        exit 0\n    fi\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n    count=$(python3 -c \"import json,sys;d=json.load(open(sys.argv[1]));print(len(d.get('pull_request',{}).get('labels',[])))\" \"$GITHUB_EVENT_PATH\")\n    if [ \"$count\" -eq 0 ]; then\n        exit 1\n    else\n        exit 0\n    fi\n",
       "body": "#!/usr/bin/env bash\nset -euo pipefail\ncount=$(python3 -c \"import json,sys;d=json.load(open(sys.argv[1]));print(len(d.get('pull_request',{}).get('labels',[])))\" \"$GITHUB_EVENT_PATH\")\nif [ \"$count\" -eq 0 ]; then\n    exit 1\nelse\n    exit 0\nfi\n",
       "score": 1,
       "violating": {
@@ -46,7 +46,7 @@
       "id": "r03",
       "class": "A work-item trace",
       "rule": "The body of every pull request is not empty.",
-      "step": "- name: Enforce rule\n  run: |\n    if ! python3 -c '\n    import json, sys\n    with open(sys.argv[1]) as f:\n        d = json.load(f)\n    body = d.get(\"pull_request\", {}).get(\"body\", \"\")\n    if body == \"\":\n        sys.exit(1)\n    else:\n        sys.exit(0)\n    ' \"$GITHUB_EVENT_PATH\"; then\n        exit 1\n    else\n        exit 0\n    fi\n    fi\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    if ! python3 -c '\n    import json, sys\n    with open(sys.argv[1]) as f:\n        d = json.load(f)\n    body = d.get(\"pull_request\", {}).get(\"body\", \"\")\n    if body == \"\":\n        sys.exit(1)\n    else:\n        sys.exit(0)\n    ' \"$GITHUB_EVENT_PATH\"; then\n        exit 1\n    else\n        exit 0\n    fi\n    fi\n",
       "body": "if ! python3 -c '\nimport json, sys\nwith open(sys.argv[1]) as f:\n    d = json.load(f)\nbody = d.get(\"pull_request\", {}).get(\"body\", \"\")\nif body == \"\":\n    sys.exit(1)\nelse:\n    sys.exit(0)\n' \"$GITHUB_EVENT_PATH\"; then\n    exit 1\nelse\n    exit 0\nfi\nfi\n",
       "score": 1,
       "violating": {
@@ -62,7 +62,7 @@
       "id": "r04",
       "class": "A work-item trace",
       "rule": "Every commit message follows conventional commits, `type(scope): subject`.",
-      "step": "- name: Enforce rule\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n\n    base=\"${GITHUB_BASE_REF}\"\n    head=\"${GITHUB_HEAD_REF}\"\n    if [[ -z \"$base\" || -z \"$head\" ]]; then\n      echo \"Missing base or head ref\" >&2\n      exit 1\n    fi\n\n    messages=$(git log --format=%s \"$base\"..\"$head\" 2>/dev/null) || {\n      echo \"Failed to get commit log\" >&2\n      exit 1\n    }\n\n    if [[ -z \"$messages\" ]]; then\n      exit 0\n    fi\n\n    regex='^[a-zA-Z0-9]+\\([^)]+\\): .+'\n\n    while IFS= read -r line; do\n      if [[ ! \"$line\" =~ $regex ]]; then\n        echo \"Invalid commit message: $line\" >&2\n        exit 1\n      fi\n    done <<< \"$messages\"\n\n    exit 0\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n\n    base=\"${GITHUB_BASE_REF}\"\n    head=\"${GITHUB_HEAD_REF}\"\n    if [[ -z \"$base\" || -z \"$head\" ]]; then\n      echo \"Missing base or head ref\" >&2\n      exit 1\n    fi\n\n    messages=$(git log --format=%s \"$base\"..\"$head\" 2>/dev/null) || {\n      echo \"Failed to get commit log\" >&2\n      exit 1\n    }\n\n    if [[ -z \"$messages\" ]]; then\n      exit 0\n    fi\n\n    regex='^[a-zA-Z0-9]+\\([^)]+\\): .+'\n\n    while IFS= read -r line; do\n      if [[ ! \"$line\" =~ $regex ]]; then\n        echo \"Invalid commit message: $line\" >&2\n        exit 1\n      fi\n    done <<< \"$messages\"\n\n    exit 0\n",
       "body": "#!/usr/bin/env bash\nset -euo pipefail\n\nbase=\"${GITHUB_BASE_REF}\"\nhead=\"${GITHUB_HEAD_REF}\"\nif [[ -z \"$base\" || -z \"$head\" ]]; then\n  echo \"Missing base or head ref\" >&2\n  exit 1\nfi\n\nmessages=$(git log --format=%s \"$base\"..\"$head\" 2>/dev/null) || {\n  echo \"Failed to get commit log\" >&2\n  exit 1\n}\n\nif [[ -z \"$messages\" ]]; then\n  exit 0\nfi\n\nregex='^[a-zA-Z0-9]+\\([^)]+\\): .+'\n\nwhile IFS= read -r line; do\n  if [[ ! \"$line\" =~ $regex ]]; then\n    echo \"Invalid commit message: $line\" >&2\n    exit 1\n  fi\ndone <<< \"$messages\"\n\nexit 0\n",
       "score": 1,
       "violating": {
@@ -78,7 +78,7 @@
       "id": "r05",
       "class": "A work-item trace",
       "rule": "No pull request is merged without at least one approved review.",
-      "step": "- name: Enforce rule\n  run: |\n    #!/usr/bin/env bash\n    if python3 -c \"\n    import json, sys\n    with open(sys.argv[1]) as f:\n        payload = json.load(f)\n    reviews = payload.get('pull_request', {}).get('reviews', [])\n    approved = any(r.get('state') == 'APPROVED' for r in reviews)\n    sys.exit(0 if approved else 1)\n    \" \"$GITHUB_EVENT_PATH\"; then\n        exit 0\n    else\n        exit 1\n    fi\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    if python3 -c \"\n    import json, sys\n    with open(sys.argv[1]) as f:\n        payload = json.load(f)\n    reviews = payload.get('pull_request', {}).get('reviews', [])\n    approved = any(r.get('state') == 'APPROVED' for r in reviews)\n    sys.exit(0 if approved else 1)\n    \" \"$GITHUB_EVENT_PATH\"; then\n        exit 0\n    else\n        exit 1\n    fi\n",
       "body": "#!/usr/bin/env bash\nif python3 -c \"\nimport json, sys\nwith open(sys.argv[1]) as f:\n    payload = json.load(f)\nreviews = payload.get('pull_request', {}).get('reviews', [])\napproved = any(r.get('state') == 'APPROVED' for r in reviews)\nsys.exit(0 if approved else 1)\n\" \"$GITHUB_EVENT_PATH\"; then\n    exit 0\nelse\n    exit 1\nfi\n",
       "score": 1,
       "violating": {
@@ -94,7 +94,7 @@
       "id": "r06",
       "class": "B push or branch prohibition",
       "rule": "Pushing directly to `main` is forbidden.",
-      "step": "- name: Enforce rule\n  run: |\n    #!/usr/bin/env bash\n    payload=\"$GITHUB_EVENT_PATH\"\n    if python3 -c \"\n    import json, sys\n    with open(sys.argv[1]) as f:\n        d=json.load(f)\n    for ev in d.get('push_events', []):\n        if ev.get('ref') == 'refs/heads/main':\n            sys.exit(0)\n    sys.exit(1)\n    \" \"$payload\"; then\n        exit 1\n    else\n        exit 0\n    fi\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    payload=\"$GITHUB_EVENT_PATH\"\n    if python3 -c \"\n    import json, sys\n    with open(sys.argv[1]) as f:\n        d=json.load(f)\n    for ev in d.get('push_events', []):\n        if ev.get('ref') == 'refs/heads/main':\n            sys.exit(0)\n    sys.exit(1)\n    \" \"$payload\"; then\n        exit 1\n    else\n        exit 0\n    fi\n",
       "body": "#!/usr/bin/env bash\npayload=\"$GITHUB_EVENT_PATH\"\nif python3 -c \"\nimport json, sys\nwith open(sys.argv[1]) as f:\n    d=json.load(f)\nfor ev in d.get('push_events', []):\n    if ev.get('ref') == 'refs/heads/main':\n        sys.exit(0)\nsys.exit(1)\n\" \"$payload\"; then\n    exit 1\nelse\n    exit 0\nfi\n",
       "score": 1,
       "violating": {
@@ -110,7 +110,7 @@
       "id": "r07",
       "class": "B push or branch prohibition",
       "rule": "Branch names match `feat/`, `fix/`, `chore/` or `docs/`.",
-      "step": "- name: Enforce rule\n  run: |\n    #!/usr/bin/env bash\n    if [[ \"$GITHUB_HEAD_REF\" =~ ^(feat|fix|chore|docs)/ ]]; then\n        exit 0\n    else\n        exit 1\n    fi\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    if [[ \"$GITHUB_HEAD_REF\" =~ ^(feat|fix|chore|docs)/ ]]; then\n        exit 0\n    else\n        exit 1\n    fi\n",
       "body": "#!/usr/bin/env bash\nif [[ \"$GITHUB_HEAD_REF\" =~ ^(feat|fix|chore|docs)/ ]]; then\n    exit 0\nelse\n    exit 1\nfi\n",
       "score": 1,
       "violating": {
@@ -126,23 +126,23 @@
       "id": "r08",
       "class": "B push or branch prohibition",
       "rule": "Force pushing to a protected branch is forbidden.",
-      "step": "- name: Enforce rule\n  run: |\n    python3 - <<'PY'\n    import json, sys\n    with open(sys.argv[1]) as f:\n        data = json.load(f)\n    default_branch = data['repository']['default_branch']\n    protected_ref = f\"refs/heads/{default_branch}\"\n    force = any(p.get('forced') and p.get('ref') == protected_ref for p in data.get('push_events', []))\n    sys.exit(1 if force else 0)\n    PY \"$GITHUB_EVENT_PATH\"\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    python3 - <<'PY'\n    import json, sys\n    with open(sys.argv[1]) as f:\n        data = json.load(f)\n    default_branch = data['repository']['default_branch']\n    protected_ref = f\"refs/heads/{default_branch}\"\n    force = any(p.get('forced') and p.get('ref') == protected_ref for p in data.get('push_events', []))\n    sys.exit(1 if force else 0)\n    PY \"$GITHUB_EVENT_PATH\"\n",
       "body": "python3 - <<'PY'\nimport json, sys\nwith open(sys.argv[1]) as f:\n    data = json.load(f)\ndefault_branch = data['repository']['default_branch']\nprotected_ref = f\"refs/heads/{default_branch}\"\nforce = any(p.get('forced') and p.get('ref') == protected_ref for p in data.get('push_events', []))\nsys.exit(1 if force else 0)\nPY \"$GITHUB_EVENT_PATH\"\n",
       "score": 0,
       "violating": {
         "exit": 1,
-        "output": "/tmp/elenchos-r08-violating-vgap81mp/step.sh: line 10: warning: here-document at line 1 delimited by end-of-file (wanted `PY')\n  File \"<stdin>\", line 8\n    PY \"$GITHUB_EVENT_PATH\"\n       ^^^^^^^^^^^^^^^^^^^^\nSyntaxError: invalid syntax\n"
+        "output": "/tmp/elenchos-r08-violating-pjr1bnty/step.sh: line 10: warning: here-document at line 1 delimited by end-of-file (wanted `PY')\n  File \"<stdin>\", line 8\n    PY \"$GITHUB_EVENT_PATH\"\n       ^^^^^^^^^^^^^^^^^^^^\nSyntaxError: invalid syntax\n"
       },
       "clean": {
         "exit": 1,
-        "output": "/tmp/elenchos-r08-clean-x7p2tjfq/step.sh: line 10: warning: here-document at line 1 delimited by end-of-file (wanted `PY')\n  File \"<stdin>\", line 8\n    PY \"$GITHUB_EVENT_PATH\"\n       ^^^^^^^^^^^^^^^^^^^^\nSyntaxError: invalid syntax\n"
+        "output": "/tmp/elenchos-r08-clean-rpk_tssr/step.sh: line 10: warning: here-document at line 1 delimited by end-of-file (wanted `PY')\n  File \"<stdin>\", line 8\n    PY \"$GITHUB_EVENT_PATH\"\n       ^^^^^^^^^^^^^^^^^^^^\nSyntaxError: invalid syntax\n"
       }
     },
     {
       "id": "r09",
       "class": "B push or branch prohibition",
       "rule": "A pull request does not touch more than 50 files.",
-      "step": "- name: Enforce rule\n  run: |\n    #!/usr/bin/env bash\n    COUNT=$(python3 -c \"import json, sys; data=json.load(open('$GITHUB_EVENT_PATH')); print(data['pull_request']['changed_files'])\")\n    if [ \"$COUNT\" -gt 50 ]; then\n        exit 1\n    else\n        exit 0\n    fi\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    COUNT=$(python3 -c \"import json, sys; data=json.load(open('$GITHUB_EVENT_PATH')); print(data['pull_request']['changed_files'])\")\n    if [ \"$COUNT\" -gt 50 ]; then\n        exit 1\n    else\n        exit 0\n    fi\n",
       "body": "#!/usr/bin/env bash\nCOUNT=$(python3 -c \"import json, sys; data=json.load(open('$GITHUB_EVENT_PATH')); print(data['pull_request']['changed_files'])\")\nif [ \"$COUNT\" -gt 50 ]; then\n    exit 1\nelse\n    exit 0\nfi\n",
       "score": 1,
       "violating": {
@@ -158,7 +158,7 @@
       "id": "r10",
       "class": "B push or branch prohibition",
       "rule": "A pull request with merge conflicts is not merged.",
-      "step": "- name: Enforce rule\n  run: |\n    bash --noprofile --norc -e <<'EOF'\n    MERGEABLE=$(python3 -c \"import json, sys; d=json.load(open('$GITHUB_EVENT_PATH')); print(str(d['pull_request']['mergeable']).lower())\")\n    if [ \"$MERGEABLE\" = \"false\" ]; then\n        exit 1\n    else\n        exit 0\n    fi\n    EOF\n    EOF\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    bash --noprofile --norc -e <<'EOF'\n    MERGEABLE=$(python3 -c \"import json, sys; d=json.load(open('$GITHUB_EVENT_PATH')); print(str(d['pull_request']['mergeable']).lower())\")\n    if [ \"$MERGEABLE\" = \"false\" ]; then\n        exit 1\n    else\n        exit 0\n    fi\n    EOF\n    EOF\n",
       "body": "bash --noprofile --norc -e <<'EOF'\nMERGEABLE=$(python3 -c \"import json, sys; d=json.load(open('$GITHUB_EVENT_PATH')); print(str(d['pull_request']['mergeable']).lower())\")\nif [ \"$MERGEABLE\" = \"false\" ]; then\n    exit 1\nelse\n    exit 0\nfi\nEOF\nEOF\n",
       "score": 0,
       "violating": {
@@ -167,14 +167,14 @@
       },
       "clean": {
         "exit": 127,
-        "output": "/tmp/elenchos-r10-clean-xbyfucfu/step.sh: line 9: EOF: command not found\n"
+        "output": "/tmp/elenchos-r10-clean-65j8w34t/step.sh: line 9: EOF: command not found\n"
       }
     },
     {
       "id": "r11",
       "class": "C mandatory CI step",
       "rule": "Every workflow declares `permissions:`.",
-      "step": "- name: Enforce rule\n  run: |\n    #!/usr/bin/env bash\n    set -e\n    fail=0\n    while IFS= read -r -d '' file; do\n        if ! grep -qE '^[[:space:]]*permissions:' \"$file\"; then\n            echo \"Workflow file $file missing permissions:\" >&2\n            fail=1\n        fi\n    done < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) -print0 2>/dev/null)\n    if [ $fail -eq 0 ]; then\n        exit 0\n    else\n        exit 1\n    fi\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    set -e\n    fail=0\n    while IFS= read -r -d '' file; do\n        if ! grep -qE '^[[:space:]]*permissions:' \"$file\"; then\n            echo \"Workflow file $file missing permissions:\" >&2\n            fail=1\n        fi\n    done < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) -print0 2>/dev/null)\n    if [ $fail -eq 0 ]; then\n        exit 0\n    else\n        exit 1\n    fi\n",
       "body": "#!/usr/bin/env bash\nset -e\nfail=0\nwhile IFS= read -r -d '' file; do\n    if ! grep -qE '^[[:space:]]*permissions:' \"$file\"; then\n        echo \"Workflow file $file missing permissions:\" >&2\n        fail=1\n    fi\ndone < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) -print0 2>/dev/null)\nif [ $fail -eq 0 ]; then\n    exit 0\nelse\n    exit 1\nfi\n",
       "score": 1,
       "violating": {
@@ -190,7 +190,7 @@
       "id": "r12",
       "class": "C mandatory CI step",
       "rule": "No security step carries `continue-on-error: true`.",
-      "step": "- name: Enforce rule\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n    found=0\n    while IFS= read -r f; do\n      awk '\n        BEGIN { in_step=0; step_name=\"\"; step_uses=\"\"; cont_err=0; }\n        /^[[:space:]]*-[[:space:]]/ {\n          in_step=1\n          step_name=\"\"; step_uses=\"\"; cont_err=0\n          next\n        }\n        in_step && /[[:space:]]*name:[[:space:]]*/ {\n          sub(/^[[:space:]]*name:[[:space:]]*/, \"\")\n          sub(/[[:space:]]*#.*$/, \"\")\n          step_name=$0\n          if (cont_err && tolower(step_name) ~ /security/) { exit 1 }\n          next\n        }\n        in_step && /[[:space:]]*uses:[[:space:]]*/ {\n          sub(/^[[:space:]]*uses:[[:space:]]*/, \"\")\n          sub(/[[:space:]]*#.*$/, \"\")\n          step_uses=$0\n          if (cont_err && (tolower(step_uses) ~ /security/)) { exit 1 }\n          next\n        }\n        in_step && /[[:space:]]*continue-on-error:[[:space:]]*true/ {\n          cont_err=1\n          if (tolower(step_name) ~ /security/ || tolower(step_uses) ~ /security/) { exit 1 }\n          next\n        }\n        /^[^[:space:]]/ && !/^[[:space:]]*-[[:space:]]/ { in_step=0 }\n        END { exit 0 }\n      ' \"$f\" || { found=1; break; }\n    done < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null)\n\n    if [ \"$found\" -ne 0 ]; then\n      exit 1\n    else\n      exit 0\n    fi\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n    found=0\n    while IFS= read -r f; do\n      awk '\n        BEGIN { in_step=0; step_name=\"\"; step_uses=\"\"; cont_err=0; }\n        /^[[:space:]]*-[[:space:]]/ {\n          in_step=1\n          step_name=\"\"; step_uses=\"\"; cont_err=0\n          next\n        }\n        in_step && /[[:space:]]*name:[[:space:]]*/ {\n          sub(/^[[:space:]]*name:[[:space:]]*/, \"\")\n          sub(/[[:space:]]*#.*$/, \"\")\n          step_name=$0\n          if (cont_err && tolower(step_name) ~ /security/) { exit 1 }\n          next\n        }\n        in_step && /[[:space:]]*uses:[[:space:]]*/ {\n          sub(/^[[:space:]]*uses:[[:space:]]*/, \"\")\n          sub(/[[:space:]]*#.*$/, \"\")\n          step_uses=$0\n          if (cont_err && (tolower(step_uses) ~ /security/)) { exit 1 }\n          next\n        }\n        in_step && /[[:space:]]*continue-on-error:[[:space:]]*true/ {\n          cont_err=1\n          if (tolower(step_name) ~ /security/ || tolower(step_uses) ~ /security/) { exit 1 }\n          next\n        }\n        /^[^[:space:]]/ && !/^[[:space:]]*-[[:space:]]/ { in_step=0 }\n        END { exit 0 }\n      ' \"$f\" || { found=1; break; }\n    done < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null)\n\n    if [ \"$found\" -ne 0 ]; then\n      exit 1\n    else\n      exit 0\n    fi\n",
       "body": "#!/usr/bin/env bash\nset -euo pipefail\nfound=0\nwhile IFS= read -r f; do\n  awk '\n    BEGIN { in_step=0; step_name=\"\"; step_uses=\"\"; cont_err=0; }\n    /^[[:space:]]*-[[:space:]]/ {\n      in_step=1\n      step_name=\"\"; step_uses=\"\"; cont_err=0\n      next\n    }\n    in_step && /[[:space:]]*name:[[:space:]]*/ {\n      sub(/^[[:space:]]*name:[[:space:]]*/, \"\")\n      sub(/[[:space:]]*#.*$/, \"\")\n      step_name=$0\n      if (cont_err && tolower(step_name) ~ /security/) { exit 1 }\n      next\n    }\n    in_step && /[[:space:]]*uses:[[:space:]]*/ {\n      sub(/^[[:space:]]*uses:[[:space:]]*/, \"\")\n      sub(/[[:space:]]*#.*$/, \"\")\n      step_uses=$0\n      if (cont_err && (tolower(step_uses) ~ /security/)) { exit 1 }\n      next\n    }\n    in_step && /[[:space:]]*continue-on-error:[[:space:]]*true/ {\n      cont_err=1\n      if (tolower(step_name) ~ /security/ || tolower(step_uses) ~ /security/) { exit 1 }\n      next\n    }\n    /^[^[:space:]]/ && !/^[[:space:]]*-[[:space:]]/ { in_step=0 }\n    END { exit 0 }\n  ' \"$f\" || { found=1; break; }\ndone < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null)\n\nif [ \"$found\" -ne 0 ]; then\n  exit 1\nelse\n  exit 0\nfi\n",
       "score": 0,
       "violating": {
@@ -206,23 +206,23 @@
       "id": "r13",
       "class": "C mandatory CI step",
       "rule": "Every third-party action is pinned to a commit SHA, not to a tag.",
-      "step": "- name: Enforce rule\n  run: |\n    exit_code=0\n    while IFS= read -r file; do\n        while IFS= read -r line; do\n            value=$(echo \"$line\" | sed -n 's/.*uses:[[:space:]]*//ip')\n            [[ -z \"$value\" ]] && continue\n            value=$(echo \"$value\" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')\n            if [[ \"$value\" =~ ^[\\\"'](.*)[\\\"']$ ]]; then\n                value=${BASH_REMATCH[1]}\n            fi\n            if [[ \"$value\" == *@* ]]; then\n                tag=${value#*@}\n                if ! [[ \"$tag\" =~ ^[0-9a-fA-F]{40}$ ]]; then\n                    exit_code=1\n                    break 2\n                fi\n            fi\n        done < <(grep -h 'uses:' \"$file\" || true)\n        if [[ $exit_code -ne 0 ]]; then\n            break\n        fi\n    done < <(find .github/workflows -type f \\( -name '*.yml' -o -name '*.yaml' 2>/dev/null) || true)\n    exit $exit_code\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    exit_code=0\n    while IFS= read -r file; do\n        while IFS= read -r line; do\n            value=$(echo \"$line\" | sed -n 's/.*uses:[[:space:]]*//ip')\n            [[ -z \"$value\" ]] && continue\n            value=$(echo \"$value\" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')\n            if [[ \"$value\" =~ ^[\\\"'](.*)[\\\"']$ ]]; then\n                value=${BASH_REMATCH[1]}\n            fi\n            if [[ \"$value\" == *@* ]]; then\n                tag=${value#*@}\n                if ! [[ \"$tag\" =~ ^[0-9a-fA-F]{40}$ ]]; then\n                    exit_code=1\n                    break 2\n                fi\n            fi\n        done < <(grep -h 'uses:' \"$file\" || true)\n        if [[ $exit_code -ne 0 ]]; then\n            break\n        fi\n    done < <(find .github/workflows -type f \\( -name '*.yml' -o -name '*.yaml' 2>/dev/null) || true)\n    exit $exit_code\n",
       "body": "exit_code=0\nwhile IFS= read -r file; do\n    while IFS= read -r line; do\n        value=$(echo \"$line\" | sed -n 's/.*uses:[[:space:]]*//ip')\n        [[ -z \"$value\" ]] && continue\n        value=$(echo \"$value\" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')\n        if [[ \"$value\" =~ ^[\\\"'](.*)[\\\"']$ ]]; then\n            value=${BASH_REMATCH[1]}\n        fi\n        if [[ \"$value\" == *@* ]]; then\n            tag=${value#*@}\n            if ! [[ \"$tag\" =~ ^[0-9a-fA-F]{40}$ ]]; then\n                exit_code=1\n                break 2\n            fi\n        fi\n    done < <(grep -h 'uses:' \"$file\" || true)\n    if [[ $exit_code -ne 0 ]]; then\n        break\n    fi\ndone < <(find .github/workflows -type f \\( -name '*.yml' -o -name '*.yaml' 2>/dev/null) || true)\nexit $exit_code\n",
       "score": 0,
       "violating": {
         "exit": 2,
-        "output": "/tmp/elenchos-r13-violating-tye4ovhv/step.sh: line 21: syntax error near unexpected token `)'\n"
+        "output": "/tmp/elenchos-r13-violating-pj45do8o/step.sh: line 21: syntax error near unexpected token `)'\n"
       },
       "clean": {
         "exit": 2,
-        "output": "/tmp/elenchos-r13-clean-99vnauf4/step.sh: line 21: syntax error near unexpected token `)'\n"
+        "output": "/tmp/elenchos-r13-clean-ly10g_70/step.sh: line 21: syntax error near unexpected token `)'\n"
       }
     },
     {
       "id": "r14",
       "class": "C mandatory CI step",
       "rule": "Every pull request runs at least one secret-scanning step.",
-      "step": "- name: Enforce rule\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n\n    found=0\n    for f in \"$GITHUB_WORKSPACE\"/.github/workflows/*.yml \"$GITHUB_WORKSPACE\"/.github/workflows/*.yaml; do\n        if [ -e \"$f\" ]; then\n            if grep -iqE 'secret[-_]?scanning' \"$f\"; then\n                found=1\n                break\n            fi\n        fi\n    done\n\n    if [ \"$found\" -eq 0 ]; then\n        exit 1\n    fi\n    exit 0\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n\n    found=0\n    for f in \"$GITHUB_WORKSPACE\"/.github/workflows/*.yml \"$GITHUB_WORKSPACE\"/.github/workflows/*.yaml; do\n        if [ -e \"$f\" ]; then\n            if grep -iqE 'secret[-_]?scanning' \"$f\"; then\n                found=1\n                break\n            fi\n        fi\n    done\n\n    if [ \"$found\" -eq 0 ]; then\n        exit 1\n    fi\n    exit 0\n",
       "body": "#!/usr/bin/env bash\nset -euo pipefail\n\nfound=0\nfor f in \"$GITHUB_WORKSPACE\"/.github/workflows/*.yml \"$GITHUB_WORKSPACE\"/.github/workflows/*.yaml; do\n    if [ -e \"$f\" ]; then\n        if grep -iqE 'secret[-_]?scanning' \"$f\"; then\n            found=1\n            break\n        fi\n    fi\ndone\n\nif [ \"$found\" -eq 0 ]; then\n    exit 1\nfi\nexit 0\n",
       "score": 0,
       "violating": {
@@ -238,7 +238,7 @@
       "id": "r15",
       "class": "C mandatory CI step",
       "rule": "Every workflow declares `timeout-minutes`.",
-      "step": "- name: Enforce rule\n  run: |\n    #!/usr/bin/env bash\n    fail=0\n    while IFS= read -r -d '' f; do\n        if ! grep -q 'timeout-minutes:' \"$f\"; then\n            echo \"Workflow $f missing timeout-minutes\"\n            fail=1\n        fi\n    done < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) -print0 2>/dev/null || true)\n    [ \"$fail\" -eq 0 ] && exit 0 || exit 1\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    fail=0\n    while IFS= read -r -d '' f; do\n        if ! grep -q 'timeout-minutes:' \"$f\"; then\n            echo \"Workflow $f missing timeout-minutes\"\n            fail=1\n        fi\n    done < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) -print0 2>/dev/null || true)\n    [ \"$fail\" -eq 0 ] && exit 0 || exit 1\n",
       "body": "#!/usr/bin/env bash\nfail=0\nwhile IFS= read -r -d '' f; do\n    if ! grep -q 'timeout-minutes:' \"$f\"; then\n        echo \"Workflow $f missing timeout-minutes\"\n        fail=1\n    fi\ndone < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) -print0 2>/dev/null || true)\n[ \"$fail\" -eq 0 ] && exit 0 || exit 1\n",
       "score": 1,
       "violating": {
@@ -254,7 +254,7 @@
       "id": "r16",
       "class": "D file convention",
       "rule": "Every repository has a `LICENSE` file at its root.",
-      "step": "- name: Enforce rule\n  run: |\n    if [ ! -f LICENSE ]; then\n      echo \"LICENSE file missing\"\n      exit 1\n    fi\n    exit 0\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    if [ ! -f LICENSE ]; then\n      echo \"LICENSE file missing\"\n      exit 1\n    fi\n    exit 0\n",
       "body": "if [ ! -f LICENSE ]; then\n  echo \"LICENSE file missing\"\n  exit 1\nfi\nexit 0\n",
       "score": 1,
       "violating": {
@@ -270,7 +270,7 @@
       "id": "r17",
       "class": "D file convention",
       "rule": "Every repository has a `README.md` with an installation section.",
-      "step": "- name: Enforce rule\n  run: |\n    if [ ! -f README.md ]; then exit 1; fi\n    if ! grep -iE '^#+[[:space:]]*Installation' README.md; then exit 1; fi\n    exit 0\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    if [ ! -f README.md ]; then exit 1; fi\n    if ! grep -iE '^#+[[:space:]]*Installation' README.md; then exit 1; fi\n    exit 0\n",
       "body": "if [ ! -f README.md ]; then exit 1; fi\nif ! grep -iE '^#+[[:space:]]*Installation' README.md; then exit 1; fi\nexit 0\n",
       "score": 1,
       "violating": {
@@ -286,7 +286,7 @@
       "id": "r18",
       "class": "D file convention",
       "rule": "No `.env` file is committed.",
-      "step": "- name: Enforce rule\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n    if git ls-files | grep -q '\\.env$'; then\n        exit 1\n    else\n        exit 0\n    fi\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n    if git ls-files | grep -q '\\.env$'; then\n        exit 1\n    else\n        exit 0\n    fi\n",
       "body": "#!/usr/bin/env bash\nset -euo pipefail\nif git ls-files | grep -q '\\.env$'; then\n    exit 1\nelse\n    exit 0\nfi\n",
       "score": 1,
       "violating": {
@@ -302,7 +302,7 @@
       "id": "r19",
       "class": "D file convention",
       "rule": "No file is larger than 5 MB.",
-      "step": "- name: Enforce rule\n  run: |\n    if find . -type f -size +5M -not -path './.git/*' -print -quit | grep -q .; then exit 1; else exit 0; fi\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    if find . -type f -size +5M -not -path './.git/*' -print -quit | grep -q .; then exit 1; else exit 0; fi\n",
       "body": "if find . -type f -size +5M -not -path './.git/*' -print -quit | grep -q .; then exit 1; else exit 0; fi\n",
       "score": 1,
       "violating": {
@@ -318,7 +318,7 @@
       "id": "r20",
       "class": "D file convention",
       "rule": "Every source directory has a corresponding test directory.",
-      "step": "- name: Enforce rule\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n\n    test_names=\"test tests spec specs __tests__\"\n\n    is_test_name() {\n        local name=$1\n        case \" $test_names \" in\n            *\" $name \"*) return 0 ;;\n            *) return 1 ;;\n        esac\n    }\n\n    while IFS= read -r dir; do\n        case \"$dir\" in\n            */.git/*) continue ;;\n        esac\n        base=$(basename \"$dir\")\n        if is_test_name \"$base\"; then\n            continue\n        fi\n        found=0\n        for tn in $test_names; do\n            if [ -d \"./$tn/$base\" ]; then\n                found=1\n                break\n            fi\n        done\n        if [ $found -eq 0 ]; then\n            echo \"Error: Source directory '$dir' has no corresponding test directory.\"\n            exit 1\n        fi\n    done < <(find . -type d ! -path './.git/*')\n\n    exit 0\n",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n\n    test_names=\"test tests spec specs __tests__\"\n\n    is_test_name() {\n        local name=$1\n        case \" $test_names \" in\n            *\" $name \"*) return 0 ;;\n            *) return 1 ;;\n        esac\n    }\n\n    while IFS= read -r dir; do\n        case \"$dir\" in\n            */.git/*) continue ;;\n        esac\n        base=$(basename \"$dir\")\n        if is_test_name \"$base\"; then\n            continue\n        fi\n        found=0\n        for tn in $test_names; do\n            if [ -d \"./$tn/$base\" ]; then\n                found=1\n                break\n            fi\n        done\n        if [ $found -eq 0 ]; then\n            echo \"Error: Source directory '$dir' has no corresponding test directory.\"\n            exit 1\n        fi\n    done < <(find . -type d ! -path './.git/*')\n\n    exit 0\n",
       "body": "#!/usr/bin/env bash\nset -euo pipefail\n\ntest_names=\"test tests spec specs __tests__\"\n\nis_test_name() {\n    local name=$1\n    case \" $test_names \" in\n        *\" $name \"*) return 0 ;;\n        *) return 1 ;;\n    esac\n}\n\nwhile IFS= read -r dir; do\n    case \"$dir\" in\n        */.git/*) continue ;;\n    esac\n    base=$(basename \"$dir\")\n    if is_test_name \"$base\"; then\n        continue\n    fi\n    found=0\n    for tn in $test_names; do\n        if [ -d \"./$tn/$base\" ]; then\n            found=1\n            break\n        fi\n    done\n    if [ $found -eq 0 ]; then\n        echo \"Error: Source directory '$dir' has no corresponding test directory.\"\n        exit 1\n    fi\ndone < <(find . -type d ! -path './.git/*')\n\nexit 0\n",
       "score": 0,
       "violating": {
