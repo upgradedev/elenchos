@@ -534,11 +534,14 @@ Status: Refutation Sealed in Estate Ledger`;
     if (copyBtn) {
       copyBtn.addEventListener("click", () => {
         const payload = JSON.stringify(getAttestationPayload(), null, 2);
-        navigator.clipboard.writeText(payload).then(() => {
-          showToast("JSON-LD Attestation copied to clipboard!");
-          copyBtn.innerText = "Copied Attestation!";
-          setTimeout(() => { copyBtn.innerText = "Copy JSON-LD Attestation"; }, 2000);
-        });
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(payload).catch(() => {});
+          }
+        } catch (e) {}
+        showToast("JSON-LD Attestation copied to clipboard!");
+        copyBtn.innerText = "Copied Attestation!";
+        setTimeout(() => { copyBtn.innerText = "Copy JSON-LD Attestation"; }, 2000);
       });
     }
 
@@ -680,31 +683,11 @@ Status: Refutation Sealed in Estate Ledger`;
   function positionTourCard(target) {
     const card = document.getElementById("tour-card");
     if (!card) return;
-
-    if (!target) {
-      card.style.top = "50%";
-      card.style.left = "50%";
-      card.style.transform = "translate(-50%, -50%)";
-      return;
-    }
-
-    const rect = target.getBoundingClientRect();
-    const cardWidth = card.offsetWidth || 340;
-    const cardHeight = card.offsetHeight || 200;
-
-    let top = rect.bottom + 16;
-    let left = rect.left + (rect.width / 2) - (cardWidth / 2);
-
-    if (top + cardHeight > window.innerHeight - 20) {
-      top = Math.max(20, rect.top - cardHeight - 16);
-    }
-    if (left + cardWidth > window.innerWidth - 20) {
-      left = window.innerWidth - cardWidth - 20;
-    }
-    if (left < 20) left = 20;
-
-    card.style.top = `${top}px`;
-    card.style.left = `${left}px`;
+    card.style.position = "fixed";
+    card.style.bottom = "1.5rem";
+    card.style.right = "1.5rem";
+    card.style.top = "auto";
+    card.style.left = "auto";
     card.style.transform = "none";
   }
 
