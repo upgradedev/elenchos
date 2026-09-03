@@ -1,0 +1,33 @@
+{
+  "rule_id": "r15",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 5.57,
+  "request_id": "chatcmpl-a222f504a87f4e98930e81f0b9f38516",
+  "usage": {
+    "completion_tokens": 815,
+    "prompt_tokens": 1028,
+    "total_tokens": 1843,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Verify timeout-minutes in all workflows\n  run: |\n    missing=0\n    while IFS= read -r f; do\n      if ! grep -q 'timeout-minutes:' \"$f\"; then\n        echo \"Workflow $f does not declare timeout-minutes\"\n        missing=1\n      fi\n    done < <(find .github/workflows -type f \\( -name '*.yml' -o -name '*.yaml' \\) 2>/dev/null || true)\n    if [ \"$missing\" -ne 0 ]; then\n      exit 1\n    fi\n    exit 0",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 2650,
+  "error": null
+}

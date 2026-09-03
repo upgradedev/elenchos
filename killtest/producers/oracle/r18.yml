@@ -1,0 +1,13 @@
+- name: No .env file is committed
+  run: |
+    python3 - <<'PY'
+
+    import subprocess, sys
+    tracked = subprocess.run(["git", "ls-files"], capture_output=True, text=True).stdout.split("\n")
+    bad = [p for p in tracked if p == ".env" or p.endswith("/.env")]
+    if bad:
+        for p in bad:
+            print("committed env file -> %s" % p)
+        sys.exit(1)
+
+    PY

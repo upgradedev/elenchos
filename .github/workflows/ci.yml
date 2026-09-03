@@ -1,0 +1,104 @@
+name: CI
+
+# Every action is pinned to a commit SHA, every job declares permissions and a timeout, and no
+# step is allowed to carry continue-on-error. Rules 11, 12, 13 and 15 of our own rule pack are
+# enforced here, on us, by scripts/gates.py. A tool that cannot pass its own audit is the finding.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    name: Repository gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+
+      - name: Prove the gates can fail
+        run: python scripts/gates.py --selftest
+
+      - name: Run the gates
+        run: python scripts/gates.py
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependencies
+        run: python -m pip install -r requirements/ci.txt
+
+      - name: Unit and integration tests
+        run: python -m pytest --cov=src/elenchos --cov-report=term-missing --cov-fail-under=85
+
+  killtest:
+    name: Kill test, scored from cached responses
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependencies
+        run: python -m pip install -r requirements/ci.txt
+
+      # The instrument is calibrated before it is allowed to report anything. If the hand written
+      # oracle is not 20/20, no other number from this job means anything.
+      - name: Calibrate the instrument
+        run: |
+          cd killtest
+          python harness.py --producer oracle | tail -1 | grep -q "oracle: 20/20"
+
+      - name: Re-score the recorded runs
+        run: |
+          cd killtest
+          python harness.py --producer template | tail -1
+          for n in 1 2 3; do
+            ELENCHOS_RAW_DIR="$PWD/results/nemotron_b_raw_run$n" \
+              python harness.py --producer nemotron_b --label "_run$n" | tail -1
+          done
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan history for secrets
+        run: |
+          docker run --rm -v "$PWD:/repo" \
+            zricethezav/gitleaks:v8.18.4@sha256:e5ba1bbfd4b0f7d4f1cd1b0d1e9dfba43b2b0d0b0b5c2b7f1b1e6a5c5f5d4c3b \
+            detect --source=/repo --redact --no-banner

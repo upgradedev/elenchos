@@ -1,0 +1,34 @@
+{
+  "rule_id": "r09",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 1.85,
+  "request_id": "chatcmpl-7be79375a6d444b2b01f015dcafc3814",
+  "usage": {
+    "completion_tokens": 448,
+    "prompt_tokens": 1061,
+    "total_tokens": 1509,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n#!/usr/bin/env bash\nchanged=$(python3 -c \"\nimport json, sys\nwith open(sys.argv[1]) as f:\n    data = json.load(f)\nprint(data['pull_request']['changed_files'])\n\" \"$GITHUB_EVENT_PATH\")\nif [ \"$changed\" -gt 50 ]; then\n    exit 1\nelse\n    exit 0\nfi",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 1467,
+  "error": null
+}

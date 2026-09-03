@@ -1,0 +1,334 @@
+{
+  "producer": "oracle",
+  "run_at_utc": "2026-09-02T10:50:49Z",
+  "command": "python harness.py --producer oracle",
+  "contract_sha256": "4198d42be5ed5705177e0aeaa8ed5851d38dad7637762a0679423c4fa5e6abe7",
+  "rules_sha256": "85bd4204e3ca24a13a20b75186ee4a17e07c5adff1b851372b9c8e6c3d6f60b8",
+  "fixtures_sha256": "83a12a9ebe8d380c81d2509ece969e533bb02d0713a503ead7541aac0795ac36",
+  "rules_scored": 20,
+  "score": 20,
+  "refused": 0,
+  "unparsed": [],
+  "results": [
+    {
+      "id": "r01",
+      "class": "A work-item trace",
+      "rule": "Every pull request references at least one issue number in its title or its body.",
+      "step": "- name: Every pull request references at least one issue number\n  run: |\n    python3 - <<'PY'\n\n    import json, os, re, sys\n    pr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\n    text = (pr.get(\"title\") or \"\") + \"\\n\" + (pr.get(\"body\") or \"\")\n    if not re.search(r\"#\\d+\", text):\n        print(\"no issue number in title or body\")\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport json, os, re, sys\npr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\ntext = (pr.get(\"title\") or \"\") + \"\\n\" + (pr.get(\"body\") or \"\")\nif not re.search(r\"#\\d+\", text):\n    print(\"no issue number in title or body\")\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "no issue number in title or body\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r02",
+      "class": "A work-item trace",
+      "rule": "Every pull request carries at least one label.",
+      "step": "- name: Every pull request carries at least one label\n  run: |\n    python3 - <<'PY'\n\n    import json, os, sys\n    pr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\n    if not pr.get(\"labels\"):\n        print(\"pull request carries no label\")\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport json, os, sys\npr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\nif not pr.get(\"labels\"):\n    print(\"pull request carries no label\")\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "pull request carries no label\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r03",
+      "class": "A work-item trace",
+      "rule": "The body of every pull request is not empty.",
+      "step": "- name: The body of every pull request is not empty\n  run: |\n    python3 - <<'PY'\n\n    import json, os, sys\n    pr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\n    if not (pr.get(\"body\") or \"\").strip():\n        print(\"pull request body is empty\")\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport json, os, sys\npr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\nif not (pr.get(\"body\") or \"\").strip():\n    print(\"pull request body is empty\")\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "pull request body is empty\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r04",
+      "class": "A work-item trace",
+      "rule": "Every commit message follows conventional commits, `type(scope): subject`.",
+      "step": "- name: Every commit message follows conventional commits\n  run: |\n    python3 - <<'PY'\n\n    import json, os, re, sys\n    pr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\n    pat = re.compile(r\"^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\\([^)]*\\))?!?: .+\")\n    bad = [c[\"message\"] for c in pr[\"commits\"] if not pat.match(c[\"message\"].split(\"\\n\")[0])]\n    if bad:\n        for m in bad:\n            print(\"not conventional: %s\" % m)\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport json, os, re, sys\npr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\npat = re.compile(r\"^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\\([^)]*\\))?!?: .+\")\nbad = [c[\"message\"] for c in pr[\"commits\"] if not pat.match(c[\"message\"].split(\"\\n\")[0])]\nif bad:\n    for m in bad:\n        print(\"not conventional: %s\" % m)\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "not conventional: fix stuff\nnot conventional: Merge branch 'main' into session-cache\nnot conventional: wip\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r05",
+      "class": "A work-item trace",
+      "rule": "No pull request is merged without at least one approved review.",
+      "step": "- name: No pull request is merged without at least one approved review\n  run: |\n    python3 - <<'PY'\n\n    import json, os, sys\n    pr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\n    if not any(r.get(\"state\") == \"APPROVED\" for r in pr.get(\"reviews\", [])):\n        print(\"no approved review\")\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport json, os, sys\npr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\nif not any(r.get(\"state\") == \"APPROVED\" for r in pr.get(\"reviews\", [])):\n    print(\"no approved review\")\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "no approved review\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r06",
+      "class": "B push or branch prohibition",
+      "rule": "Pushing directly to `main` is forbidden.",
+      "step": "- name: Pushing directly to the default branch is forbidden\n  run: |\n    python3 - <<'PY'\n\n    import json, os, sys\n    ev = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))\n    branch = ev[\"repository\"][\"default_branch\"]\n    bad = []\n    if ev[\"branch_protection\"].get(branch, {}).get(\"allow_direct_push\"):\n        bad.append(\"branch protection allows direct push to %s\" % branch)\n    for p in ev.get(\"push_events\", []):\n        if p[\"ref\"] == \"refs/heads/%s\" % branch:\n            bad.append(\"direct push to %s by %s\" % (branch, p[\"actor\"]))\n    if bad:\n        print(\"\\n\".join(bad))\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport json, os, sys\nev = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))\nbranch = ev[\"repository\"][\"default_branch\"]\nbad = []\nif ev[\"branch_protection\"].get(branch, {}).get(\"allow_direct_push\"):\n    bad.append(\"branch protection allows direct push to %s\" % branch)\nfor p in ev.get(\"push_events\", []):\n    if p[\"ref\"] == \"refs/heads/%s\" % branch:\n        bad.append(\"direct push to %s by %s\" % (branch, p[\"actor\"]))\nif bad:\n    print(\"\\n\".join(bad))\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "branch protection allows direct push to main\ndirect push to main by bob\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r07",
+      "class": "B push or branch prohibition",
+      "rule": "Branch names match `feat/`, `fix/`, `chore/` or `docs/`.",
+      "step": "- name: Branch names match feat/, fix/, chore/ or docs/\n  run: |\n    python3 - <<'PY'\n\n    import json, os, sys\n    pr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\n    ref = pr[\"head\"][\"ref\"]\n    if not ref.startswith((\"feat/\", \"fix/\", \"chore/\", \"docs/\")):\n        print(\"branch %s does not match the convention\" % ref)\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport json, os, sys\npr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\nref = pr[\"head\"][\"ref\"]\nif not ref.startswith((\"feat/\", \"fix/\", \"chore/\", \"docs/\")):\n    print(\"branch %s does not match the convention\" % ref)\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "branch maximos-patch-1 does not match the convention\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r08",
+      "class": "B push or branch prohibition",
+      "rule": "Force pushing to a protected branch is forbidden.",
+      "step": "- name: Force pushing to a protected branch is forbidden\n  run: |\n    python3 - <<'PY'\n\n    import json, os, sys\n    ev = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))\n    protected = set(ev[\"branch_protection\"])\n    bad = [b for b, s in ev[\"branch_protection\"].items() if s.get(\"allow_force_push\")]\n    bad += [\"forced push to %s by %s\" % (p[\"ref\"], p[\"actor\"]) for p in ev.get(\"push_events\", [])\n            if p.get(\"forced\") and p[\"ref\"].replace(\"refs/heads/\", \"\") in protected]\n    if bad:\n        print(\"\\n\".join(str(b) for b in bad))\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport json, os, sys\nev = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))\nprotected = set(ev[\"branch_protection\"])\nbad = [b for b, s in ev[\"branch_protection\"].items() if s.get(\"allow_force_push\")]\nbad += [\"forced push to %s by %s\" % (p[\"ref\"], p[\"actor\"]) for p in ev.get(\"push_events\", [])\n        if p.get(\"forced\") and p[\"ref\"].replace(\"refs/heads/\", \"\") in protected]\nif bad:\n    print(\"\\n\".join(str(b) for b in bad))\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "main\nforced push to refs/heads/main by bob\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r09",
+      "class": "B push or branch prohibition",
+      "rule": "A pull request does not touch more than 50 files.",
+      "step": "- name: A pull request does not touch more than 50 files\n  run: |\n    python3 - <<'PY'\n\n    import json, os, sys\n    pr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\n    if pr[\"changed_files\"] > 50:\n        print(\"%d changed files, limit is 50\" % pr[\"changed_files\"])\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport json, os, sys\npr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\nif pr[\"changed_files\"] > 50:\n    print(\"%d changed files, limit is 50\" % pr[\"changed_files\"])\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "73 changed files, limit is 50\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r10",
+      "class": "B push or branch prohibition",
+      "rule": "A pull request with merge conflicts is not merged.",
+      "step": "- name: A pull request with merge conflicts is not merged\n  run: |\n    python3 - <<'PY'\n\n    import json, os, sys\n    pr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\n    if pr.get(\"mergeable\") is False or pr.get(\"mergeable_state\") == \"dirty\":\n        print(\"pull request has merge conflicts\")\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport json, os, sys\npr = json.load(open(os.environ[\"GITHUB_EVENT_PATH\"], encoding=\"utf-8\"))[\"pull_request\"]\nif pr.get(\"mergeable\") is False or pr.get(\"mergeable_state\") == \"dirty\":\n    print(\"pull request has merge conflicts\")\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "pull request has merge conflicts\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r11",
+      "class": "C mandatory CI step",
+      "rule": "Every workflow declares `permissions:`.",
+      "step": "- name: Every workflow declares permissions:\n  run: |\n    python3 - <<'PY'\n\n    import glob, re, sys\n    bad = []\n    for path in sorted(glob.glob(\".github/workflows/*.yml\") + glob.glob(\".github/workflows/*.yaml\")):\n        if not re.search(r\"(?m)^\\s*permissions:\", open(path, encoding=\"utf-8\").read()):\n            bad.append(path)\n    if bad:\n        for p in bad:\n            print(\"%s declares no permissions:\" % p)\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport glob, re, sys\nbad = []\nfor path in sorted(glob.glob(\".github/workflows/*.yml\") + glob.glob(\".github/workflows/*.yaml\")):\n    if not re.search(r\"(?m)^\\s*permissions:\", open(path, encoding=\"utf-8\").read()):\n        bad.append(path)\nif bad:\n    for p in bad:\n        print(\"%s declares no permissions:\" % p)\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ".github/workflows/ci.yml declares no permissions:\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r12",
+      "class": "C mandatory CI step",
+      "rule": "No security step carries `continue-on-error: true`.",
+      "step": "- name: No security step carries continue-on-error: true\n  run: |\n    python3 - <<'PY'\n\n    import glob, re, sys\n    SEC = re.compile(r\"(?i)(secur|secret|scan|audit|vuln|sast|codeql|trivy|gitleaks|trufflehog)\")\n    bad = []\n    for path in sorted(glob.glob(\".github/workflows/*.yml\") + glob.glob(\".github/workflows/*.yaml\")):\n        text = open(path, encoding=\"utf-8\").read()\n        blocks = re.split(r\"(?m)^(?=\\s*-\\s+name:)\", text)\n        for block in blocks:\n            head = block.strip().split(\"\\n\")[0]\n            if SEC.search(head) and re.search(r\"(?m)^\\s*continue-on-error:\\s*true\", block):\n                bad.append(\"%s: %s\" % (path, head.strip()))\n    if bad:\n        for b in bad:\n            print(\"neutered security step -> %s\" % b)\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport glob, re, sys\nSEC = re.compile(r\"(?i)(secur|secret|scan|audit|vuln|sast|codeql|trivy|gitleaks|trufflehog)\")\nbad = []\nfor path in sorted(glob.glob(\".github/workflows/*.yml\") + glob.glob(\".github/workflows/*.yaml\")):\n    text = open(path, encoding=\"utf-8\").read()\n    blocks = re.split(r\"(?m)^(?=\\s*-\\s+name:)\", text)\n    for block in blocks:\n        head = block.strip().split(\"\\n\")[0]\n        if SEC.search(head) and re.search(r\"(?m)^\\s*continue-on-error:\\s*true\", block):\n            bad.append(\"%s: %s\" % (path, head.strip()))\nif bad:\n    for b in bad:\n        print(\"neutered security step -> %s\" % b)\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "neutered security step -> .github/workflows/ci.yml: - name: Run security scan\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r13",
+      "class": "C mandatory CI step",
+      "rule": "Every third-party action is pinned to a commit SHA, not to a tag.",
+      "step": "- name: Every third-party action is pinned to a commit SHA\n  run: |\n    python3 - <<'PY'\n\n    import glob, re, sys\n    bad = []\n    for path in sorted(glob.glob(\".github/workflows/*.yml\") + glob.glob(\".github/workflows/*.yaml\")):\n        for m in re.finditer(r\"(?m)^\\s*(?:-\\s+)?uses:\\s*(\\S+)\", open(path, encoding=\"utf-8\").read()):\n            ref = m.group(1)\n            if ref.startswith(\"./\") or ref.startswith(\"docker://\"):\n                continue\n            if \"@\" not in ref or not re.fullmatch(r\"[0-9a-f]{40}\", ref.split(\"@\", 1)[1]):\n                bad.append(\"%s: %s\" % (path, ref))\n    if bad:\n        for b in bad:\n            print(\"not pinned to a SHA -> %s\" % b)\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport glob, re, sys\nbad = []\nfor path in sorted(glob.glob(\".github/workflows/*.yml\") + glob.glob(\".github/workflows/*.yaml\")):\n    for m in re.finditer(r\"(?m)^\\s*(?:-\\s+)?uses:\\s*(\\S+)\", open(path, encoding=\"utf-8\").read()):\n        ref = m.group(1)\n        if ref.startswith(\"./\") or ref.startswith(\"docker://\"):\n            continue\n        if \"@\" not in ref or not re.fullmatch(r\"[0-9a-f]{40}\", ref.split(\"@\", 1)[1]):\n            bad.append(\"%s: %s\" % (path, ref))\nif bad:\n    for b in bad:\n        print(\"not pinned to a SHA -> %s\" % b)\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "not pinned to a SHA -> .github/workflows/ci.yml: actions/checkout@v4\nnot pinned to a SHA -> .github/workflows/ci.yml: aquasecurity/trivy-action@0.20.0\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r14",
+      "class": "C mandatory CI step",
+      "rule": "Every pull request runs at least one secret-scanning step.",
+      "step": "- name: Every pull request runs at least one secret-scanning step\n  run: |\n    python3 - <<'PY'\n\n    import glob, re, sys\n    SCAN = re.compile(r\"(?i)(gitleaks|trufflehog|detect-secrets|secret[ _-]?scan|ggshield)\")\n    found = False\n    for path in sorted(glob.glob(\".github/workflows/*.yml\") + glob.glob(\".github/workflows/*.yaml\")):\n        text = open(path, encoding=\"utf-8\").read()\n        if re.search(r\"(?m)^\\s*pull_request:?\", text) and SCAN.search(text):\n            found = True\n    if not found:\n        print(\"no workflow on pull_request runs a secret scan\")\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport glob, re, sys\nSCAN = re.compile(r\"(?i)(gitleaks|trufflehog|detect-secrets|secret[ _-]?scan|ggshield)\")\nfound = False\nfor path in sorted(glob.glob(\".github/workflows/*.yml\") + glob.glob(\".github/workflows/*.yaml\")):\n    text = open(path, encoding=\"utf-8\").read()\n    if re.search(r\"(?m)^\\s*pull_request:?\", text) and SCAN.search(text):\n        found = True\nif not found:\n    print(\"no workflow on pull_request runs a secret scan\")\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "no workflow on pull_request runs a secret scan\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r15",
+      "class": "C mandatory CI step",
+      "rule": "Every workflow declares `timeout-minutes`.",
+      "step": "- name: Every workflow declares timeout-minutes\n  run: |\n    python3 - <<'PY'\n\n    import glob, re, sys\n    bad = []\n    for path in sorted(glob.glob(\".github/workflows/*.yml\") + glob.glob(\".github/workflows/*.yaml\")):\n        if not re.search(r\"(?m)^\\s*timeout-minutes:\", open(path, encoding=\"utf-8\").read()):\n            bad.append(path)\n    if bad:\n        for p in bad:\n            print(\"%s declares no timeout-minutes\" % p)\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport glob, re, sys\nbad = []\nfor path in sorted(glob.glob(\".github/workflows/*.yml\") + glob.glob(\".github/workflows/*.yaml\")):\n    if not re.search(r\"(?m)^\\s*timeout-minutes:\", open(path, encoding=\"utf-8\").read()):\n        bad.append(path)\nif bad:\n    for p in bad:\n        print(\"%s declares no timeout-minutes\" % p)\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ".github/workflows/ci.yml declares no timeout-minutes\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r16",
+      "class": "D file convention",
+      "rule": "Every repository has a `LICENSE` file at its root.",
+      "step": "- name: Every repository has a LICENSE file at its root\n  run: |\n    python3 - <<'PY'\n\n    import os, sys\n    if not os.path.isfile(\"LICENSE\"):\n        print(\"no LICENSE at the repository root\")\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport os, sys\nif not os.path.isfile(\"LICENSE\"):\n    print(\"no LICENSE at the repository root\")\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "no LICENSE at the repository root\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r17",
+      "class": "D file convention",
+      "rule": "Every repository has a `README.md` with an installation section.",
+      "step": "- name: Every repository has a README.md with an installation section\n  run: |\n    python3 - <<'PY'\n\n    import os, re, sys\n    if not os.path.isfile(\"README.md\"):\n        print(\"no README.md\")\n        sys.exit(1)\n    text = open(\"README.md\", encoding=\"utf-8\").read()\n    if not re.search(r\"(?im)^#+\\s*(installation|install|setup|getting started)\\b\", text):\n        print(\"README.md has no installation section\")\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport os, re, sys\nif not os.path.isfile(\"README.md\"):\n    print(\"no README.md\")\n    sys.exit(1)\ntext = open(\"README.md\", encoding=\"utf-8\").read()\nif not re.search(r\"(?im)^#+\\s*(installation|install|setup|getting started)\\b\", text):\n    print(\"README.md has no installation section\")\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "README.md has no installation section\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r18",
+      "class": "D file convention",
+      "rule": "No `.env` file is committed.",
+      "step": "- name: No .env file is committed\n  run: |\n    python3 - <<'PY'\n\n    import subprocess, sys\n    tracked = subprocess.run([\"git\", \"ls-files\"], capture_output=True, text=True).stdout.split(\"\\n\")\n    bad = [p for p in tracked if p == \".env\" or p.endswith(\"/.env\")]\n    if bad:\n        for p in bad:\n            print(\"committed env file -> %s\" % p)\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport subprocess, sys\ntracked = subprocess.run([\"git\", \"ls-files\"], capture_output=True, text=True).stdout.split(\"\\n\")\nbad = [p for p in tracked if p == \".env\" or p.endswith(\"/.env\")]\nif bad:\n    for p in bad:\n        print(\"committed env file -> %s\" % p)\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "committed env file -> .env\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r19",
+      "class": "D file convention",
+      "rule": "No file is larger than 5 MB.",
+      "step": "- name: No file is larger than 5 MB\n  run: |\n    python3 - <<'PY'\n\n    import os, sys\n    LIMIT = 5 * 1024 * 1024\n    bad = []\n    for root, dirs, files in os.walk(\".\"):\n        dirs[:] = [d for d in dirs if d != \".git\"]\n        for name in files:\n            path = os.path.join(root, name)\n            if os.path.getsize(path) > LIMIT:\n                bad.append((path, os.path.getsize(path)))\n    if bad:\n        for path, size in bad:\n            print(\"%s is %d bytes, limit is %d\" % (path, size, LIMIT))\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport os, sys\nLIMIT = 5 * 1024 * 1024\nbad = []\nfor root, dirs, files in os.walk(\".\"):\n    dirs[:] = [d for d in dirs if d != \".git\"]\n    for name in files:\n        path = os.path.join(root, name)\n        if os.path.getsize(path) > LIMIT:\n            bad.append((path, os.path.getsize(path)))\nif bad:\n    for path, size in bad:\n        print(\"%s is %d bytes, limit is %d\" % (path, size, LIMIT))\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "./assets/model.bin is 6291456 bytes, limit is 5242880\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r20",
+      "class": "D file convention",
+      "rule": "Every source directory has a corresponding test directory.",
+      "step": "- name: Every source directory has a corresponding test directory\n  run: |\n    python3 - <<'PY'\n\n    import os, sys\n    if not os.path.isdir(\"src\"):\n        sys.exit(0)\n    if not os.path.isdir(\"tests\") and not os.path.isdir(\"test\"):\n        print(\"src/ exists but there is no test directory\")\n        sys.exit(1)\n    root = \"tests\" if os.path.isdir(\"tests\") else \"test\"\n    bad = [d for d in sorted(os.listdir(\"src\"))\n           if os.path.isdir(os.path.join(\"src\", d)) and not os.path.isdir(os.path.join(root, d))]\n    if bad:\n        for d in bad:\n            print(\"src/%s has no %s/%s\" % (d, root, d))\n        sys.exit(1)\n\n    PY\n",
+      "body": "python3 - <<'PY'\n\nimport os, sys\nif not os.path.isdir(\"src\"):\n    sys.exit(0)\nif not os.path.isdir(\"tests\") and not os.path.isdir(\"test\"):\n    print(\"src/ exists but there is no test directory\")\n    sys.exit(1)\nroot = \"tests\" if os.path.isdir(\"tests\") else \"test\"\nbad = [d for d in sorted(os.listdir(\"src\"))\n       if os.path.isdir(os.path.join(\"src\", d)) and not os.path.isdir(os.path.join(root, d))]\nif bad:\n    for d in bad:\n        print(\"src/%s has no %s/%s\" % (d, root, d))\n    sys.exit(1)\n\nPY\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "src/ exists but there is no test directory\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    }
+  ]
+}

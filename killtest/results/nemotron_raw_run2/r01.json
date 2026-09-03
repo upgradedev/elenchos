@@ -1,0 +1,33 @@
+{
+  "rule_id": "r01",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 4.28,
+  "request_id": "chatcmpl-582df52952e94a0aa22cf7892deb2097",
+  "usage": {
+    "completion_tokens": 575,
+    "prompt_tokens": 1036,
+    "total_tokens": 1611,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Ensure PR references an issue\n  run: |\n    python3 <<'EOF'\n    import json, re, os\n    with open(os.environ['GITHUB_EVENT_PATH']) as f:\n        data = json.load(f)\n    title = data['pull_request']['title']\n    body = data['pull_request']['body']\n    if re.search(r'#\\d+', title) or re.search(r'#\\d+', body):\n        exit(0)\n    else:\n        exit(1)\n    EOF\n",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 1721,
+  "error": null
+}

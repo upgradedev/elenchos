@@ -1,0 +1,14 @@
+- name: Every repository has a README.md with an installation section
+  run: |
+    python3 - <<'PY'
+
+    import os, re, sys
+    if not os.path.isfile("README.md"):
+        print("no README.md")
+        sys.exit(1)
+    text = open("README.md", encoding="utf-8").read()
+    if not re.search(r"(?im)^#+\s*(installation|install|setup|getting started)\b", text):
+        print("README.md has no installation section")
+        sys.exit(1)
+
+    PY

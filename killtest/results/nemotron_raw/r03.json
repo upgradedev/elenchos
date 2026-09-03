@@ -1,0 +1,21 @@
+{
+  "rule_id": "r03",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 12.05,
+  "request_id": "chatcmpl-1b414a2a549a4521862a3627e3b582de",
+  "usage": {
+    "completion_tokens": 854,
+    "prompt_tokens": 1030,
+    "total_tokens": 1884,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Check PR body not empty\n  run: |\n    python3 -c \"\nimport json, sys\nwith open('$GITHUB_EVENT_PATH') as f:\n    data = json.load(f)\nbody = data.get('pull_request', {}).get('body', '')\nif not body:\n    sys.exit(1)\n\"",
+  "error": null
+}

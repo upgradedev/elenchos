@@ -1,0 +1,15 @@
+- name: Every workflow declares permissions:
+  run: |
+    python3 - <<'PY'
+
+    import glob, re, sys
+    bad = []
+    for path in sorted(glob.glob(".github/workflows/*.yml") + glob.glob(".github/workflows/*.yaml")):
+        if not re.search(r"(?m)^\s*permissions:", open(path, encoding="utf-8").read()):
+            bad.append(path)
+    if bad:
+        for p in bad:
+            print("%s declares no permissions:" % p)
+        sys.exit(1)
+
+    PY

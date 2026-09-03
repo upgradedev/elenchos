@@ -1,0 +1,34 @@
+{
+  "rule_id": "r12",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 11.42,
+  "request_id": "chatcmpl-1c65b9477fae499b994d68b81fb0e68d",
+  "usage": {
+    "completion_tokens": 1813,
+    "prompt_tokens": 1059,
+    "total_tokens": 2872,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\nbash --noprofile --norc -e <<'EOF'\n#!/usr/bin/env bash\nset -euo pipefail\n\n# Find all workflow files under .github/workflows\nworkflow_files=$(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null || true)\n\nif [ -z \"$workflow_files\" ]; then\n    exit 0\nfi\n\npython3 <<'PYEND'\nimport os, sys, yaml\n\ndef is_security_step(step):\n    if not isinstance(step, dict):\n        return False\n    name = step.get('name', '')\n    if isinstance(name, str) and 'security' in name.lower():\n        return True\n    uses = step.get('uses')\n    if isinstance(uses, str) and 'security' in uses.lower():\n        return True\n    return False\n\nviolation = False\nfor root, dirs, files in os.walk('.github/workflows'):\n    for f in files:\n        if not (f.endswith('.yml') or f.endswith('.yaml')):\n            continue\n        path = os.path.join(root, f)\n        try:\n            with open(path, 'r') as fp:\n                data = yaml.safe_load(fp)\n        except Exception:\n            continue\n        if not isinstance(data, dict):\n            continue\n        jobs = data.get('jobs')\n        if not isinstance(jobs, dict):\n            continue\n        for job_name, job in jobs.items():\n            if not isinstance(job, dict):\n                continue\n            steps = job.get('steps')\n            if not isinstance(steps, list):\n                continue\n            for step in steps:\n                if is_security_step(step):\n                    if step.get('continue-on-error') is True:\n                        print(f\"Violation: {path} job '{job_name}' step '{step.get('name')}' has continue-on-error: true\")\n                        violation = True\nsys.exit(1 if violation else 0)\nPYEND\nEOF",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 6073,
+  "error": null
+}

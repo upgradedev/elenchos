@@ -1,0 +1,10 @@
+- name: Every repository has a LICENSE file at its root
+  run: |
+    python3 - <<'PY'
+
+    import os, sys
+    if not os.path.isfile("LICENSE"):
+        print("no LICENSE at the repository root")
+        sys.exit(1)
+
+    PY

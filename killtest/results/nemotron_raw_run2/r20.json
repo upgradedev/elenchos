@@ -1,0 +1,33 @@
+{
+  "rule_id": "r20",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 37.58,
+  "request_id": "chatcmpl-6d281e58fe3b4b1c9823497cacd9ee35",
+  "usage": {
+    "completion_tokens": 4000,
+    "prompt_tokens": 1029,
+    "total_tokens": 5029,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "length",
+  "content": "\n\n- run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n    src_roots=(src lib source app cmd pkg internal)\n    test_roots=(test tests __tests__ spec specs)\n    shopt -s nullglob dotglob\n    src_files=()\n    while IFS= read -r -d $'\\0' f; do\n        src_files+=(\"$f\")\n    done < <(find . -type f \\( -name '",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 14402,
+  "error": null
+}

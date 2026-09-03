@@ -1,0 +1,336 @@
+{
+  "producer": "nemotron_b",
+  "run_at_utc": "2026-09-02T10:37:24Z",
+  "command": "python harness.py --producer nemotron_b",
+  "contract_sha256": "4198d42be5ed5705177e0aeaa8ed5851d38dad7637762a0679423c4fa5e6abe7",
+  "rules_sha256": "85bd4204e3ca24a13a20b75186ee4a17e07c5adff1b851372b9c8e6c3d6f60b8",
+  "fixtures_sha256": "83a12a9ebe8d380c81d2509ece969e533bb02d0713a503ead7541aac0795ac36",
+  "rules_scored": 20,
+  "score": 14,
+  "refused": 0,
+  "unparsed": [],
+  "results": [
+    {
+      "id": "r01",
+      "class": "A work-item trace",
+      "rule": "Every pull request references at least one issue number in its title or its body.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n\n    payload=\"$GITHUB_EVENT_PATH\"\n\n    title=$(python3 -c \"import json,sys; d=json.load(open(sys.argv[1])); print(d.get('pull_request',{}).get('title',''))\" \"$payload\")\n    body=$(python3 -c \"import json,sys; d=json.load(open(sys.argv[1])); print(d.get('pull_request',{}).get('body',''))\" \"$payload\")\n\n    if [[ \"$title$body\" =~ #[0-9]+ ]]; then\n        exit 0\n    else\n        exit 1\n    fi\n",
+      "body": "#!/usr/bin/env bash\nset -euo pipefail\n\npayload=\"$GITHUB_EVENT_PATH\"\n\ntitle=$(python3 -c \"import json,sys; d=json.load(open(sys.argv[1])); print(d.get('pull_request',{}).get('title',''))\" \"$payload\")\nbody=$(python3 -c \"import json,sys; d=json.load(open(sys.argv[1])); print(d.get('pull_request',{}).get('body',''))\" \"$payload\")\n\nif [[ \"$title$body\" =~ #[0-9]+ ]]; then\n    exit 0\nelse\n    exit 1\nfi\n",
+      "score": 0,
+      "violating": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r01-violating-c4mrwjib/step.sh: line 9: unexpected argument `newline' to conditional binary operator\n"
+      },
+      "clean": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r01-clean-zay2rmww/step.sh: line 9: unexpected argument `newline' to conditional binary operator\n"
+      }
+    },
+    {
+      "id": "r02",
+      "class": "A work-item trace",
+      "rule": "Every pull request carries at least one label.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    set -euo pipefail\n    label_count=$(python3 -c \"import json,sys; d=json.load(open('$GITHUB_EVENT_PATH')); print(len(d.get('pull_request',{}).get('labels',[])))\")\n    if [ \"$label_count\" -eq 0 ]; then exit 1; else exit 0; fi\n",
+      "body": "set -euo pipefail\nlabel_count=$(python3 -c \"import json,sys; d=json.load(open('$GITHUB_EVENT_PATH')); print(len(d.get('pull_request',{}).get('labels',[])))\")\nif [ \"$label_count\" -eq 0 ]; then exit 1; else exit 0; fi\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r03",
+      "class": "A work-item trace",
+      "rule": "The body of every pull request is not empty.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    body=$(python3 -c \"import json, sys; d=json.load(open('$GITHUB_EVENT_PATH')); print(d['pull_request']['body'], end='')\")\n    if [ -z \"$body\" ]; then\n        exit 1\n    else\n        exit 0\n    fi\n",
+      "body": "body=$(python3 -c \"import json, sys; d=json.load(open('$GITHUB_EVENT_PATH')); print(d['pull_request']['body'], end='')\")\nif [ -z \"$body\" ]; then\n    exit 1\nelse\n    exit 0\nfi\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r04",
+      "class": "A work-item trace",
+      "rule": "Every commit message follows conventional commits, `type(scope): subject`.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    while IFS= read -r msg; do\n      if ! [[ \"$msg\" =~ ^[a-z]+\\([^)]+\\): .+ ]]; then\n        echo \"Invalid commit message: $msg\"\n        exit 1\n      fi\n    done < <(git log --format=%s)\n    exit 0\n",
+      "body": "#!/usr/bin/env bash\nwhile IFS= read -r msg; do\n  if ! [[ \"$msg\" =~ ^[a-z]+\\([^)]+\\): .+ ]]; then\n    echo \"Invalid commit message: $msg\"\n    exit 1\n  fi\ndone < <(git log --format=%s)\nexit 0\n",
+      "score": 0,
+      "violating": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r04-violating-kdnmb8r4/step.sh: line 3: syntax error in conditional expression: unexpected token `)'\n"
+      },
+      "clean": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r04-clean-iwiqm0lx/step.sh: line 3: syntax error in conditional expression: unexpected token `)'\n"
+      }
+    },
+    {
+      "id": "r05",
+      "class": "A work-item trace",
+      "rule": "No pull request is merged without at least one approved review.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    approved=$(python3 -c 'import json, sys; data=json.load(open(sys.argv[1])); reviews=data.get(\"pull_request\",{}).get(\"reviews\",[]); print(\"true\" if any(r.get(\"state\")==\"APPROVED\" for r in reviews) else \"false')\" \"$GITHUB_EVENT_PATH\")\n    if [ \"$approved\" = \"true\" ]; then\n        exit 0\n    else\n        exit 1\n    fi\n",
+      "body": "approved=$(python3 -c 'import json, sys; data=json.load(open(sys.argv[1])); reviews=data.get(\"pull_request\",{}).get(\"reviews\",[]); print(\"true\" if any(r.get(\"state\")==\"APPROVED\" for r in reviews) else \"false')\" \"$GITHUB_EVENT_PATH\")\nif [ \"$approved\" = \"true\" ]; then\n    exit 0\nelse\n    exit 1\nfi\n",
+      "score": 0,
+      "violating": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r05-violating-tykdmth0/step.sh: line 2: unexpected EOF while looking for matching `\"'\n"
+      },
+      "clean": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r05-clean-r5ktnsmd/step.sh: line 2: unexpected EOF while looking for matching `\"'\n"
+      }
+    },
+    {
+      "id": "r06",
+      "class": "B push or branch prohibition",
+      "rule": "Pushing directly to `main` is forbidden.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    python3 -c \"\n    import json, sys\n    data=json.load(open('$GITHUB_EVENT_PATH'))\n    for e in data.get('push_events', []):\n        if e.get('ref') == 'refs/heads/main':\n            sys.exit(1)\n    sys.exit(0)\n    \"\n",
+      "body": "python3 -c \"\nimport json, sys\ndata=json.load(open('$GITHUB_EVENT_PATH'))\nfor e in data.get('push_events', []):\n    if e.get('ref') == 'refs/heads/main':\n        sys.exit(1)\nsys.exit(0)\n\"\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r07",
+      "class": "B push or branch prohibition",
+      "rule": "Branch names match `feat/`, `fix/`, `chore/` or `docs/`.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    if [[ ! \"$GITHUB_HEAD_REF\" =~ ^(feat|fix|chore|docs)/ ]]; then\n        exit 1\n    fi\n    exit 0\n",
+      "body": "if [[ ! \"$GITHUB_HEAD_REF\" =~ ^(feat|fix|chore|docs)/ ]]; then\n    exit 1\nfi\nexit 0\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r08",
+      "class": "B push or branch prohibition",
+      "rule": "Force pushing to a protected branch is forbidden.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    python3 -c 'import json,sys;data=json.load(open(sys.argv[1]));db=data[\"repository\"][\"default_branch\"];prot=\"refs/heads/\"+db;exit(1 if any(e.get(\"forced\") and e.get(\"ref\")==prot for e in data.get(\"push_events\",[])) else 0)' \"$GITHUB_EVENT_PATH\"\n",
+      "body": "#!/usr/bin/env bash\npython3 -c 'import json,sys;data=json.load(open(sys.argv[1]));db=data[\"repository\"][\"default_branch\"];prot=\"refs/heads/\"+db;exit(1 if any(e.get(\"forced\") and e.get(\"ref\")==prot for e in data.get(\"push_events\",[])) else 0)' \"$GITHUB_EVENT_PATH\"\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r09",
+      "class": "B push or branch prohibition",
+      "rule": "A pull request does not touch more than 50 files.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    changed=$(python3 - <<'PY'\n    import json, sys\n    print(json.load(open(sys.argv[1]))['pull_request']['changed_files'])\n    PY \"$GITHUB_EVENT_PATH\")\n    if [ \"$changed\" -gt 50 ]; then\n     exit 1\n    else\n     exit 0\n     fi\n",
+      "body": "changed=$(python3 - <<'PY'\nimport json, sys\nprint(json.load(open(sys.argv[1]))['pull_request']['changed_files'])\nPY \"$GITHUB_EVENT_PATH\")\nif [ \"$changed\" -gt 50 ]; then\n exit 1\nelse\n exit 0\n fi\n",
+      "score": 0,
+      "violating": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r09-violating-8qjgdvta/step.sh: line 1: unexpected EOF while looking for matching `)'\n"
+      },
+      "clean": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r09-clean-63if2rk8/step.sh: line 1: unexpected EOF while looking for matching `)'\n"
+      }
+    },
+    {
+      "id": "r10",
+      "class": "B push or branch prohibition",
+      "rule": "A pull request with merge conflicts is not merged.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    state=$(python3 -c \"import json,sys; d=json.load(open(sys.argv[1])); print(d['pull_request']['mergeable_state'])\" \"$GITHUB_EVENT_PATH\")\n    if [[ \"$state\" != \"clean\" ]]; then\n        exit 1\n    else\n        exit 0\n    fi\n",
+      "body": "state=$(python3 -c \"import json,sys; d=json.load(open(sys.argv[1])); print(d['pull_request']['mergeable_state'])\" \"$GITHUB_EVENT_PATH\")\nif [[ \"$state\" != \"clean\" ]]; then\n    exit 1\nelse\n    exit 0\nfi\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r11",
+      "class": "C mandatory CI step",
+      "rule": "Every workflow declares `permissions:`.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    missing=0\n    while IFS= read -r f; do\n        if ! grep -q '^[[:space:]]*permissions:' \"$f\"; then\n            missing=1\n            break\n        fi\n    done < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null)\n    if [ \"$missing\" -eq 1 ]; then\n        exit 1\n    else\n        exit 0\n    fi\n",
+      "body": "#!/usr/bin/env bash\nmissing=0\nwhile IFS= read -r f; do\n    if ! grep -q '^[[:space:]]*permissions:' \"$f\"; then\n        missing=1\n        break\n    fi\ndone < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null)\nif [ \"$missing\" -eq 1 ]; then\n    exit 1\nelse\n    exit 0\nfi\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r12",
+      "class": "C mandatory CI step",
+      "rule": "No security step carries `continue-on-error: true`.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n\n    violation=0\n\n    # Find all workflow files\n    while IFS= read -r f; do\n        # Skip if not a regular file\n        [[ -f \"$f\" ]] || continue\n\n        # Get line numbers of continue-on-error: true (case-insensitive)\n        while IFS=: read -r _ lnum _; do\n            # Get the line with continue-on-error and the previous line\n            line=$(sed -n \"${lnum}p\" \"$f\")\n            prev_line=\"\"\n            if (( lnum > 1 )); then\n                prev_line=$(sed -n \"$((lnum-1))p\" \"$f\")\n            fi\n\n            line_lc=$(echo \"$line\" | tr '[:upper:]' '[:lower:]')\n            prev_lc=$(echo \"$prev_line\" | tr '[:upper:]' '[:lower:]')\n\n            # Check for continue-on-error: true and security in either line\n            if [[ \"$line_lc\" =~ continue-on-error:[[:space:]]*true ]] && \\\n               ( [[ \"$prev_lc\" =~ security ]] || [[ \"$line_lc\" =~ security ]] ); then\n                echo \"Violation: security step with continue-on-error: true in $f:$lnum\"\n                violation=1\n                break 2\n            fi\n        done < <(grep -n -i \"continue-on-error: true\" \"$f\" || true)\n    done < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null || true)\n\n    if (( violation )); then\n        exit 1\n    else\n        exit 0\n    fi\n",
+      "body": "#!/usr/bin/env bash\nset -euo pipefail\n\nviolation=0\n\n# Find all workflow files\nwhile IFS= read -r f; do\n    # Skip if not a regular file\n    [[ -f \"$f\" ]] || continue\n\n    # Get line numbers of continue-on-error: true (case-insensitive)\n    while IFS=: read -r _ lnum _; do\n        # Get the line with continue-on-error and the previous line\n        line=$(sed -n \"${lnum}p\" \"$f\")\n        prev_line=\"\"\n        if (( lnum > 1 )); then\n            prev_line=$(sed -n \"$((lnum-1))p\" \"$f\")\n        fi\n\n        line_lc=$(echo \"$line\" | tr '[:upper:]' '[:lower:]')\n        prev_lc=$(echo \"$prev_line\" | tr '[:upper:]' '[:lower:]')\n\n        # Check for continue-on-error: true and security in either line\n        if [[ \"$line_lc\" =~ continue-on-error:[[:space:]]*true ]] && \\\n           ( [[ \"$prev_lc\" =~ security ]] || [[ \"$line_lc\" =~ security ]] ); then\n            echo \"Violation: security step with continue-on-error: true in $f:$lnum\"\n            violation=1\n            break 2\n        fi\n    done < <(grep -n -i \"continue-on-error: true\" \"$f\" || true)\ndone < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null || true)\n\nif (( violation )); then\n    exit 1\nelse\n    exit 0\nfi\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "/tmp/elenchos-r12-violating-pcv7ccbd/step.sh: line 16: continue: unbound variable\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r13",
+      "class": "C mandatory CI step",
+      "rule": "Every third-party action is pinned to a commit SHA, not to a tag.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    violation=0\n    while IFS= read -r -d '' file; do\n        while IFS= read -r line; do\n            trimmed=$(echo \"$line\" | sed -e 's/^[[:space:]]*//')\n            if [[ $trimmed == \\#* ]]; then\n                continue\n            fi\n            if [[ $line =~ uses:[[:space:]] ]]; then\n                value=${line#*uses:}\n                value=$(echo \"$value\" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]#].*//' -e \"s/['\\\"]//g\")\n                if [[ -z $value ]]; then\n                    continue\n                fi\n                if [[ $value == .* ]] || [[ $value == ./]* ]]; then\n                    continue\n                fi\n                if [[ $value == *@* ]]; then\n                    ref=${value#*@}\n                else\n                    ref=\"\"\n                fi\n                if [[ -z $ref ]]; then\n                    violation=1\n                    break 2\n                fi\n                if ! [[ $ref =~ ^[0-9a-fA-F]{40}$ ]]; then\n                    violation=1\n                    break 2\n                fi\n            fi\n        done < \"$file\"\n        if [[ $violation -ne 0 ]]; then\n            break\n        fi\n    done < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) -print0 2>/dev/null)\n    if [[ $violation -ne 0 ]]; then\n        exit 1\n    else\n        exit 0\n    fi\n",
+      "body": "#!/usr/bin/env bash\nviolation=0\nwhile IFS= read -r -d '' file; do\n    while IFS= read -r line; do\n        trimmed=$(echo \"$line\" | sed -e 's/^[[:space:]]*//')\n        if [[ $trimmed == \\#* ]]; then\n            continue\n        fi\n        if [[ $line =~ uses:[[:space:]] ]]; then\n            value=${line#*uses:}\n            value=$(echo \"$value\" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]#].*//' -e \"s/['\\\"]//g\")\n            if [[ -z $value ]]; then\n                continue\n            fi\n            if [[ $value == .* ]] || [[ $value == ./]* ]]; then\n                continue\n            fi\n            if [[ $value == *@* ]]; then\n                ref=${value#*@}\n            else\n                ref=\"\"\n            fi\n            if [[ -z $ref ]]; then\n                violation=1\n                break 2\n            fi\n            if ! [[ $ref =~ ^[0-9a-fA-F]{40}$ ]]; then\n                violation=1\n                break 2\n            fi\n        fi\n    done < \"$file\"\n    if [[ $violation -ne 0 ]]; then\n        break\n    fi\ndone < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) -print0 2>/dev/null)\nif [[ $violation -ne 0 ]]; then\n    exit 1\nelse\n    exit 0\nfi\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r14",
+      "class": "C mandatory CI step",
+      "rule": "Every pull request runs at least one secret-scanning step.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n    if [ -d .github/workflows ] && grep -r -i \"secret-scanning\" .github/workflows --include=\"*.yml\" --include=\"*.yaml\" 2>/dev/null; then\n        exit 0\n    else\n        exit 1\n    fi\n",
+      "body": "#!/usr/bin/env bash\nset -euo pipefail\nif [ -d .github/workflows ] && grep -r -i \"secret-scanning\" .github/workflows --include=\"*.yml\" --include=\"*.yaml\" 2>/dev/null; then\n    exit 0\nelse\n    exit 1\nfi\n",
+      "score": 0,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 1,
+        "output": ""
+      }
+    },
+    {
+      "id": "r15",
+      "class": "C mandatory CI step",
+      "rule": "Every workflow declares `timeout-minutes`.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    set -e\n    missing=0\n    while IFS= read -r -d '' file; do\n        if ! grep -E '^[[:space:]]*timeout-minutes[[:space:]]*:' \"$file\" >/dev/null; then\n            echo \"Workflow $file missing timeout-minutes\"\n            missing=1\n        fi\n    done < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) -print0)\n    if [ \"$missing\" -ne 0 ]; then\n        exit 1\n    fi\n    exit 0\n",
+      "body": "#!/usr/bin/env bash\nset -e\nmissing=0\nwhile IFS= read -r -d '' file; do\n    if ! grep -E '^[[:space:]]*timeout-minutes[[:space:]]*:' \"$file\" >/dev/null; then\n        echo \"Workflow $file missing timeout-minutes\"\n        missing=1\n    fi\ndone < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) -print0)\nif [ \"$missing\" -ne 0 ]; then\n    exit 1\nfi\nexit 0\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "Workflow .github/workflows/ci.yml missing timeout-minutes\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r16",
+      "class": "D file convention",
+      "rule": "Every repository has a `LICENSE` file at its root.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    test -f LICENSE && exit 0 || exit 1\n",
+      "body": "test -f LICENSE && exit 0 || exit 1\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r17",
+      "class": "D file convention",
+      "rule": "Every repository has a `README.md` with an installation section.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    if [ ! -f README.md ]; then exit 1; fi\n    if ! grep -i -E '^#+[[:space:]]*Installation[[:space:]]*$' README.md >/dev/null; then exit 1; fi\n    exit 0\n",
+      "body": "if [ ! -f README.md ]; then exit 1; fi\nif ! grep -i -E '^#+[[:space:]]*Installation[[:space:]]*$' README.md >/dev/null; then exit 1; fi\nexit 0\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r18",
+      "class": "D file convention",
+      "rule": "No `.env` file is committed.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    if git ls-files | grep -q '\\.env$'; then\n      exit 1\n    else\n      exit 0\n    fi\n",
+      "body": "if git ls-files | grep -q '\\.env$'; then\n  exit 1\nelse\n  exit 0\nfi\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r19",
+      "class": "D file convention",
+      "rule": "No file is larger than 5 MB.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    if [ -n \"$(find . -type f -size +5M -print -quit)\" ]; then exit 1; else exit 0; fi\n",
+      "body": "if [ -n \"$(find . -type f -size +5M -print -quit)\" ]; then exit 1; else exit 0; fi\n",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r20",
+      "class": "D file convention",
+      "rule": "Every source directory has a corresponding test directory.",
+      "step": "- name: \"Enforce rule\"\n  run: |\n    #!/usr/bin/env bash\n    if [ -d src ]; then\n        missing=0\n        while IFS= read -r srcdir; do\n            rel=\"${srcdir#src/}\"\n            testdir=\"tests/$rel\"\n            if [ ! -d \"$testdir\" ]; then\n                echo \"Missing test directory for source: $srcdir\"\n                missing=1\n            fi\n        done < <(find src -type d)\n        if [ \"$missing\" -ne 0 ]; then\n            exit 1\n        fi\n    fi\n    exit 0\n",
+      "body": "#!/usr/bin/env bash\nif [ -d src ]; then\n    missing=0\n    while IFS= read -r srcdir; do\n        rel=\"${srcdir#src/}\"\n        testdir=\"tests/$rel\"\n        if [ ! -d \"$testdir\" ]; then\n            echo \"Missing test directory for source: $srcdir\"\n            missing=1\n        fi\n    done < <(find src -type d)\n    if [ \"$missing\" -ne 0 ]; then\n        exit 1\n    fi\nfi\nexit 0\n",
+      "score": 0,
+      "violating": {
+        "exit": 1,
+        "output": "Missing test directory for source: src\nMissing test directory for source: src/core\nMissing test directory for source: src/api\n"
+      },
+      "clean": {
+        "exit": 1,
+        "output": "Missing test directory for source: src\n"
+      }
+    }
+  ],
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1"
+}

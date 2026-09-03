@@ -1,0 +1,44 @@
+name: Canary target, deliberately theatre
+
+# READ THIS BEFORE FILING A BUG AGAINST IT.
+#
+# This workflow is broken on purpose. It is the thing Elenchos refutes, and it is the only
+# neutered control in this repository. scripts/gates.py knows it by name and fails the build if a
+# second one ever appears, so the exception is visible rather than silent.
+#
+# The scan below is real. It genuinely detects the synthetic marker the canary plants, and it
+# genuinely exits non-zero. The job still reports success, because `continue-on-error: true` means
+# the step's failure is recorded and then discarded. A green tick on this run is the finding.
+#
+# It fires only on canary/** branches, so it never runs on anyone's work.
+
+on:
+  push:
+    branches:
+      - "canary/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      # The claim. The name says the pipeline scans for secrets before anything ships.
+      - name: Run security scan
+        continue-on-error: true
+        run: |
+          echo "scanning for planted findings"
+          if grep -rIl --exclude-dir=.git --exclude-dir=.github "ELENCHOS-CANARY-SECRET" .; then
+            echo "::error::planted finding detected, this build must not pass"
+            exit 1
+          fi
+          echo "clean"
+
+      - name: Build
+        run: echo "built"

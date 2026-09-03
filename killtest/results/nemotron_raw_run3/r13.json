@@ -1,0 +1,33 @@
+{
+  "rule_id": "r13",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 28.84,
+  "request_id": "chatcmpl-8a05fffa9b544f5faee90028e7ef6318",
+  "usage": {
+    "completion_tokens": 1939,
+    "prompt_tokens": 1036,
+    "total_tokens": 2975,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Enforce third-party actions pinned to commit SHA\n  run: |\n    violations=$(grep -r 'uses:' .github/workflows --include='*.yml' -h | while IFS= read -r line; do\n      line=$(echo \"$line\" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')\n      value=$(echo \"$line\" | sed -n 's/.*uses:[[:space:]]*//p')\n      value=$(echo \"$value\" | sed -e 's/[[:space:]#].*//')\n      [ -z \"$value\" ] && continue\n      if [[ \"$value\" == *@* ]]; then\n        action=$(echo \"$value\" | cut -d'@' -f1)\n        ref=$(echo \"$value\" | cut -d'@' -f2-)\n      else\n        echo \"$value\"\n        continue\n      fi\n      # Skip local actions (paths starting with .)\n      if [[ \"$action\" == ./* ]] || [[ \"$action\" == './'* ]] || [[ \"$action\" == '../'* ]]; then\n        continue\n      fi\n      if ! echo \"$ref\" | grep -iqE '^[0-9a-f]{40}$'; then\n        echo \"$value\"\n      fi\n    done)\n    if [ -n \"$violations\" ]; then\n      echo \"Found third-party actions not pinned to commit SHA:\"\n      echo \"$violations\"\n      exit 1\n    else\n      echo \"All third-party actions are pinned to commit SHA.\"\n    fi\n",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 5773,
+  "error": null
+}

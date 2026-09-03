@@ -1,0 +1,34 @@
+{
+  "rule_id": "r11",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 4.47,
+  "request_id": "chatcmpl-caa93e7dac1944a492349b598323982d",
+  "usage": {
+    "completion_tokens": 678,
+    "prompt_tokens": 1055,
+    "total_tokens": 1733,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n#!/usr/bin/env bash\nset -e\nfail=0\nwhile IFS= read -r -d '' file; do\n    if ! grep -qE '^[[:space:]]*permissions:' \"$file\"; then\n        echo \"Workflow file $file missing permissions:\" >&2\n        fail=1\n    fi\ndone < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) -print0 2>/dev/null)\nif [ $fail -eq 0 ]; then\n    exit 0\nelse\n    exit 1\nfi",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 2209,
+  "error": null
+}

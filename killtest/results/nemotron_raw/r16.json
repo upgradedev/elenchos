@@ -1,0 +1,21 @@
+{
+  "rule_id": "r16",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 2.69,
+  "request_id": "chatcmpl-797064e110814fe99ebe20eeda402fc5",
+  "usage": {
+    "completion_tokens": 394,
+    "prompt_tokens": 1033,
+    "total_tokens": 1427,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: License check\n  run: |\n    [ -f LICENSE ] || exit 1",
+  "error": null
+}

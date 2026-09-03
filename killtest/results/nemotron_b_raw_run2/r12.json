@@ -1,0 +1,34 @@
+{
+  "rule_id": "r12",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 6.34,
+  "request_id": "chatcmpl-f9738602f38946d18b738da20a893585",
+  "usage": {
+    "completion_tokens": 1492,
+    "prompt_tokens": 1059,
+    "total_tokens": 2551,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n#!/usr/bin/env bash\nset -euo pipefail\n\nviolation=0\n\n# Find all workflow files\nwhile IFS= read -r f; do\n    # Skip if not a regular file\n    [[ -f \"$f\" ]] || continue\n\n    # Get line numbers of continue-on-error: true (case-insensitive)\n    while IFS=: read -r _ lnum _; do\n        # Get the line with continue-on-error and the previous line\n        line=$(sed -n \"${lnum}p\" \"$f\")\n        prev_line=\"\"\n        if (( lnum > 1 )); then\n            prev_line=$(sed -n \"$((lnum-1))p\" \"$f\")\n        fi\n\n        line_lc=$(echo \"$line\" | tr '[:upper:]' '[:lower:]')\n        prev_lc=$(echo \"$prev_line\" | tr '[:upper:]' '[:lower:]')\n\n        # Check for continue-on-error: true and security in either line\n        if [[ \"$line_lc\" =~ continue-on-error:[[:space:]]*true ]] && \\\n           ( [[ \"$prev_lc\" =~ security ]] || [[ \"$line_lc\" =~ security ]] ); then\n            echo \"Violation: security step with continue-on-error: true in $f:$lnum\"\n            violation=1\n            break 2\n        fi\n    done < <(grep -n -i \"continue-on-error: true\" \"$f\" || true)\ndone < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null || true)\n\nif (( violation )); then\n    exit 1\nelse\n    exit 0\nfi\n",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 4463,
+  "error": null
+}

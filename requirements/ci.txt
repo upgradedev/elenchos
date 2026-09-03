@@ -1,0 +1,6 @@
+# CI test dependencies, version pinned. Hashes are not asserted yet: a --require-hashes lock has
+# to be generated from a real resolve, and inventing hashes to look rigorous is worse than saying
+# they are missing. Tracked in docs/DELIVERABLES.md.
+pytest==9.1.1
+pytest-cov==7.1.0
+PyYAML==6.0.3

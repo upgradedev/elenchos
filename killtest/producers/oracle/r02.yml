@@ -1,0 +1,11 @@
+- name: Every pull request carries at least one label
+  run: |
+    python3 - <<'PY'
+
+    import json, os, sys
+    pr = json.load(open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8"))["pull_request"]
+    if not pr.get("labels"):
+        print("pull request carries no label")
+        sys.exit(1)
+
+    PY

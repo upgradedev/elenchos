@@ -1,0 +1,34 @@
+{
+  "rule_id": "r03",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 1.89,
+  "request_id": "chatcmpl-947f767f5cda4f87af05cf2e083547c0",
+  "usage": {
+    "completion_tokens": 448,
+    "prompt_tokens": 1058,
+    "total_tokens": 1506,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\nbody=$(python3 -c \"import json, sys; d=json.load(open('$GITHUB_EVENT_PATH')); print(d['pull_request']['body'], end='')\")\nif [ -z \"$body\" ]; then\n    exit 1\nelse\n    exit 0\nfi",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 1522,
+  "error": null
+}

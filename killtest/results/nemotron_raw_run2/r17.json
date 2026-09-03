@@ -1,0 +1,33 @@
+{
+  "rule_id": "r17",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 3.4,
+  "request_id": "chatcmpl-11d4167d9b7147918000e8f6e38d66e0",
+  "usage": {
+    "completion_tokens": 734,
+    "prompt_tokens": 1033,
+    "total_tokens": 1767,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Verify README.md installation section\n  run: |\n    if [ -f README.md ] && grep -iq '^#\\+[[:space:]]*Installation' README.md; then\n      exit 0\n    else\n      exit 1\n    fi",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 2729,
+  "error": null
+}

@@ -1,0 +1,332 @@
+{
+  "producer": "nemotron",
+  "run_at_utc": "2026-09-01T14:00:33Z",
+  "command": "python harness.py --producer nemotron",
+  "contract_sha256": "4198d42be5ed5705177e0aeaa8ed5851d38dad7637762a0679423c4fa5e6abe7",
+  "rules_sha256": "85bd4204e3ca24a13a20b75186ee4a17e07c5adff1b851372b9c8e6c3d6f60b8",
+  "fixtures_sha256": "83a12a9ebe8d380c81d2509ece969e533bb02d0713a503ead7541aac0795ac36",
+  "rules_scored": 20,
+  "score": 13,
+  "refused": 0,
+  "unparsed": [
+    "r02"
+  ],
+  "results": [
+    {
+      "id": "r01",
+      "class": "A work-item trace",
+      "rule": "Every pull request references at least one issue number in its title or its body.",
+      "step": "- name: Ensure PR references an issue\n  run: |\n    python3 <<'EOF'\n    import json, re, os\n    with open(os.environ['GITHUB_EVENT_PATH']) as f:\n        data = json.load(f)\n    title = data['pull_request']['title']\n    body = data['pull_request']['body']\n    if re.search(r'#\\d+', title) or re.search(r'#\\d+', body):\n        exit(0)\n    else:\n        exit(1)\n    EOF",
+      "body": "python3 <<'EOF'\nimport json, re, os\nwith open(os.environ['GITHUB_EVENT_PATH']) as f:\n    data = json.load(f)\ntitle = data['pull_request']['title']\nbody = data['pull_request']['body']\nif re.search(r'#\\d+', title) or re.search(r'#\\d+', body):\n    exit(0)\nelse:\n    exit(1)\nEOF",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r02",
+      "class": "A work-item trace",
+      "rule": "Every pull request carries at least one label.",
+      "step": "- run: |\n    python3 -c \"\nimport json, sys\nwith open('$GITHUB_EVENT_PATH') as f:\n    data = json.load(f)\nlabels = data.get('pull_request', {}).get('labels', [])\nsys.exit(0 if labels else 1)\n\"",
+      "body": null,
+      "score": 0,
+      "unparsed": true,
+      "note": "invalid YAML: while scanning a simple key"
+    },
+    {
+      "id": "r03",
+      "class": "A work-item trace",
+      "rule": "The body of every pull request is not empty.",
+      "step": "- name: Ensure PR body is not empty\n  run: |\n    body=$(python3 -c \"import json, sys; data=json.load(open(sys.argv[1])); print(data['pull_request']['body'])\" \"$GITHUB_EVENT_PATH\")\n    if [ -z \"$body\" ]; then\n      echo \"PR body is empty\"\n      exit 1\n    fi",
+      "body": "body=$(python3 -c \"import json, sys; data=json.load(open(sys.argv[1])); print(data['pull_request']['body'])\" \"$GITHUB_EVENT_PATH\")\nif [ -z \"$body\" ]; then\n  echo \"PR body is empty\"\n  exit 1\nfi",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "PR body is empty\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r04",
+      "class": "A work-item trace",
+      "rule": "Every commit message follows conventional commits, `type(scope): subject`.",
+      "step": "- run: |\n    while IFS= read -r msg; do\n      if [[ ! \"$msg\" =~ ^[a-zA-Z0-9]+\\([^)]+\\): .+$ ]]; then\n        echo \"Invalid commit message: $msg\"\n        exit 1\n      fi\n    done < <(git log --format=%s)",
+      "body": "while IFS= read -r msg; do\n  if [[ ! \"$msg\" =~ ^[a-zA-Z0-9]+\\([^)]+\\): .+$ ]]; then\n    echo \"Invalid commit message: $msg\"\n    exit 1\n  fi\ndone < <(git log --format=%s)",
+      "score": 0,
+      "violating": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r04-violating-vhdxr2ow/step.sh: line 2: syntax error in conditional expression: unexpected token `)'\n"
+      },
+      "clean": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r04-clean-q5nfs2sv/step.sh: line 2: syntax error in conditional expression: unexpected token `)'\n"
+      }
+    },
+    {
+      "id": "r05",
+      "class": "A work-item trace",
+      "rule": "No pull request is merged without at least one approved review.",
+      "step": "- run: |\n    python3 <<'EOF'\n    import json, os, sys\n    with open(os.environ[\"GITHUB_EVENT_PATH\"]) as f:\n        data = json.load(f)\n    reviews = data.get(\"pull_request\", {}).get(\"reviews\", [])\n    if any(r.get(\"state\") == \"APPROVED\" for r in reviews):\n        sys.exit(0)\n    else:\n        sys.exit(1)\n    EOF",
+      "body": "python3 <<'EOF'\nimport json, os, sys\nwith open(os.environ[\"GITHUB_EVENT_PATH\"]) as f:\n    data = json.load(f)\nreviews = data.get(\"pull_request\", {}).get(\"reviews\", [])\nif any(r.get(\"state\") == \"APPROVED\" for r in reviews):\n    sys.exit(0)\nelse:\n    sys.exit(1)\nEOF",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r06",
+      "class": "B push or branch prohibition",
+      "rule": "Pushing directly to `main` is forbidden.",
+      "step": "- name: Prevent direct push to main\n  run: |\n    python3 <<'EOF'\n    import json, sys\n    with open('$GITHUB_EVENT_PATH') as f:\n        data = json.load(f)\n    for ev in data.get('push_events', []):\n        if ev.get('ref') == 'refs/heads/main':\n            sys.exit(1)\n    sys.exit(0)\n    EOF",
+      "body": "python3 <<'EOF'\nimport json, sys\nwith open('$GITHUB_EVENT_PATH') as f:\n    data = json.load(f)\nfor ev in data.get('push_events', []):\n    if ev.get('ref') == 'refs/heads/main':\n        sys.exit(1)\nsys.exit(0)\nEOF",
+      "score": 0,
+      "violating": {
+        "exit": 1,
+        "output": "Traceback (most recent call last):\n  File \"<stdin>\", line 2, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: '$GITHUB_EVENT_PATH'\n"
+      },
+      "clean": {
+        "exit": 1,
+        "output": "Traceback (most recent call last):\n  File \"<stdin>\", line 2, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: '$GITHUB_EVENT_PATH'\n"
+      }
+    },
+    {
+      "id": "r07",
+      "class": "B push or branch prohibition",
+      "rule": "Branch names match `feat/`, `fix/`, `chore/` or `docs/`.",
+      "step": "- name: Validate branch name\n  run: |\n    if [[ ! \"${GITHUB_HEAD_REF}\" =~ ^(feat|fix|chore|docs)/ ]]; then\n      echo \"Invalid branch name: ${GITHUB_HEAD_REF}\"\n      exit 1\n    fi",
+      "body": "if [[ ! \"${GITHUB_HEAD_REF}\" =~ ^(feat|fix|chore|docs)/ ]]; then\n  echo \"Invalid branch name: ${GITHUB_HEAD_REF}\"\n  exit 1\nfi",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "Invalid branch name: maximos-patch-1\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r08",
+      "class": "B push or branch prohibition",
+      "rule": "Force pushing to a protected branch is forbidden.",
+      "step": "- name: Check for force push to protected branch\n  run: |\n    python3 <<'PY'\n    import json, os, sys\n    with open(os.environ['GITHUB_EVENT_PATH']) as f:\n        data = json.load(f)\n    default_branch = data['repository']['default_branch']\n    branch_prot = data.get('branch_protection', {})\n    prot = branch_prot.get(default_branch, {})\n    allow_force = prot.get('allow_force_push', True)\n    violation = False\n    for push in data.get('push_events', []):\n        if push.get('forced', False):\n            if push.get('ref') == f'refs/heads/{default_branch}' and not allow_force:\n                violation = True\n                break\n    sys.exit(1 if violation else 0)\n    PY",
+      "body": "python3 <<'PY'\nimport json, os, sys\nwith open(os.environ['GITHUB_EVENT_PATH']) as f:\n    data = json.load(f)\ndefault_branch = data['repository']['default_branch']\nbranch_prot = data.get('branch_protection', {})\nprot = branch_prot.get(default_branch, {})\nallow_force = prot.get('allow_force_push', True)\nviolation = False\nfor push in data.get('push_events', []):\n    if push.get('forced', False):\n        if push.get('ref') == f'refs/heads/{default_branch}' and not allow_force:\n            violation = True\n            break\nsys.exit(1 if violation else 0)\nPY",
+      "score": 0,
+      "violating": {
+        "exit": 0,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r09",
+      "class": "B push or branch prohibition",
+      "rule": "A pull request does not touch more than 50 files.",
+      "step": "- run: |\n    python3 - <<'PY'\n    import json, sys\n    with open(\"$GITHUB_EVENT_PATH\") as f:\n        data = json.load(f)\n    changed = data[\"pull_request\"][\"changed_files\"]\n    if changed > 50:\n        sys.exit(1)\n    else:\n        sys.exit(0)\n    PY",
+      "body": "python3 - <<'PY'\nimport json, sys\nwith open(\"$GITHUB_EVENT_PATH\") as f:\n    data = json.load(f)\nchanged = data[\"pull_request\"][\"changed_files\"]\nif changed > 50:\n    sys.exit(1)\nelse:\n    sys.exit(0)\nPY",
+      "score": 0,
+      "violating": {
+        "exit": 1,
+        "output": "Traceback (most recent call last):\n  File \"<stdin>\", line 2, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: '$GITHUB_EVENT_PATH'\n"
+      },
+      "clean": {
+        "exit": 1,
+        "output": "Traceback (most recent call last):\n  File \"<stdin>\", line 2, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: '$GITHUB_EVENT_PATH'\n"
+      }
+    },
+    {
+      "id": "r10",
+      "class": "B push or branch prohibition",
+      "rule": "A pull request with merge conflicts is not merged.",
+      "step": "```yaml\n- name: Ensure PR has no merge conflicts\n  run: |\n    python3 <<'EOF'\n    import json, os, sys\n    with open(os.environ['GITHUB_EVENT_PATH']) as f:\n        data = json.load(f)\n    pr = data.get('pull_request', {})\n    if not pr.get('mergeable', True):\n        sys.exit(1)\n    sys.exit(0)\n    EOF\n```",
+      "body": "python3 <<'EOF'\nimport json, os, sys\nwith open(os.environ['GITHUB_EVENT_PATH']) as f:\n    data = json.load(f)\npr = data.get('pull_request', {})\nif not pr.get('mergeable', True):\n    sys.exit(1)\nsys.exit(0)\nEOF",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r11",
+      "class": "C mandatory CI step",
+      "rule": "Every workflow declares `permissions:`.",
+      "step": "- run: |\n    missing=0\n    while IFS= read -r f; do\n      if ! grep -E '^\\s*permissions:' \"$f\" >/dev/null; then\n        echo \"Workflow $f missing permissions:\"\n        missing=1\n      fi\n    done < <(find .github/workflows -type f \\( -name '*.yml' -o -name '*.yaml' ) 2>/dev/null)\n    if [ \"$missing\" -eq 1 ]; then\n      exit 1\n    fi",
+      "body": "missing=0\nwhile IFS= read -r f; do\n  if ! grep -E '^\\s*permissions:' \"$f\" >/dev/null; then\n    echo \"Workflow $f missing permissions:\"\n    missing=1\n  fi\ndone < <(find .github/workflows -type f \\( -name '*.yml' -o -name '*.yaml' ) 2>/dev/null)\nif [ \"$missing\" -eq 1 ]; then\n  exit 1\nfi",
+      "score": 0,
+      "violating": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r11-violating-yb145ao5/step.sh: line 7: syntax error near unexpected token `)'\n"
+      },
+      "clean": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r11-clean-70j5lwad/step.sh: line 7: syntax error near unexpected token `)'\n"
+      }
+    },
+    {
+      "id": "r12",
+      "class": "C mandatory CI step",
+      "rule": "No security step carries `continue-on-error: true`.",
+      "step": "- name: Check for continue-on-error in security steps\n  run: |\n    if grep -r -E 'continue-on-error:\\s*true' .github/workflows 2>/dev/null; then\n      exit 1\n    fi\n    exit 0",
+      "body": "if grep -r -E 'continue-on-error:\\s*true' .github/workflows 2>/dev/null; then\n  exit 1\nfi\nexit 0",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ".github/workflows/ci.yml:        continue-on-error: true\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r13",
+      "class": "C mandatory CI step",
+      "rule": "Every third-party action is pinned to a commit SHA, not to a tag.",
+      "step": "- name: Validate third-party actions are pinned to commit SHA\n  run: |\n    violation=0\n    repo_name=$(python3 -c \"import json, sys; data=json.load(open(sys.argv[1])); print(data['repository']['name'])\" \"$GITHUB_EVENT_PATH\")\n    while IFS= read -r line; do\n      token=$(echo \"$line\" | awk -F'uses:' '{print $2}' | awk '{print $1}')\n      token=$(echo \"$token\" | sed -e 's/^[\"'\"'\"']//' -e 's/[\"'\"'\"']$//')\n      if [ -z \"$token\" ]; then\n        continue\n      fi\n      case \"$token\" in\n        ./*) continue ;;\n      esac\n      if [[ \"$token\" == \"$repo_name/\"* ]]; then\n        continue\n      fi\n      if ! echo \"$token\" | grep -Eq '^[^@]+@[0-9a-fA-F]{40}$'; then\n        violation=1\n        echo \"Invalid action pin: $token\"\n      fi\n    done < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null | xargs grep -n 'uses:' 2>/dev/null || true)\n    if [ \"$violation\" -eq 1 ]; then\n      exit 1\n    fi\n    exit 0",
+      "body": "violation=0\nrepo_name=$(python3 -c \"import json, sys; data=json.load(open(sys.argv[1])); print(data['repository']['name'])\" \"$GITHUB_EVENT_PATH\")\nwhile IFS= read -r line; do\n  token=$(echo \"$line\" | awk -F'uses:' '{print $2}' | awk '{print $1}')\n  token=$(echo \"$token\" | sed -e 's/^[\"'\"'\"']//' -e 's/[\"'\"'\"']$//')\n  if [ -z \"$token\" ]; then\n    continue\n  fi\n  case \"$token\" in\n    ./*) continue ;;\n  esac\n  if [[ \"$token\" == \"$repo_name/\"* ]]; then\n    continue\n  fi\n  if ! echo \"$token\" | grep -Eq '^[^@]+@[0-9a-fA-F]{40}$'; then\n    violation=1\n    echo \"Invalid action pin: $token\"\n  fi\ndone < <(find .github/workflows -type f \\( -name \"*.yml\" -o -name \"*.yaml\" \\) 2>/dev/null | xargs grep -n 'uses:' 2>/dev/null || true)\nif [ \"$violation\" -eq 1 ]; then\n  exit 1\nfi\nexit 0",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "Invalid action pin: actions/checkout@v4\nInvalid action pin: aquasecurity/trivy-action@0.20.0\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r14",
+      "class": "C mandatory CI step",
+      "rule": "Every pull request runs at least one secret-scanning step.",
+      "step": "- run: |\n    if [ -d .github/workflows ]; then\n      if grep -ri secret .github/workflows | grep -q .; then\n        exit 0\n      else\n        exit 1\n      fi\n    else\n      exit 1\n    fi",
+      "body": "if [ -d .github/workflows ]; then\n  if grep -ri secret .github/workflows | grep -q .; then\n    exit 0\n  else\n    exit 1\n  fi\nelse\n  exit 1\nfi",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r15",
+      "class": "C mandatory CI step",
+      "rule": "Every workflow declares `timeout-minutes`.",
+      "step": "- name: Verify timeout-minutes in all workflows\n  run: |\n    missing=0\n    while IFS= read -r f; do\n      if ! grep -q 'timeout-minutes:' \"$f\"; then\n        echo \"Workflow $f does not declare timeout-minutes\"\n        missing=1\n      fi\n    done < <(find .github/workflows -type f \\( -name '*.yml' -o -name '*.yaml' \\) 2>/dev/null || true)\n    if [ \"$missing\" -ne 0 ]; then\n      exit 1\n    fi\n    exit 0",
+      "body": "missing=0\nwhile IFS= read -r f; do\n  if ! grep -q 'timeout-minutes:' \"$f\"; then\n    echo \"Workflow $f does not declare timeout-minutes\"\n    missing=1\n  fi\ndone < <(find .github/workflows -type f \\( -name '*.yml' -o -name '*.yaml' \\) 2>/dev/null || true)\nif [ \"$missing\" -ne 0 ]; then\n  exit 1\nfi\nexit 0",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": "Workflow .github/workflows/ci.yml does not declare timeout-minutes\n"
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r16",
+      "class": "D file convention",
+      "rule": "Every repository has a `LICENSE` file at its root.",
+      "step": "- run: |\n    if [ ! -f LICENSE ]; then\n      exit 1\n    fi",
+      "body": "if [ ! -f LICENSE ]; then\n  exit 1\nfi",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r17",
+      "class": "D file convention",
+      "rule": "Every repository has a `README.md` with an installation section.",
+      "step": "- name: Verify README.md installation section\n  run: |\n    if [ -f README.md ] && grep -iq '^#\\+[[:space:]]*Installation' README.md; then\n      exit 0\n    else\n      exit 1\n    fi",
+      "body": "if [ -f README.md ] && grep -iq '^#\\+[[:space:]]*Installation' README.md; then\n  exit 0\nelse\n  exit 1\nfi",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r18",
+      "class": "D file convention",
+      "rule": "No `.env` file is committed.",
+      "step": "- run: |\n    if git ls-files | grep -q '\\.env$'; then\n      exit 1\n    else\n      exit 0\n    fi",
+      "body": "if git ls-files | grep -q '\\.env$'; then\n  exit 1\nelse\n  exit 0\nfi",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r19",
+      "class": "D file convention",
+      "rule": "No file is larger than 5 MB.",
+      "step": "- run: |\n    if find . -type f -size +5M -not -path './.git/*' | read; then exit 1; else exit 0; fi",
+      "body": "if find . -type f -size +5M -not -path './.git/*' | read; then exit 1; else exit 0; fi",
+      "score": 1,
+      "violating": {
+        "exit": 1,
+        "output": ""
+      },
+      "clean": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "id": "r20",
+      "class": "D file convention",
+      "rule": "Every source directory has a corresponding test directory.",
+      "step": "- run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n    src_roots=(src lib source app cmd pkg internal)\n    test_roots=(test tests __tests__ spec specs)\n    shopt -s nullglob dotglob\n    src_files=()\n    while IFS= read -r -d $'\\0' f; do\n        src_files+=(\"$f\")\n    done < <(find . -type f \\( -name '",
+      "body": "#!/usr/bin/env bash\nset -euo pipefail\nsrc_roots=(src lib source app cmd pkg internal)\ntest_roots=(test tests __tests__ spec specs)\nshopt -s nullglob dotglob\nsrc_files=()\nwhile IFS= read -r -d $'\\0' f; do\n    src_files+=(\"$f\")\ndone < <(find . -type f \\( -name '",
+      "score": 0,
+      "violating": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r20-violating-vy3858rv/step.sh: line 9: unexpected EOF while looking for matching `''\n"
+      },
+      "clean": {
+        "exit": 2,
+        "output": "/tmp/elenchos-r20-clean-bnshpwuj/step.sh: line 9: unexpected EOF while looking for matching `''\n"
+      }
+    }
+  ],
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1"
+}

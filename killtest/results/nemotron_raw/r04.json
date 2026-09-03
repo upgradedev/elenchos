@@ -1,0 +1,21 @@
+{
+  "rule_id": "r04",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 11.56,
+  "request_id": "chatcmpl-31c83d18f2bd47dab309f513607b49e2",
+  "usage": {
+    "completion_tokens": 1363,
+    "prompt_tokens": 1033,
+    "total_tokens": 2396,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- run: |\n    #!/usr/bin/env bash\n    set -euo pipefail\n    base=\"${GITHUB_BASE_REF}\"\n    head=\"${GITHUB_HEAD_REF}\"\n    if [[ -z \"$base\" || -z \"$head\" ]]; then\n      base=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo \"\")\n      head=$(git rev-parse --abbrev-ref HEAD)\n    fi\n    messages=$(git log --format=%s \"$base\"..\"$head\")\n    while IFS= read -r line; do\n      if [[ ! \"$line\" =~ ^[a-z]+\\([^)]+\\): .+ ]]; then\n        echo \"Invalid commit message: $line\"\n        exit 1\n      fi\n    done <<< \"$messages\"",
+  "error": null
+}

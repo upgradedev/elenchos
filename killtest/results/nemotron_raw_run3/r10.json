@@ -1,0 +1,33 @@
+{
+  "rule_id": "r10",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 13.34,
+  "request_id": "chatcmpl-fe72e2f40ee345d4a9ed367b183e0d2c",
+  "usage": {
+    "completion_tokens": 1214,
+    "prompt_tokens": 1030,
+    "total_tokens": 2244,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Check for merge conflicts\n  run: |\n    BASE_REF=$(python3 -c \"import json,sys;d=json.load(open('$GITHUB_EVENT_PATH'));print(d['pull_request']['base']['ref'])\")\n    BASE_SHA=$(git rev-parse origin/\"$BASE_REF\")\n    if git merge --no-commit --no-ff \"$BASE_SHA\"; then\n        git merge --abort\n        exit 0\n    else\n        git merge --abort\n        exit 1\n    fi\n",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 4217,
+  "error": null
+}

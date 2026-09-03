@@ -1,0 +1,33 @@
+{
+  "rule_id": "r14",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 12.07,
+  "request_id": "chatcmpl-1eb93db68079443588c31aa9f26c5dd9",
+  "usage": {
+    "completion_tokens": 918,
+    "prompt_tokens": 1032,
+    "total_tokens": 1950,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Check for secret scanning step\n  run: |\n    if grep -r -i secret .github/workflows 2>/dev/null | grep -q .; then\n      exit 0\n    else\n      exit 1\n    fi",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 3360,
+  "error": null
+}

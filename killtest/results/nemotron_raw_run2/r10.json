@@ -1,0 +1,33 @@
+{
+  "rule_id": "r10",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 8.34,
+  "request_id": "chatcmpl-d6355cb0718c4ac3b0beb59e22a2700b",
+  "usage": {
+    "completion_tokens": 959,
+    "prompt_tokens": 1030,
+    "total_tokens": 1989,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n```yaml\n- name: Ensure PR has no merge conflicts\n  run: |\n    python3 <<'EOF'\n    import json, os, sys\n    with open(os.environ['GITHUB_EVENT_PATH']) as f:\n        data = json.load(f)\n    pr = data.get('pull_request', {})\n    if not pr.get('mergeable', True):\n        sys.exit(1)\n    sys.exit(0)\n    EOF\n```",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 3498,
+  "error": null
+}

@@ -1,0 +1,19 @@
+- name: Every source directory has a corresponding test directory
+  run: |
+    python3 - <<'PY'
+
+    import os, sys
+    if not os.path.isdir("src"):
+        sys.exit(0)
+    if not os.path.isdir("tests") and not os.path.isdir("test"):
+        print("src/ exists but there is no test directory")
+        sys.exit(1)
+    root = "tests" if os.path.isdir("tests") else "test"
+    bad = [d for d in sorted(os.listdir("src"))
+           if os.path.isdir(os.path.join("src", d)) and not os.path.isdir(os.path.join(root, d))]
+    if bad:
+        for d in bad:
+            print("src/%s has no %s/%s" % (d, root, d))
+        sys.exit(1)
+
+    PY

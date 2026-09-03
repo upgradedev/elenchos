@@ -1,0 +1,34 @@
+{
+  "rule_id": "r04",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 3.64,
+  "request_id": "chatcmpl-7a2fa8820a1a4533875d09435e951269",
+  "usage": {
+    "completion_tokens": 998,
+    "prompt_tokens": 1061,
+    "total_tokens": 2059,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n#!/usr/bin/env bash\nset -euo pipefail\n\nbase=\"${GITHUB_BASE_REF}\"\nhead=\"${GITHUB_HEAD_REF}\"\nif [[ -z \"$base\" || -z \"$head\" ]]; then\n  echo \"Missing base or head ref\" >&2\n  exit 1\nfi\n\nmessages=$(git log --format=%s \"$base\"..\"$head\" 2>/dev/null) || {\n  echo \"Failed to get commit log\" >&2\n  exit 1\n}\n\nif [[ -z \"$messages\" ]]; then\n  exit 0\nfi\n\nregex='^[a-zA-Z0-9]+\\([^)]+\\): .+'\n\nwhile IFS= read -r line; do\n  if [[ ! \"$line\" =~ $regex ]]; then\n    echo \"Invalid commit message: $line\" >&2\n    exit 1\n  fi\ndone <<< \"$messages\"\n\nexit 0",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 2938,
+  "error": null
+}

@@ -1,0 +1,21 @@
+{
+  "rule_id": "r09",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 3.53,
+  "request_id": "chatcmpl-37313dc7b13c4404a31a4949f60291ac",
+  "usage": {
+    "completion_tokens": 574,
+    "prompt_tokens": 1033,
+    "total_tokens": 1607,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Ensure PR changes <= 50 files\n  run: |\n    changed=$(python3 -c \"import json, sys; data=json.load(open('$GITHUB_EVENT_PATH')); print(data['pull_request']['changed_files'])\")\n    if [ \"$changed\" -gt 50 ]; then exit 1; else exit 0; fi",
+  "error": null
+}

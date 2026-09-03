@@ -1,0 +1,34 @@
+{
+  "rule_id": "r04",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 4.06,
+  "request_id": "chatcmpl-be6bc3375ba142eb9579d4f24f3884a4",
+  "usage": {
+    "completion_tokens": 1006,
+    "prompt_tokens": 1061,
+    "total_tokens": 2067,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n#!/usr/bin/env bash\nwhile IFS= read -r msg; do\n  if ! [[ \"$msg\" =~ ^[a-z]+\\([^)]+\\): .+ ]]; then\n    echo \"Invalid commit message: $msg\"\n    exit 1\n  fi\ndone < <(git log --format=%s)\nexit 0",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 3976,
+  "error": null
+}

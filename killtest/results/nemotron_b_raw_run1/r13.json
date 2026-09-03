@@ -1,0 +1,34 @@
+{
+  "rule_id": "r13",
+  "mode": "body",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 10.07,
+  "request_id": "chatcmpl-79a2f00775b94b12b2f34b8e3a8a2e86",
+  "usage": {
+    "completion_tokens": 2071,
+    "prompt_tokens": 1064,
+    "total_tokens": 3135,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n#!/usr/bin/env bash\nset -euo pipefail\n\nshopt -s nullglob\nfiles=(.github/workflows/*.yml .github/workflows/*.yaml)\nif [ ${#files[@]} -eq 0 ]; then\n  exit 0\nfi\n\nfor f in \"${files[@]}\"; do\n  while IFS= read -r line; do\n    [[ $line =~ ^[[:space:]]*# ]] && continue\n    if [[ $line =~ uses:[[:space:]]*([^[:space:]]+) ]]; then\n      ref=\"${BASH_REMATCH[1]}\"\n      ref=\"${ref%%#*}\"\n      ref=\"${ref%\\\"}\"\n      ref=\"${ref#\\\"}\"\n      ref=\"${ref%\\'}\"\n      ref=\"${ref#\\'}\"\n      action=\"${ref%%@*}\"\n      if [[ \"$action\" == */* && \"$action\" != .* ]]; then\n        if [[ \"$ref\" != *@* ]]; then\n          echo \"Error: third-party action '$ref' missing version specifier in $f\"\n          exit 1\n        fi\n        version=\"${ref#*@}\"\n        if ! [[ \"$version\" =~ ^[0-9a-fA-F]{40}$ ]]; then\n          echo \"Error: third-party action '$ref' is not pinned to a commit SHA in $f\"\n          exit 1\n        fi\n      fi\n    fi\n  done < \"$f\"\ndone\n\nexit 0",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 6394,
+  "error": null
+}

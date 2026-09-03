@@ -1,0 +1,21 @@
+{
+  "rule_id": "r08",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 11.55,
+  "request_id": "chatcmpl-75283044d4ac485ab3185298ac3d4a98",
+  "usage": {
+    "completion_tokens": 1078,
+    "prompt_tokens": 1029,
+    "total_tokens": 2107,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Detect force push to protected branch\n  run: |\n    python3 <<'EOF'\n    import json, os, sys\n    with open(os.environ['GITHUB_EVENT_PATH']) as f:\n        data = json.load(f)\n    protected = data.get('branch_protection', {})\n    violation = False\n    for push in data.get('push_events', []):\n        if push.get('forced'):\n            ref = push.get('ref', '')\n            if ref.startswith('refs/heads/'):\n                branch = ref[len('refs/heads/'):]\n                branch_prot = protected.get(branch)\n                if branch_prot is not None and not branch_prot.get('allow_force_push', True):\n                    violation = True\n                    break\n    sys.exit(1 if violation else 0)\n    EOF\nEOF",
+  "error": null
+}

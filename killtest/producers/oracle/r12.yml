@@ -1,0 +1,20 @@
+- name: No security step carries continue-on-error: true
+  run: |
+    python3 - <<'PY'
+
+    import glob, re, sys
+    SEC = re.compile(r"(?i)(secur|secret|scan|audit|vuln|sast|codeql|trivy|gitleaks|trufflehog)")
+    bad = []
+    for path in sorted(glob.glob(".github/workflows/*.yml") + glob.glob(".github/workflows/*.yaml")):
+        text = open(path, encoding="utf-8").read()
+        blocks = re.split(r"(?m)^(?=\s*-\s+name:)", text)
+        for block in blocks:
+            head = block.strip().split("\n")[0]
+            if SEC.search(head) and re.search(r"(?m)^\s*continue-on-error:\s*true", block):
+                bad.append("%s: %s" % (path, head.strip()))
+    if bad:
+        for b in bad:
+            print("neutered security step -> %s" % b)
+        sys.exit(1)
+
+    PY

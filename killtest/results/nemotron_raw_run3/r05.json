@@ -1,0 +1,33 @@
+{
+  "rule_id": "r05",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "base_url": "https://api.tokenfactory.nebius.com/v1",
+  "http_status": 200,
+  "seconds": 14.97,
+  "request_id": "chatcmpl-740e3bc1d0a84b24b8cb66db3ca6ba1d",
+  "usage": {
+    "completion_tokens": 573,
+    "prompt_tokens": 1032,
+    "total_tokens": 1605,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "finish_reason": "stop",
+  "content": "\n\n- name: Ensure at least one approved review\n  run: |\n    python3 <<'EOF'\n    import json, os, sys\n    path = os.getenv('GITHUB_EVENT_PATH')\n    with open(path) as f:\n        event = json.load(f)\n    reviews = event.get('pull_request', {}).get('reviews', [])\n    if any(r.get('state') == 'APPROVED' for r in reviews):\n        sys.exit(0)\n    else:\n        sys.exit(1)\n    EOF",
+  "message_keys": [
+    "annotations",
+    "audio",
+    "content",
+    "function_call",
+    "reasoning",
+    "reasoning_content",
+    "refusal",
+    "role",
+    "tool_calls"
+  ],
+  "reasoning_chars": 1830,
+  "error": null
+}
