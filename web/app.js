@@ -535,6 +535,7 @@ Status: Refutation Sealed in Estate Ledger`;
       copyBtn.addEventListener("click", () => {
         const payload = JSON.stringify(getAttestationPayload(), null, 2);
         navigator.clipboard.writeText(payload).then(() => {
+          showToast("JSON-LD Attestation copied to clipboard!");
           copyBtn.innerText = "Copied Attestation!";
           setTimeout(() => { copyBtn.innerText = "Copy JSON-LD Attestation"; }, 2000);
         });
@@ -551,8 +552,169 @@ Status: Refutation Sealed in Estate Ledger`;
         a.download = "elenchos-audit-certificate.json";
         a.click();
         URL.revokeObjectURL(url);
+        showToast("Audit Certificate downloaded (.json)");
       });
     }
+  }
+
+  // --- Toast Alert Helper ---
+  function showToast(msg) {
+    let container = document.querySelector(".toast-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.className = "toast-container";
+      document.body.appendChild(container);
+    }
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.innerText = msg;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateX(20px)";
+      setTimeout(() => toast.remove(), 250);
+    }, 3000);
+  }
+
+  // --- Guided Spotlight Tour Controller ---
+  const TOUR_STEPS = [
+    {
+      targetId: "hero-proof-card",
+      tab: "tab-overview",
+      badge: "Step 1 / 5 · The False-Green Illusion",
+      title: "The Green Badge That Lies",
+      text: "The forge reports 'Passed (Green)' and allows PR merge, even though a planted secret caused the security scanner to exit 1. The green tick is a claim, not a control."
+    },
+    {
+      targetId: "split-pane-reality",
+      tab: "tab-overview",
+      badge: "Step 2 / 5 · Side-by-Side Reality",
+      title: "The Socratic Refutation",
+      text: "Left pane shows what the forge claims. Right pane exposes container logs where 'continue-on-error: true' silently swallowed the failure."
+    },
+    {
+      targetId: "btn-run-audit",
+      tab: "tab-playground",
+      badge: "Step 3 / 5 · Socratic Sandbox",
+      title: "Autonomous Canary Synthesis",
+      text: "NVIDIA Nemotron 3 Super synthesizes the canary test script, which runs inside a Nebius Token Factory Sandbox (contree microVM) to prove the failure."
+    },
+    {
+      targetId: "estate-search",
+      tab: "tab-estate",
+      badge: "Step 4 / 5 · Maximos Estate View",
+      title: "200-Repository Estate Risk Cockpit",
+      text: "Directors can audit multi-repo estates. 44.7% of security scripts are narrower than their step name, and 18/120 pipelines are completely neutralized."
+    },
+    {
+      targetId: "receipt-details-box",
+      tab: "tab-receipts",
+      badge: "Step 5 / 5 · Cryptographic Attestation",
+      title: "Content-Addressed SHA-256 Receipts",
+      text: "Every finding is sealed with a SHA-256 hash tying the prompt, the model response, and the commit together for 18-month auditor reproducibility."
+    }
+  ];
+
+  let currentTourStep = 0;
+
+  function initTour() {
+    const tourBtn = document.getElementById("btn-start-tour");
+    const overlay = document.getElementById("tour-overlay");
+    const card = document.getElementById("tour-card");
+
+    if (!tourBtn || !overlay || !card) return;
+
+    tourBtn.addEventListener("click", () => {
+      startTour();
+    });
+
+    document.getElementById("tour-btn-next").addEventListener("click", () => {
+      if (currentTourStep < TOUR_STEPS.length - 1) {
+        currentTourStep++;
+        renderTourStep();
+      } else {
+        endTour();
+      }
+    });
+
+    document.getElementById("tour-btn-skip").addEventListener("click", endTour);
+  }
+
+  function startTour() {
+    currentTourStep = 0;
+    const overlay = document.getElementById("tour-overlay");
+    const card = document.getElementById("tour-card");
+    if (overlay) overlay.classList.add("active");
+    if (card) card.classList.add("active");
+    renderTourStep();
+  }
+
+  function renderTourStep() {
+    const step = TOUR_STEPS[currentTourStep];
+    if (!step) return;
+
+    // Switch tab
+    const tabBtn = document.querySelector(`[data-tab="${step.tab}"]`);
+    if (tabBtn) tabBtn.click();
+
+    // Remove previous spotlight
+    document.querySelectorAll(".tour-spotlight").forEach(el => el.classList.remove("tour-spotlight"));
+
+    // Set new spotlight
+    const target = document.getElementById(step.targetId);
+    if (target) {
+      target.classList.add("tour-spotlight");
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    // Update card content
+    document.getElementById("tour-step-badge").innerText = step.badge;
+    document.getElementById("tour-title").innerText = step.title;
+    document.getElementById("tour-text").innerText = step.text;
+    document.getElementById("tour-btn-next").innerText = currentTourStep === TOUR_STEPS.length - 1 ? "Finish Tour" : "Next Step →";
+
+    // Position card
+    positionTourCard(target);
+  }
+
+  function positionTourCard(target) {
+    const card = document.getElementById("tour-card");
+    if (!card) return;
+
+    if (!target) {
+      card.style.top = "50%";
+      card.style.left = "50%";
+      card.style.transform = "translate(-50%, -50%)";
+      return;
+    }
+
+    const rect = target.getBoundingClientRect();
+    const cardWidth = card.offsetWidth || 340;
+    const cardHeight = card.offsetHeight || 200;
+
+    let top = rect.bottom + 16;
+    let left = rect.left + (rect.width / 2) - (cardWidth / 2);
+
+    if (top + cardHeight > window.innerHeight - 20) {
+      top = Math.max(20, rect.top - cardHeight - 16);
+    }
+    if (left + cardWidth > window.innerWidth - 20) {
+      left = window.innerWidth - cardWidth - 20;
+    }
+    if (left < 20) left = 20;
+
+    card.style.top = `${top}px`;
+    card.style.left = `${left}px`;
+    card.style.transform = "none";
+  }
+
+  function endTour() {
+    const overlay = document.getElementById("tour-overlay");
+    const card = document.getElementById("tour-card");
+    if (overlay) overlay.classList.remove("active");
+    if (card) card.classList.remove("active");
+    document.querySelectorAll(".tour-spotlight").forEach(el => el.classList.remove("tour-spotlight"));
+    showToast("Tour completed!");
   }
 
   // --- Initialization on DOMContentLoaded ---
@@ -562,5 +724,7 @@ Status: Refutation Sealed in Estate Ledger`;
     initPlayground();
     initEstate();
     initExport();
+    initTour();
   });
 })();
+

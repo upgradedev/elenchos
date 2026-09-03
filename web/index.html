@@ -19,10 +19,11 @@
       <span class="badge-arch">Token Factory Sandbox</span>
     </div>
     <div class="system-status">
+      <button id="btn-start-tour" class="tour-trigger-btn">✨ 60s Guided Tour</button>
       <span class="status-dot"></span>
       <span>NVIDIA Nemotron 3 Super: Online</span>
       <span style="color: var(--line-strong);">|</span>
-      <span>Nebius Token Factory API</span>
+      <span>Nebius Token Factory</span>
     </div>
   </div>
 </header>
@@ -367,6 +368,17 @@
     Powered by NVIDIA Nemotron 3 Super on Nebius Token Factory.
   </div>
 </footer>
+
+<div id="tour-overlay" class="tour-overlay"></div>
+<div id="tour-card" class="tour-card">
+  <span id="tour-step-badge" class="tour-step-badge">Step 1 / 5</span>
+  <h3 id="tour-title" class="tour-title"></h3>
+  <p id="tour-text" class="tour-text"></p>
+  <div class="tour-actions">
+    <button id="tour-btn-skip" class="tour-btn-sec">Skip Tour</button>
+    <button id="tour-btn-next" class="tour-btn">Next Step &rarr;</button>
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>

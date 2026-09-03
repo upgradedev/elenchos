@@ -697,6 +697,141 @@ header {
   * { animation: none !important; transition: none !important; }
 }
 
+/* Tourguide Spotlight & Popover */
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 26, 0.78);
+  backdrop-filter: blur(2px);
+  z-index: 9990;
+  display: none;
+}
+.tour-overlay.active { display: block; }
+
+.tour-spotlight {
+  position: relative;
+  z-index: 9995 !important;
+  box-shadow: 0 0 0 4px var(--cyan), 0 0 28px rgba(0, 212, 255, 0.45) !important;
+  border-radius: var(--radius-md) !important;
+  transition: all 0.25s ease !important;
+}
+
+.tour-card {
+  position: fixed;
+  z-index: 9999;
+  background: #090f24;
+  border: 1px solid var(--cyan);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  width: min(24rem, 90vw);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 212, 255, 0.2);
+  display: none;
+  animation: tourFadeIn 0.2s ease;
+}
+.tour-card.active { display: block; }
+
+@keyframes tourFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tour-step-badge {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--cyan);
+  background: var(--cyan-muted);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+.tour-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+.tour-text {
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.45;
+  margin-bottom: 1rem;
+}
+.tour-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tour-btn {
+  background: var(--cyan);
+  color: #04081a;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.tour-btn-sec {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.4rem;
+}
+.tour-btn-sec:hover { color: var(--text); }
+
+/* Header Tour Trigger */
+.tour-trigger-btn {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(139, 92, 246, 0.15));
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  color: var(--cyan);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.15s ease;
+}
+.tour-trigger-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(139, 92, 246, 0.25));
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.toast {
+  background: #0e1626;
+  border: 1px solid var(--line-strong);
+  border-left: 3px solid var(--cyan);
+  color: var(--text);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  animation: toastSlide 0.25s ease;
+}
+@keyframes toastSlide {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 /* Footer */
 footer {
   border-top: 1px solid var(--line);
@@ -712,3 +847,4 @@ footer a {
 footer a:hover {
   text-decoration: underline;
 }
+
