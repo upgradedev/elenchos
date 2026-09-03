@@ -63,3 +63,14 @@ class CitationPort(Protocol):
 
     def lookup(self, query: str) -> Optional[Citation]:
         ...
+
+
+@runtime_checkable
+class SandboxPort(Protocol):
+    """An isolated execution environment (e.g. Nebius Token Factory Sandboxes)."""
+
+    provider_name: str
+
+    def run_command(self, image: str, command: str, args: list[str]) -> dict:
+        """Run a command inside the isolated sandbox container and return stdout, stderr, exit_code."""
+

@@ -1,0 +1,1200 @@
+{
+ "provenance": {
+  "source": "wf_1a143fdc-8f2 journal.jsonl, base-rate measurement 2026-08-31",
+  "prereg": "docs/PREREG_BASE_RATE_2026-08-31.md",
+  "recovered": "2026-09-03, after the temp task output was lost",
+  "warning": "This is the ONLY durable copy of the labelled corpus. Do not delete."
+ },
+ "counts": {
+  "n": 120,
+  "M1": 47,
+  "M2": 18,
+  "M3_yes": 21
+ },
+ "repos": [
+  {
+   "repo": "a5c-ai/babysitter",
+   "workflowCount": 29,
+   "M1": true,
+   "M1evidence": "ci.yml:370 `run: node --test scripts/__tests__/gateway-engine-floor.test.mjs` (step name at :367 \"Gateway-inherited engine floors (manifests and docs)\"); script confirmed present (6829 bytes, 151 lines). Also atlas-claims.yml:31 `node packages/atlas/scripts/graph-quality.mjs` (step name :30 \"Graph quality score\", 39567 bytes, present) and atlas-claims.yml:29 find-untested-claims.mjs (1358 bytes, present).",
+   "M2": true,
+   "M2evidence": "TWO hits. (a) publish.yml:2688 `continue-on-error: true` at JOB level on job `g0_rt_jitsi_e2e` (\"G0-RT Live Jitsi E2E\", declared :2683-2684) — an E2E test job — AND :2686 `if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_g0rt == 'true'`, so it never runs on a normal push to the default branch. Forms: job-level continue-on-error PLUS a dead `if:` on the default branch, both at once; the workflow's own comment at :2679 says it outright (\"NON-BLOCKING (continue-on-error) so it never breaks a normal publish\"). (b) atlas-claims.yml:23 `continue-on-error: true` on the test step \"Stop-hook control claims (vitest)\" at :21.",
+   "M3": "no",
+   "M3evidence": "Judged on the same bar as repo 4. The \"manifests\" half of the claim is DERIVED from the static import graph rather than a hand-maintained list (scripts/__tests__/gateway-engine-floor.test.mjs:15-18) and is guarded by explicit anti-vacuity tests: :47 \"the import-graph derivation resolves every edge it walks\", :57 \"the derivation still finds the known gateway importer (the analysis is not silently empty)\", and :139 \"a manifest below the floor is detected (the comparison is not vacuous)\". The \"docs\" half is a hardcoded 13-surface list (:92-106) matching only the literal stale 20.9.x (:118), but that narrowing is documented in-line at :103-106 and surfaces are actively added.",
+   "notes": "Category assigned: tests/quality. All 29 workflows were read (grepped in full, including publish.yml at 123KB and live-stack.yml at 45KB, with matching windows opened); ZERO skipped. Excluded as non-quality: publish.yml:2279 continue-on-error on actions/download-artifact, and the continue-on-error flags across agent-dispatch / agent-plan-dispatch / agent-review-dispatch / issue-triage-dispatch / qa-dispatch, which are a5c agent-automation steps rather than security or quality gates. This M3=\"no\" was decided AFTER both prereg routes were already secured, so it was not a call made to protect a threshold."
+  },
+  {
+   "repo": "acryldev/acryl",
+   "workflowCount": 2,
+   "M1": true,
+   "M1evidence": ".github/workflows/ci.yml:58-59 - step `- name: Validate repository layout` / `run: corepack pnpm run check:layout`. Resolves to package.json:24 \"check:layout\": \"pnpm run check:bilingual-docs && pnpm run check:architecture && node scripts/verify-layout.mjs\" -> repo-local script scripts/verify-layout.mjs (and via :21 scripts/verify-bilingual-docs.mjs, via :23 scripts/verify-market-dependency-direction.mjs). Structure/policy enforcement = IN.",
+   "M2": false,
+   "M2evidence": "None. Sole hit is release.yml:344 `exit 0`, a legitimate \"no README diff, nothing to commit\" early exit (release.yml:341-345).",
+   "M3": "no",
+   "M3evidence": "Opened scripts/verify-layout.mjs (195 lines). Its lists are hardcoded but COMPLETE, so the scope is not narrower than \"Validate repository layout\": :94-102 iterates all 7 workspace packages including acryl-harness-runtime at :98; :34-93 pins the entire pnpm-workspace.yaml by exact-string equality, so adding any package fails the check rather than escaping it; :120-140 checks obsolete yarn lockfiles for every package; :141-146 verifies the git submodule path and URL against upstream.json.",
+   "notes": "BOTH workflows read in full. My first read suspected acryl-harness-runtime was omitted from the hardcoded manifest list at :14-24, which would have been an M3; reading on to :98 showed it IS covered, so the finding was withdrawn. Contributors: musichen, github-actions[bot] - not ours."
+  },
+  {
+   "repo": "ajisth69/clashgram",
+   "workflowCount": 2,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Both workflows read in full. Entirely build, package and deploy: npm install, npm run build:production, npx cap sync android, gradle assembleDebug, artifact upload, GitHub release, GitHub Pages deploy. No step on the clause-(b) list at all, so M1 false. Five trailing '|| true' occurrences do exist at android-release.yml:43-47, but they sit on cp asset-copy lines inside the 'Build Web Production App' step, not on a security or quality check, so under the frozen definition they do not make M2. The only if: guard, android-release.yml:65, gates the GitHub release on a v tag."
+  },
+  {
+   "repo": "ajouatom/openpilot",
+   "workflowCount": 5,
+   "M1": true,
+   "M1evidence": ".github/workflows/user-docs.yaml:23,27 step \"Check code and user documentation changes\" -> run: python tools/docs/check_user_docs.py --base \"$DOCS_BASE_SHA\" (repo-local script). Also wiki-settings-check.yaml:48,53 \"Generate and validate Wiki changes\" -> python tools/docs/wiki_settings/ci_check.py.",
+   "M2": false,
+   "M2evidence": "",
+   "M3": "no",
+   "M3evidence": "Opened tools/docs/check_user_docs.py (138 lines). Its scope is set by docs/user/docs_map.json, an explicit, published 10-rule map (settings-catalog-and-web, intro-presets, cruise-buttons-and-shared-control, speed-deceleration, lane-change, longitudinal-and-gap, carrot-web-pages, dashcam-log-sharing, radar, tesla-vehicle-integration) listing the code_paths each doc set covers; load_mapping at cud.py:21-35 rejects any rule missing code_paths or doc_sets. The job is named \"check mapped user docs\" (user-docs.yaml:10) and the script's own argparse description at cud.py:94 says \"Check that mapped user docs change with user-visible code\". The scope is a mapping and it says so, so it is not narrower than claimed.",
+   "notes": "All 5 workflows read. Default branch is carrot-wip (confirmed via gh api repos/ajouatom/openpilot --jq .default_branch); not a fork per the API. THIS IS THE WEAKEST M1=true IN THE SET and should be discounted accordingly: it rests on reading a user-documentation completeness gate as the prereg's \"policy\" category. There is no lint, SAST, secret-scan or dependency-audit workflow in this repo at all. M2 is false: no continue-on-error, no `|| true`, no trailing `exit 0` anywhere in the five files. wiki-settings-check.yaml is pull_request-only (:3-13), which never runs on a default-branch push, but that is an `on:` trigger filter rather than the `if:` condition the prereg enumerates, so it was not counted. One near-miss worth noting: cud.py:118-123 lets an author bypass the gate entirely with `Docs-Not-Needed: <reason>` in the PR body; it is an author-declared documented override rather than a scope narrowing, so it did not drive M3."
+  },
+  {
+   "repo": "alexei-led/ccgram",
+   "workflowCount": 2,
+   "M1": true,
+   "M1evidence": ".github/workflows/ci.yml:66 `run: make arch-check`, step name 'Architecture drift gate (archfit)' (ci.yml:65); target at Makefile:65-70. Also ci.yml:69 `make arch-score` (Makefile:74-75).",
+   "M2": true,
+   "M2evidence": ".github/workflows/ci.yml:44 `continue-on-error: true` at JOB level on the `architecture` job, which contains the 'Architecture drift gate (archfit)' quality step at ci.yml:65-66. Form: job-level continue-on-error.",
+   "M3": "yes",
+   "M3evidence": "Makefile:69 `if [ $$ec -eq 0 ] || [ $$ec -eq 2 ]; then exit 0; fi` converts archfit exit code 2 into a pass. Per the target's own comment at Makefile:62-64, exit 2 is 'advisory cycle, BC advisories, coupling scorecard', so cycle and coupling findings never block, even though Makefile:61 describes the gate as 'forbidden-dep + cycle + coupling' and the step is named 'Architecture drift gate'. Makefile:66 and :67 additionally `exit 0` silently when archfit is absent or too old to support `check`.",
+   "notes": "Both workflows read in full. The narrowing is documented rather than hidden: ci.yml:37-40 says the job is advisory and the job is named 'Architecture drift (advisory)' at ci.yml:42. M2 and M3 are still recorded because the prereg tests are mechanical - a quality step carrying continue-on-error:true, and a step named 'gate' whose script passes a rule class the name implies. In CI the Makefile:66-67 skip paths are dead because ci.yml:62-64 installs archfit v1.6.0, so the live narrowing is Makefile:69. ci.yml:26 ruff format, :28 ruff check, :30 pyright and :32 deptry are installed tools and do not themselves establish M1."
+  },
+  {
+   "repo": "aliyun/aliyun-log-java-sdk",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "none. Sole workflow step is maven.yml:31 'mvn -B package --file pom.xml -DskipTests'",
+   "M2evidence": "none. Zero continue-on-error, '|| true' or 'exit 0'",
+   "M3evidence": "not-applicable (M1 false)",
+   "notes": "1 workflow, read in full, 0 skipped. Worth recording that the only CI step runs with -DskipTests, so this repo has no executing test or quality gate at all — a distinct condition from a narrowed or neutered one, and it is not counted under any of M1/M2/M3."
+  },
+  {
+   "repo": "AllYarnsAreBeautiful/ayab-desktop",
+   "workflowCount": 3,
+   "M1": false,
+   "M2": true,
+   "M3": "not-applicable",
+   "M2evidence": ".github/workflows/python_tests.yml:35 - the step 'Lint with flake8' (:30) runs 'flake8 src/ --count --exit-zero --statistics'. Form of neutering: --exit-zero, the flake8 flag whose documented purpose is to exit 0 regardless of findings; the repo's own comment at :34 reads 'exit-zero treats all errors as warnings.' The only enforced pass, at :33, is 'flake8 src/ --select=E9,F63,F7,F82', four error codes, so the full-repo lint is advisory only.",
+   "notes": "All 3 workflows read. M1 false: flake8, mypy and pytest are all pip-installed at python_tests.yml:27, not repo-local scripts, so clause (a) fails even though 'Lint with flake8' passes clause (b). The one repo-local script invocation, 'bash setup-environment.ps1' at :29, sits inside 'Install dependencies', not a security or quality step. build-multi-os.yml (386 lines) is entirely build, sign, notarize and release with no quality step. M3 not-applicable because M1 is false. M2 counted on the substance of the prereg's word NEUTERED rather than on the spelling of the four listed forms: --exit-zero is functionally a trailing exit 0 applied to the general lint."
+  },
+  {
+   "repo": "Altinn/altinn-studio",
+   "workflowCount": 105,
+   "M1": true,
+   "M1evidence": ".github/workflows/codeowners-validate.yaml:38 — step 'Validate CODEOWNERS' runs `node .github/scripts/codeowners-generate.mjs --check`; script path .github/scripts/codeowners-generate.mjs. Two further M1-qualifying steps: .github/workflows/agents-docs-validate.yaml:39 'Validate AGENTS.md hierarchy' runs `node .github/scripts/agents-docs-validate.mjs`, and .github/workflows/deployer-check.yaml:37 'Run checks' runs `make check`.",
+   "M2": false,
+   "M2evidence": "Full uniform sweep of all 105 workflows for all three tokens. Every hit adjudicated and rejected: runtime-gateway-tests.yaml:68 `continue-on-error: true` is on a test step, not on the enumerated list; approve-pr.yaml:25, :31, :40 `exit 0` are fail-CLOSED (each writes `should_approve=false` to GITHUB_OUTPUT before exiting), the opposite of neutering; gitea-check-texts-file.yml:58, :75, :86 and designer-backend-check-quartz-update.yml:41, :59, :94 are the defensive `$(diff ... || true)` / `$(grep ... || true)` idiom whose captured output is then inspected and hard-failed on; experimental-build.yaml:71 and github-runner-build.yaml:75 put `|| true` on a `cargo machete --version` probe used to decide whether to install, not on the check; cache-warm.yml:182 (`studioctl env down || true`) and rotate-grafana-gateway-token-expiry.yaml:73 (`git fetch ... || true`) are teardown/fetch, not security-or-quality. Note app-frontend-lighthouse-ci.yml:90 reads `continue-on-error: false`, the explicit opposite.",
+   "M3": "no",
+   "M3evidence": ".github/scripts/codeowners-generate.mjs:387-390 — `--check` calls generateCodeowners({check}) which regenerates and diffs the ENTIRE committed .github/CODEOWNERS against the entire generated output, so no line of the file escapes validation. The allowlists I first flagged — EXACT_SOURCE_FILES at :7-26, SOURCE_TYPES ending in createExtensionSourceType('.csproj') at :27-35, and walkDirectory skipping node_modules and every dot-directory at :337-345 — narrow what gets auto-DISCOVERED as a generation input, not what gets validated, so they do not make the step's actual scope narrower than 'Validate CODEOWNERS' claims.",
+   "notes": "Largest repo in the batch. Read 20 workflows in detail (the CodeQL set, formatting, dotnet-format, designer-scan, repositories-scan, rust-dependency-checks, lint-pr, codeowners-validate, validate-renovate, agents-docs-validate, lighthouse-ci, gitea-check-texts-file, quartz-update, deployer-check, migrations-compatibility); skipped 85 from detailed reading, overwhelmingly deploy-*, template-* and per-component build/test workflows. Coverage is NOT uneven on M2: all 105 were swept for all three neutering tokens, not just the 20. M3 was reconsidered and flipped from an initial 'yes' to 'no' on the discovery-versus-validation distinction above; the earlier reading is recorded here so the parent can see both. codeowners-validate.yaml also carries a `paths:` filter (:5-9) and has no push trigger at all, which is trigger scoping rather than any of the four M2 forms, so it was not counted."
+  },
+  {
+   "repo": "amElnagdy/delegate-skills",
+   "workflowCount": 1,
+   "M1": true,
+   "M1evidence": "relays.yml:25, :26, :27, :28 — `run: node test/relay-parity.mjs`, `node test/relay-isolated.mjs`, `node test/event-scanner.mjs`, `node test/relay-smoke.mjs`. All four confirmed present in test/ (relay-parity.mjs 3856B, relay-isolated.mjs 1508B, event-scanner.mjs 9042B, relay-smoke.mjs 4395B).",
+   "M2": false,
+   "M2evidence": "No `continue-on-error`, no `|| true`, no `exit 0` anywhere in the file. :14 `fail-fast: false` is a matrix setting that makes MORE legs run. :30 `if: runner.os == 'Linux'` on \"validate the skills package\" does run — ubuntu-latest is in the matrix at :16 and the workflow fires on push to master at :4-5.",
+   "M3": "no",
+   "M3evidence": "Steps :25-28 carry no `name:`, so the claim is the script filename, and those are modest and accurate (\"relay-parity\", \"event-scanner\", \"relay-smoke\"). test/relay-parity.mjs:7 `RELAYS` enumerates all 17 relays that actually exist in skills/ (17 *-delegate directories) — complete, not narrowed. :8 READ_ONLY_TRIPWIRE_RELAYS is a 4-relay subset but that is correct feature-scoping for a tripwire only those relays implement.",
+   "notes": "Category assigned: tests/quality. Specifically checked the hardcoded RELAYS constant against the filesystem (skills/ listing) for the \"hardcoded exclusion list\" M3 pattern — it covers every relay present, so it is complete rather than narrow."
+  },
+  {
+   "repo": "apache/syncope",
+   "workflowCount": 23,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "none. Quality gates are Maven plugin goals: crosschecks.yml:53 'mvn -T 1C checkstyle:check tools:verify-legal-files modernizer:modernizer apache-rat:check'. codeql-analysis.yml:58/:83 is the CodeQL marketplace action",
+   "M2evidence": "none that qualifies. Zero continue-on-error across all 23. dockerhub.yml:37-49 '|| true' hits are all 'apt-get remove --purge' runner disk-cleanup, not security-or-quality steps. crosschecks.yml:52 'if: runner.os == Linux' guards the Validate step but it does execute on the Linux matrix leg, so it is not an if: that means it never runs",
+   "M3evidence": "not-applicable (M1 false)",
+   "notes": "All 23 workflows read, 0 skipped — grepped with the corrected detector, and crosschecks.yml, codeql-analysis.yml and publiccodeyml-check.yml opened in detail. crosschecks.yml:55 disables modernizer/rat/checkstyle/jacoco in the Test step, but only because the dedicated Validate step at :53 already ran them, so it is not a neutering."
+  },
+  {
+   "repo": "Apps2Samsung/Apps2Samsung",
+   "workflowCount": 13,
+   "M1": true,
+   "M1evidence": ".github/workflows/check-localization.yml:28 — step 'Verify every localization key exists in en.json' runs `python3 .github/scripts/check_localization.py`; script path .github/scripts/check_localization.py",
+   "M2": false,
+   "M2evidence": "No qualifying neutering. Rejected candidates: stable-release.yml:62 `VERSION_LINE=$(grep 'AppVersion' \"$FILE\" || true)` is a defensive idiom inside step 'Validate AppVersion (must be stable)' (:56) which still hard-fails via `exit 1` at :69 and :76; stable-release.yml:105 `exit 0` is flow control in 'Stop if release exists and manual updating is disabled' (:99), a release step; fdroid-repo.yml:96 `|| true` is on a `cp` of metadata.",
+   "M3": "no",
+   "M3evidence": ".github/scripts/check_localization.py:169-181 — source_files() walks both heads (DESKTOP and MOBILE) and excludes only /bin/ and /obj/ build output; markup_files() covers .axaml in DESKTOP and .xaml in MOBILE. Check A at :203-226, which is what the step name claims, runs across both heads and both markup types, so actual scope matches the step name rather than narrowing it.",
+   "notes": "Scanned all 13 workflows; keyword sweep for codeql/gitleaks/trivy/snyk/semgrep/licence/coverage/sonar returned nothing. M1 classification called explicitly: check_localization.py is a static source-code guard enforced as a required PR status check, which I placed under 'lint/policy' on the enumerated list. If the parent disagrees that localization-key coverage is a quality check, this repo flips to M1=false and M3=not-applicable. Narrowings I saw but judged insufficient for M3: check B carries an ALLOWLIST for intentionally untranslated strings (:11-14 docstring), and check A scans MOBILE .cs only for the L10n.Get pattern while DESKTOP .cs gets GetString/Localized (:203-212), a documented choice because mobile has an unrelated GetString(name) settings helper. Neither narrows the step name's own claim."
+  },
+  {
+   "repo": "axkr/symja_android_library",
+   "workflowCount": 4,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "none. codeql.yml:50/:67 github/codeql-action (marketplace); codeql.yml:63, maven-build-pr.yml:24, maven-build-master-and-publish-snapshot.yml:28 all plain 'mvn'",
+   "M2evidence": "none. Zero continue-on-error, '|| true' or 'exit 0' across all 4 workflows",
+   "M3evidence": "not-applicable (M1 false)",
+   "notes": "All 4 workflows read, 0 skipped. 'uses: ./.github/actions/setup-java-for-deployment' is a local composite action but is JDK setup, not a security/quality step, and is a uses: not a run: of a script."
+  },
+  {
+   "repo": "baynezy/Html2Markdown",
+   "workflowCount": 24,
+   "M1": false,
+   "M2": true,
+   "M2evidence": ".github/workflows/static-analysis.yml:26 — job-level `if: github.actor != 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository` guarding the SonarQube Cloud + dotCover coverage job 'Build and analyse'. Form: an `if:` that means it never runs on the default branch.",
+   "M3": "not-applicable",
+   "notes": "M2 reasoning, verified not inferred: static-analysis.yml:2-10 declares `push: branches: [develop]`, and `gh api repos/baynezy/Html2Markdown --jq .default_branch` returns `develop`. On a push event `github.event.pull_request` is null, so `github.event.pull_request.head.repo.full_name == github.repository` is false and the whole Static Analysis job cannot run on the default branch; it executes only on same-repo pull_request events. That is the prereg's own enumerated form. M1=false: the analysis runs installed tools only — .sonar/scanner/dotnet-sonarscanner and the dotcover global tool (static-analysis.yml:54, :59, :66), no repo-local script. step-build.yml drives Cake via the cake-build/cake-action marketplace action (:29, :33, :39), a `uses:` not a `run:`, and those are build/test steps in any case. step-mutation-testing.yml installs Stryker as a dotnet tool (:26). step-check-markdown.yml uses the nosborn markdownlint marketplace action (:9). Three-token sweep across all 24 workflows returned zero hits. Separately noted, not counted: static-analysis.yml:21 pins TEST_FILTER `Category!=LocalTest`, narrowing what the coverage run measures, but it sits on an installed-tool step so it feeds neither M1 nor M3."
+  },
+  {
+   "repo": "bitfoundation/bitplatform",
+   "workflowCount": 27,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "The .github/workflows directory holds 28 entries; 27 are workflow YAML and the 28th is wiki.sh, a shell script living alongside them. All 27 scanned for repo-local script invocations and swept for all three neutering tokens. bit.ci.CodeAnalyzers.yml, the one workflow whose name suggests static analysis, only runs `dotnet build src/CodeAnalyzers/Bit.CodeAnalyzers.slnx` (:34). Repo-local-ish invocations found are sdkmanager (Android SDK tool), pwsh bin/Debug/net10.0/playwright.ps1 (generated into build output, and a test step), and dotnet pack/push — none security-or-quality. RECORDED EXCLUSION: I did not open .github/workflows/wiki.sh; M1=false holds regardless because its invoking step, wiki.yml:25 'Run wiki query script', is a wiki/docs query, not security-or-quality. M2 candidates rejected: `continue-on-error: true` appears 11 times, ten of them on 'InstallNodejsDependencies' steps (bit.ci.BlazorUI.yml:51, bit.ci.Bmotion.yml:51, bit.ci.Brouter.yml:51, bit.ci.Bswup.yml:57, bit.ci.Butil.yml:51, bit.ci.Templates.yml:41, bit.ci.Websites.yml:41/:45/:49, bit.ci.release.yml:50), which are dependency INSTALL steps rather than an audit, each with an inline comment explaining the MSB4057 cause; the eleventh is bit.full.ci.yml:94 'Trust dotnet cert', environment setup rather than a security check."
+  },
+  {
+   "repo": "checkmarx-ltd/cx-flow",
+   "workflowCount": 3,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 3 workflows read in full. The only repo-local script invocation is ./gradlew at release.yaml:33-34, under the step name 'Build fat JAR' - a build, which is not on the prereg clause-(b) list (secrets, SAST, dependency audit, lint, licence, policy, coverage, compliance), so clause (b) fails and M1 is false. No continue-on-error, no trailing || true, no trailing exit 0 anywhere. The if: at release.yaml:18 runs on master/develop, i.e. the default branch, so it is not neutering; a workflow_dispatch-only trigger is not neutering either since it can be dispatched on the default branch."
+  },
+  {
+   "repo": "CleverTap/clevertap-android-sdk",
+   "workflowCount": 7,
+   "M1": true,
+   "M2": false,
+   "M3": "yes",
+   "M1evidence": ".github/mini_flows/lint/action.yml:12 - 'run: ./gradlew :clevertap-core:lint ...' inside the composite step named 'Run Lint on All Modules (Parallel)' (:8), reached from .github/workflows/on_pr_merged_in_master.yml:29-30 (step 'Run lint' -> uses: ./.github/mini_flows/lint). ./gradlew is the repo-local wrapper script and the step is lint, so clause (a) and clause (b) both hold. Repo-local composite action, not a marketplace action. Same shape at .github/mini_flows/codechecks_detekt/action.yml:12 and .github/mini_flows/codechecks_checkstyle/action.yml:12.",
+   "M3evidence": ".github/mini_flows/lint/action.yml:8 names the step 'Run Lint on All Modules (Parallel)' and the action description at :2 says 'Runs Android Lint checks on all modules', but lines 12-19 hardcode exactly four modules: clevertap-core, clevertap-geofence, clevertap-hms, clevertap-pushtemplates. settings.gradle lines 4-9 and 17 include seven modules; :sample, :instantapp and :test_shared are never linted. The identical hardcoded four-module list appears at .github/mini_flows/codechecks_detekt/action.yml:12-19 and .github/mini_flows/codechecks_checkstyle/action.yml:12-19.",
+   "notes": "All 7 workflows read. Rich set of clause-(b) steps: lint, detekt, checkstyle, jacoco coverage, mandatory-file-changes, all routed through repo-local composite actions under .github/mini_flows/. M2 false: the only neutering markers in the repo are three 'exit 0' at trigger-automation-from-comment.yml:25, :46 and :57, and each is an early-exit branch of a PR-comment parser that sets valid_comment=false to skip triggering automation downstream, not a swallowed security or quality check. 'if: always()' at mini_flows/lint/action.yml:9 makes the check run more often, not less. M3 caveat stated so it is auditable: the three omitted modules are a sample app, an instant app and a test-shared module rather than shipped library code, but the step name says 'All Modules' and the list is hardcoded, which is exactly the prereg's 'hardcoded exclusion list' case."
+  },
+  {
+   "repo": "CodeMazeBlog/CodeMazeGuides",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Single workflow pr-build.yml, read in full. Every step is inline bash or a marketplace action; no repo-local script is invoked, and the steps are build/test ('Build and test' at :113) rather than anything on the enumerated list. M2 candidate rejected: `exit 0` at pr-build.yml:118 is flow control inside that build/test step, skipping a folder with no .sln, not a neutered security-or-quality check. Worth surfacing even though it scores nothing here: the file's own header comment (:1-5) states the check is 'Advisory only. This check is never marked as a required status check, and main has no branch protection rule referencing it', and that folders listed in .github/ci-skip-folders.txt are filtered out before the matrix is built so they never appear as a run at all. That is a genuine narrowing of a CI check, but it is none of the four M2 forms and no repo-local script is invoked, so M3 cannot apply. Flagged in case the parent wants it as a qualitative example rather than a count."
+  },
+  {
+   "repo": "Coding-Meet/DevAnalyzer",
+   "workflowCount": 2,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Both workflows read in full. Purely build/package/release: build-desktop.yml is checkout, gradle setup, chmod, version and props injection, ./gradlew native packaging (:81), artifact renames, upload, GitHub release; macos-arm-test.yml is a workflow_dispatch QA build (./gradlew at :42). ./gradlew is repo-local in form, but every step name is a build, none on the clause-(b) list, so M1 false. grep for continue-on-error / || true / exit 0 across both files returned nothing, and no security or quality step exists to neuter."
+  },
+  {
+   "repo": "ConcealNetwork/conceal-core",
+   "workflowCount": 5,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Read all 5 workflows; check.yml is long (~490 lines, 6 build jobs) and was covered by full-text grep as well as paged reading, so the M1 judgment rests on a systematic scan of the complete decoded file, not a truncated view. Every `run:` step is cmake/msbuild/`make -j2` builds, release packaging, or execution of compiled test binaries (`./core_tests`, `./difficulty_tests`, `./performance_tests`, `./system_tests`, `ctest -R UnitTests`). No repo-local security or quality script is invoked anywhere, and there is no lint, secret-scan, SAST or dependency-audit step in the repo. M2: the four `|| true` occurrences (check.yml:176 `which g++`, :178 and :190 and :201 `ldd ...`) are diagnostic probes inside test steps, each followed on the NEXT line by an un-neutered invocation of the actual test binary, so nothing security-or-quality is disarmed; the two `if:` occurrences (check.yml:42, windows.yml:30) are Boost cache-hit guards."
+  },
+  {
+   "repo": "ConduitIO/conduit",
+   "workflowCount": 19,
+   "M1": true,
+   "M1evidence": ".github/workflows/govulncheck.yml:105-107 step \"Compare against the baseline\" runs `python3 .github/scripts/govulncheck_ratchet.py govulncheck.json .github/govulncheck-allowlist.txt` — a repo-local Python script in a dependency-vulnerability step. Second instance: validate-generated-files.yml:24 `make install-tools proto-generate generate` followed by :26 `git diff --exit-code --numstat`.",
+   "M2": false,
+   "M3": "no",
+   "M3evidence": "Opened .github/scripts/govulncheck_ratchet.py. The script IS narrow — only CALLED-level findings count (:86 `if trace and trace[0].get(\"function\")`) and 24 baselined IDs are exempt — but the step is NAMED \"Compare against the baseline\", which states exactly that, and both narrowings are documented with their rationale at govulncheck_ratchet.py:22-33 and govulncheck.yml:15-29. The script also FAILS CLOSED on a scan that did not run (:41-58 and :89 require govulncheck's own `config` message before any comparison), which is the opposite of the M3 pattern. The step name does not overclaim, so \"no\".",
+   "notes": "All 19 workflows fetched and scanned, 0 skipped. M2 checked with an UNLIMITED grep: the only occurrence of the string \"continue-on-error\" in all 19 files is govulncheck.yml:25, a COMMENT explaining why the authors REJECTED a report-only design (\"Report-only (continue-on-error) - always green ... Silent by construction\"). The many `exit 0` in chaos.yml:81,87,92, bundle-e2e.yml:64,70,75 and rag-e2e.yml:65,71,76 are inside path-filter DECISION steps that write run=true and are explicitly fail-closed (chaos.yml:85 \"base ref unavailable - running suite (fail-closed)\"). The `|| true` in generate-capture.yml:213,234,235,357,367,406,407 are grep/awk parse guards. All job-level `if:` guards are fork/actor guards that do run on the default branch (generate-capture.yml:119, dependabot-auto-merge-go.yml:17). lint.yml:27 is golangci-lint-action, marketplace."
+  },
+  {
+   "repo": "croffasia/itsaplan",
+   "workflowCount": 6,
+   "M1": false,
+   "M1evidence": "No repo-local security/quality script anywhere. ci.yml:39-46 Format check / Lint / Typecheck resolve to installed tools: package.json:22 `prettier . --check`, :20 `turbo run lint` and :23 `turbo run typecheck` fanning out to apps/api, apps/web, packages/db, packages/auth where every \"lint\" is `eslint .` and every \"typecheck\" is `tsc --noEmit`. ci.yml:88 runs docker compose (a config file, not a script). codeql.yml:23,28 is a marketplace action.",
+   "M2": false,
+   "M2evidence": "None. Sole hit is release.yml:67 `exit 0`, a legitimate \"no release tag on HEAD, nothing to move\" early exit (release.yml:64-68).",
+   "M3": "not-applicable",
+   "notes": "ALL 6 workflows read (ci, cla, codeql, pr-title, publish-images, release). Verified the turbo indirection by opening four workspace package.json files rather than assuming it resolved to installed tools. Contributors: croffasia, github-actions[bot], dependabot, grootbro, ahmedosamaft, z0rgoyok - not ours."
+  },
+  {
+   "repo": "DataDog/chef-datadog",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Single workflow codeql-analysis.yml, 48 lines, read in full. It is a genuine security workflow but contains no `run:` step at all — every step is a marketplace action (actions/checkout, github/codeql-action/init, /autobuild, /analyze, all SHA-pinned), and the prereg excludes marketplace-only steps from M1. M2: no continue-on-error, `|| true` or `exit 0`; no `if:` conditions; `fail-fast: false` at :22 is matrix strategy and `permissions: {}` at :10 is hardening, not neutering. M3 is not-applicable because M1 is false, but noted for completeness: `language: [ 'ruby' ]` at :24 matches the repo (a Ruby Chef cookbook), so the scope is not narrower than the name, and the custom-queries option at :40 is left commented out, i.e. CodeQL's default ruleset."
+  },
+  {
+   "repo": "deckhouse/deckhouse",
+   "workflowCount": 81,
+   "M1": true,
+   "M1evidence": ".github/workflows/build-and-test_dev.yml:4197 step \"DMT lint\" (name at :4192, job tests_dmt_lint at :4142) runs `make dmt-lint` -> Makefile:174-177 -> tools/dmt-lint.sh (repo-local). Corroborating: bashible_validation.yml:66 `./.github/scripts/validation_bashible.sh`; compare-cve-between-release.yml:111 `python .github/scripts/python/compare_cve_between_releases.py`; Makefile:235 `bash tools/lint-changed.sh`; Makefile:243 `bash tools/check-dhctl-cmd-drift.sh`.",
+   "M2": true,
+   "M2evidence": ".github/workflows/build-and-test_main.yml:2044 `continue-on-error: true` on step \"Check links with html-proofer\" (name at :2043) — the link-validation check runs and reports but can never fail the workflow. Doubly neutered: the whole `web_links_test` job (:1857, name \"Web links test\") also carries job-level `continue-on-error: true` at :1863.",
+   "M3": "yes",
+   "M3evidence": "PRIMARY: step \"DMT lint\" (build-and-test_dev.yml:4192) -> Makefile:177 -> tools/dmt-lint.sh, whose final line is `dmt lint -l INFO /deckhouse/modules`. Scope is that one subtree only. Verified via contents API that `ee/modules` exists (repos/deckhouse/deckhouse/contents/ee lists \"modules\"), so the enterprise module tree sits outside a step named \"DMT lint\"; the monorepo also carries candi/, dhctl/, deckhouse-controller/, testing/, tools/. CORROBORATING: Makefile:232 `lint-changed:` with its own comment \"Lint only Go modules touched by diff against DIFF_BASE (default: HEAD~1)\" -> Makefile:235 `bash tools/lint-changed.sh`, invoked at build-and-test_dev.yml:4441; the check a reviewer sees in the PR list is the job name `golint` (build-and-test_dev.yml:4321), and a pre-existing violation in an untouched module never fails it.",
+   "notes": "All 81 workflow yaml files fetched and scanned, 0 skipped. The directory holds 84 entries; changelog.md, pipeline-dev.md and pipeline-release.md are not workflows, hence 81. M1 judged under the enumerated list (secrets/SAST/dep-audit/lint/licence/policy/coverage/compliance) since that list sits textually inside M1's definition. Other continue-on-error in this repo are on \"Add svace analyze server to ssh_known_hosts\" setup steps (dev.yml:535, main.yml:298,696) and on prod deploy jobs (main.yml:2190,:2328), none of which I counted. Note build-and-test_dev.yml:4840 documents that the CVE scan delegates to `/home/nikmor/Flant/GitLab/SSDLC-tools/cve-scan/cve_scan.sh`, a path OUTSIDE this repo — not used for any count here."
+  },
+  {
+   "repo": "DeepL/deepl-mcp-server",
+   "workflowCount": 3,
+   "M1": false,
+   "M1evidence": "No repo-local script anywhere. run_ci.yml:28/:43/:58/:73 (`npm run lint` / `npm run format` / `npm run audit` / `npm test`) resolve via package.json:19-23 to `eslint .`, `prettier --check .`, `npm audit ...` and `vitest run` — all npm-installed tools, explicitly excluded by the prereg. run_ci.yml:84-87 runs gitleaks from a wget-downloaded release tarball, not from the repo.",
+   "M2": false,
+   "M2evidence": "None of the four forms on any security-or-quality step. run_ci.yml:87 `./gitleaks detect ... || EXITCODE=$?` is a capture-and-RETHROW, correctly re-raised at :88-90 (`if [[ $EXITCODE -ne 0 ]]; then exit $EXITCODE; fi`) — not neutering. :92 `if: always()` is on the upload-artifact step, which makes it run MORE often, not less.",
+   "M3": "not-applicable",
+   "M3evidence": "M1 is false, so M3 has no denominator entry per the prereg (M3's denominator is M1 repos only).",
+   "notes": "Cleanest CI in the set at the workflow level. NOT COUNTED but recorded: package.json:22 `\"audit\": \"npm audit --omit=dev --audit-level=critical && (npm audit || echo 'Suppressing npm audit failures for dev dependencies')\"` — the `|| echo` neuters the second, broader audit. Excluded from M2 for two reasons: it is not one of M2's four frozen forms, and it lives in package.json not the workflow. The first half remains a real gate on critical prod vulnerabilities. This is one of the 2 instances behind the instrument limitation noted in repo 1."
+  },
+  {
+   "repo": "desplega-ai/agent-swarm",
+   "workflowCount": 7,
+   "M1": true,
+   "M1evidence": ".github/workflows/ci.yml:127 \"Check worker/API DB boundary\" -> :132 `bash scripts/check-db-boundary.sh`; ci.yml:151 \"Check API_KEY env-access boundary\" -> :156 `bash scripts/check-api-key-boundary.sh`; ci.yml:211 \"Check RBAC coverage (tools, verbs, routes)\" -> :216 `bun scripts/check-rbac-coverage.ts`; ci.yml:224-225 \"Check Bun version pins\" -> `bun run check:bun-version` -> package.json:99 `bun scripts/check-bun-version.ts`. All repo-local, all policy/security.",
+   "M2": true,
+   "M2evidence": ".github/workflows/ci.yml:75 `continue-on-error: true` on the step at ci.yml:73 `- name: Run structural consistency lint`, whose body at :81 runs `bun run lint:structure` -> package.json:100 `konsistent check`. A lint step that structurally cannot fail the job. (The other continue-on-error hits, ci.yml:231,418 and merge-gate.yml:187,388,579,850,888,978, are all on best-effort ci-timings/metrics reporting, not gates.)",
+   "M3": "yes",
+   "M3evidence": "scripts/check-rbac-coverage.ts, invoked by the step NAMED \"Check RBAC coverage (tools, verbs, routes)\" (ci.yml:211). Two hardcoded exclusion lists: :60-140 UNGATED_TOOL_FILES = 78 tool files exempt from the can() gate [command: sed -n '61,139p' rbac.ts | grep -cE '^\\s+\"src/tools/' -> 78]; :221-349 ROUTE_RBAC_BACKLOG = 127 mutating DELETE/PATCH/POST routes pinned ungated and still PASSING [command: sed -n '222,348p' rbac.ts | grep -cE '^\\s+\"(GET|POST|PUT|PATCH|DELETE) ' -> 127]. Additionally :15 puts only NON-GET routes in scope at all, so every GET route is unchecked, and :146 walk() takes `.ts` only, excluding `.test.ts`. Name claims RBAC coverage of tools+verbs+routes; real scope permits 78 tools and 127 mutating routes with no gate.",
+   "notes": "ALL 7 workflows read. The only M2=true repo in the sample. In fairness on M3: the script is otherwise rigorous - :63-67 fails on stale UNGATED_TOOL_FILES entries so the maps cannot rot silently - but a hardcoded exclusion list is verbatim a prereg M3 example and the scope is narrower than the step name. Also examined scripts/check-api-key-boundary.sh: its exclusions (:25-27 ALLOW_FILES, :30 --include='*.ts'/'*.tsx', :33-34 excluding src/tests/) are documented in its own header at :12-21 and it was NOT used as the M3 evidence; the RBAC script is the stronger and cleaner instance. An earlier `grep -c BACKLOG_REASON` gave 128 and was one off; 127 is the count of route keys and is the number to use. Contributors: tarasyarema, desplega-bot, fuvidani, capchase-bot, Shabinder, dependabot - not ours."
+  },
+  {
+   "repo": "dust-tt/dust",
+   "workflowCount": 37,
+   "M1": false,
+   "M1evidence": "Every quality step resolves to an installed tool or to INLINE shell, not a repo-local script file: format-check.yml:37 `npm run format:ci` -> package.json:23 `biome ci`; format-check.yml:39 `npm run test:grit` -> package.json:26 grit CLI; build-and-test-front.yml:81 tsgo; build-and-test-core.yml:85 `cargo fmt --all -- --check`; build-and-test-front.yml:94 `npm -w front run lint:audit-log-schemas` -> front/package.json:19 which is an inline grep one-liner, not a file; check-migrations.yml:19-38 \"Check no new files added to frozen migration dir\" is an inline `run: |` git-diff block. BORDERLINE EXCLUDED (flagged so it can be reversed): run-dangerjs.yml:63-65 \"Run Danger for front\" -> `cd front && npx danger ci`, which executes the repo-local 644-line policy script front/dangerfile.ts (rules at :487-599). Excluded because the run: line names neither a repo path nor a repo-defined target, unlike all five prereg examples - danger is an installed binary picking up a repo file by convention, the same shape as `eslint .` reading .eslintrc. A less conservative reading would count this and flip dust to M1=true; Path A clears either way.",
+   "M2": false,
+   "M2evidence": "None, verified across ALL 37 workflows: zero occurrences of continue-on-error. The single `|| true`, run-dangerjs.yml:85, is inside a git-diff capture, not a gate. The single `exit 0`, deploy-spa.yaml:172, is in a deploy path. deploy.yml:80 and sandbox-img-registry.yml:21 use `if: github.ref != 'refs/heads/main'` but are INVERTED guards whose body is `exit 1` (\"only allowed from the main branch\"), the opposite of a neutering.",
+   "M3": "not-applicable",
+   "notes": "37 workflows total. Read closely: 11 (build-and-test-front, build-and-test-core, build-and-test-front-api, build-and-test-connectors, build-and-lint-dust-hive, check-migrations, format-check, lint-github-actions, sandbox-img-verify, run-dangerjs, react-doctor) = 26 SKIPPED for close reading, but ALL 37 were bulk-fetched and grepped for every M2 form and for repo-local script paths, which surfaced no further M1 candidate. Also excluded from M1: sandbox-img-verify.yml:39 `npx tsx scripts/sandbox_image_verify.ts` is a repo-local script but a deploy-precondition check that required container templates exist in E2B, i.e. release/deploy verification, OUT by the frozen rule. If the dangerfile were counted, M3 would still be NO: the step name \"Run Danger for front\" claims no particular scope, so its per-path prefix filters are not narrower than the name (for the record dangerfile.ts:487-488 uses modified_files+created_files and omits deleted_files, and :554 skips *.test.ts)."
+  },
+  {
+   "repo": "eclipse-platform/eclipse.platform.ui",
+   "workflowCount": 9,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "none. Every job delegates to reusable workflows in a DIFFERENT repo: pr-checks.yml:14/:16/:18, doCleanCode.yml:12, checkDependencies.yml:12, codeql.yml:14, ci.yml:20 all 'uses: eclipse-platform/eclipse.platform.releng.aggregator/.github/workflows/*.yml@master'",
+   "M2evidence": "none. Zero continue-on-error, '|| true' or 'exit 0' across all 9 workflows",
+   "M3evidence": "not-applicable (M1 false)",
+   "notes": "All 9 workflows read, 0 skipped (166 lines total — every file is a thin 14-32 line delegator). Notable shape: this repo's entire security/quality surface lives in a separate shared aggregator repo, so nothing is measurable as repo-local here. Only copilot-setup-steps.yml contains actual steps, and they are checkout/setup-java/setup-maven."
+  },
+  {
+   "repo": "eez-open/studio",
+   "workflowCount": 1,
+   "M1": false,
+   "M1evidence": "main.yml is build/release only. Every step is a marketplace action (actions/checkout@v3 :17, actions/setup-node@v3 :20, coparse-inc/action-electron-builder@v1.0.0 :48) or a package-manager install (:26 `sudo -H pip install setuptools`, :31-32 apt). No repo-local script is invoked, and the workflow contains no security-or-quality step at all.",
+   "M2": false,
+   "M2evidence": "None of the four forms present. Noted and correctly excluded: :25 `if: startsWith(matrix.os, 'macos')` IS a dead condition (the matrix at :13 is [ubuntu-latest, windows-2022], so no macos leg ever exists), but the step it guards is `sudo -H pip install setuptools` — not a security-or-quality step, so it does not qualify under M2.",
+   "M3": "not-applicable",
+   "M3evidence": "M1 is false, so M3 has no denominator entry per the prereg.",
+   "notes": "Smallest surface in the sample: 1 workflow, 70 lines, pure Electron build/release. Included as measured rather than dropped, since dropping zero-CI repos would bias M1 upward."
+  },
+  {
+   "repo": "Eoin-McMahon/blindfold",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Single workflow rust.yml, 22 lines, read in full. Only `cargo build --verbose` (:20) and `cargo test --verbose` (:22) — toolchain commands, no repo-local script, no lint/security step at all. No continue-on-error, `|| true`, `exit 0`, or any `if:`. SENSITIVITY: stays M1=false even under a wider boundary where tests count as quality, because the test step invokes the cargo toolchain rather than a repo-local script."
+  },
+  {
+   "repo": "erpc/erpc",
+   "workflowCount": 7,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "",
+   "M2evidence": "",
+   "M3evidence": "",
+   "notes": "All 7 workflows read (test.yml, dependency-review.yml and xray.yml in full; benchmark.yml, codeql.yml, release.yml and scorecards.yml via full-text greps over every step name plus every script and neutering pattern). Repo-local invocations exist but none is a security or quality step: test.yml:34 make setup (Install dependencies), :36 make build (Build), :38 make test-fast (Test with the Go CLI, a test runner); benchmark.yml:74 and :81 make bench (performance, not in the M1 category list); release.yml:213, :220, :227, :234, :242 .github/scripts/publish-npm.sh (npm publishing). Every actual security control is a marketplace action, which the prereg excludes from M1: securego/gosec at test.yml:57, actions/dependency-review-action at dependency-review.yml:27, CodeQL at codeql.yml:52-75, ossf scorecard at scorecards.yml:51. NOT COUNTED but relevant: test.yml:59 runs gosec with args -exclude=G115 -exclude-dir=test -tests=false ./... , which is exactly the M3 narrowing shape (a rule exclusion, a directory exclusion, and tests switched off) under the step name Run Gosec Security Scanner at :56; M3 is defined only over M1 repos and repo-local scripts, so it is excluded rather than counted. M2 candidates rejected: benchmark.yml:71 || true on git remote add plumbing; benchmark.yml:74 || true on make bench for the base branch (benchmarking, not security or quality); release.yml:583 || true on a GHCR tag-cleanup API call. No continue-on-error and no exit 0 anywhere in the 7."
+  },
+  {
+   "repo": "FaserF/hassio-addons",
+   "workflowCount": 29,
+   "M1": true,
+   "M1evidence": "orchestrator-ci.yaml:393 `python3 .scripts/check_compliance.py \"./${{ matrix.App }}\"` (step name at :386 \"🏆 Platinum Compliance Check\"); script .scripts/check_compliance.py confirmed present (206 lines, 8040 bytes). Also orchestrator-ci.yaml:429 `python3 .scripts/check_translations.py` (step name :427 \"🌐 Translation Check\").",
+   "M2": true,
+   "M2evidence": "TWO independent hits, both on compliance steps, both in workflows that run on push to master (the default branch). (a) orchestrator-ci.yaml:388 `continue-on-error: true` on the \"🏆 Platinum Compliance Check\" step at :386 — form: step-level continue-on-error; triggers at :3-9 are push+PR to master. (b) orchestrator-intake.yaml:64 `python3 .scripts/check_compliance.py \"$App\" >> compliance.log 2>&1 || true` — form: trailing `|| true` on a compliance check; triggers at :10-16 are push to master.",
+   "M3": "yes",
+   "M3evidence": ".scripts/check_compliance.py:174 prints \"OK: ... passed all basic compliance checks\" — the script's own success path calls them BASIC while the step at orchestrator-ci.yaml:386 claims \"Platinum Compliance Check\" (the top Home Assistant add-on quality tier). :184 `sys.exit(0)` when invoked with no arguments (\"Don't error if no args, just exit (simplifies workflow)\"). :190-196 silently `continue` past any argument that does not exist or lacks config.yaml. And 7 of 21 findings are `warnings` that never reach the exit code (:170-172, :199-201), including base-image provenance (:66-68) and OCI labels (:60-61).",
+   "notes": "Category assigned: compliance/policy. STRONGEST FINDING IN THE SET — this single repo is simultaneously M1, M2 and M3, and is the cleanest instance of the prereg's actual claim: a step named for the highest compliance tier, marked non-blocking, whose script grades itself \"basic\" and can pass having verified nothing. All 29 workflows were read (grepped in full, matching windows opened); ZERO skipped. Excluded as non-quality: the seven `bash .github/scripts/minimize-comments.sh ... || true` in orchestrator-automerge.yaml (PR comment housekeeping) and orchestrator-edge-sync.yaml:285 `bump_version.py ... || echo`."
+  },
+  {
+   "repo": "fhhyyp/serein-flow",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Single workflow ci.yml, read in full. Steps are `dotnet restore --locked-mode` (:37), `dotnet build` (:40), `dotnet test` (:43), `npm ci` (:47), `npm test` (:51), `npm run build` (:55). No repo-local script invoked from any step, and no step falls on the enumerated security-or-quality list — the npm scripts are test and build, so I did not need to resolve them through package.json to settle M1. Three-token sweep returned zero hits."
+  },
+  {
+   "repo": "figma/vite-plugin-yaml",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "The single workflow read in full (73 lines). Two jobs, both build-only: pnpm i then 'Build Vite plugin' (pipeline.yml:40, pnpm build) and 'Build integration' (pipeline.yml:73, pnpm example:build). No lint, secret scan, dependency audit, coverage or policy step anywhere, so M1 false and there is no security or quality step available to neuter, so M2 false. 'fail-fast: false' at :19 and :52 is matrix strategy, not continue-on-error."
+  },
+  {
+   "repo": "fmbot-discord/fmbot",
+   "workflowCount": 3,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 3 workflows read. codeql-analysis.yml is real SAST but runs entirely through the github/codeql-action marketplace action (init at :46, autobuild at :57, plus analyze), which the prereg explicitly excludes from M1; aspnetcore.yml:15 is `dotnet build`; docker-publish.yml is packaging. No repo-local script in any step. M2 candidate rejected: the only conditional hit is codeql-analysis.yml:42, `if: ${{ github.event_name == 'pull_request' }}`, and it guards `git checkout HEAD^2`, a checkout helper for PR head resolution, not a security step. The CodeQL init/autobuild/analyze steps themselves are unconditional and the workflow runs on push to main (:9-10), pull_request and a weekly schedule, so nothing is dead on the default branch."
+  },
+  {
+   "repo": "future-agi/future-agi",
+   "workflowCount": 30,
+   "M1": true,
+   "M1evidence": ".github/workflows/agentcc-gateway-ci.yml:54-55 step \"Check generated gateway contracts\" -> run: python3 scripts/generate-agentcc-gateway-contracts.py --check (repo-local script, contract-drift quality gate). Also release-backend.yml:54-57 \"Verify OSS image boundary\" -> ./scripts/verify-image-contents.sh, and api-contracts.yml:146-147 -> yarn contracts:check.",
+   "M2": true,
+   "M2evidence": ".github/workflows/frontend-main.yml:74 `continue-on-error: true` on the step named \"Security audit\" (name at :72) running `yarn audit --level moderate` (:73). The workflow triggers on push to main (frontend-main.yml:4-5), the default branch, so a dependency audit runs on every frontend change to main and can never fail the pipeline.",
+   "M3": "no",
+   "M3evidence": "Opened three invoked scripts and none is narrower than its step name. scripts/generate-agentcc-gateway-contracts.py:279-290 main() checks BOTH generated outputs (PY_OUT at :17 and GO_OUT at :18) against the shared schema — matches \"Check generated gateway contracts\". scripts/verify-image-contents.sh:106-115 for the `oss` flavor asserts no ee path or symlink, no cloud control-plane package, no cloud routes, and that Django boots without EE — matches \"Verify OSS image boundary\". frontend/scripts/check-management-api-contract-coverage.mjs:18-22 pins MAX_MUTATIONS_WITHOUT_BODY_SCHEMA, MAX_OPERATIONS_WITHOUT_RESPONSE_SCHEMA, MAX_BROAD_SUCCESS_RESPONSE_SCHEMAS, MAX_OPERATIONS_WITHOUT_ERROR_RESPONSE_SCHEMA and MAX_BROAD_ERROR_RESPONSE_SCHEMAS all at 0, and a grep of the whole 396-line file for debt|allow|exempt|skip|ignore returns zero hits.",
+   "notes": "All 30 workflows read, 0 skipped. Default branch main. I specifically tested and falsified the hypothesis that the *-contract-debt.mjs scripts act as a hardcoded exclusion list: the coverage gate consults no debt file and tolerates zero violations. Note on the package.json indirection at api-contracts.yml:147 — `yarn contracts:check` expands (frontend/package.json:20) to ten `node scripts/*.mjs --check` invocations, i.e. repo-local scripts, which is the prereg's own example form; that is unlike `npm run lint` expanding to an installed binary, which I excluded elsewhere. M1 does not depend on this either way, since it is anchored on the direct `python3 scripts/...` call. The step name at api-contracts.yml:146 (\"Check generated filter contract\", singular) understates a scope of ten scripts, which is WIDER than the name, and M3 requires narrower. Other continue-on-error hits were checked and are not security-or-quality steps: frontend-develop.yml:151 (Lighthouse CI), merge-guard.yml:40 (Slack alert delivery, with a real `Fail the check` step at :47), release-images.yml:88 (dispatch)."
+  },
+  {
+   "repo": "getsentry/sentry-unity",
+   "workflowCount": 20,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Read 8 in detail (ci, build, release, danger, validate-pr, format-code, sdk, update-deps); scanned all 20 for repo-local script invocations and swept all 20 for all three neutering tokens. Dozens of repo-local .ps1/.sh invocations exist but every one sits in a build, packaging or integration-test step, which is not on the enumerated list. danger.yml:10 and validate-pr.yml:13 are external reusable actions (getsentry/github-workflows), not repo-local `run:`. format-code.yml lints with clang-format (:16) and `dotnet format` (:33), both installed tools; its only repo-local script, ./scripts/commit-formatted-code.sh at :39, is a commit helper rather than the check. BORDERLINE EXCLUSION, recorded so it is visible: ci.yml:94, step 'Check snapshot', runs repo-local ./test/Scripts.Tests/test-pack-contents.ps1 inside job 'UPM Package validation' (ci.yml:76) with a 'Fail on unexpected snapshot changes' step behind it at ci.yml:112. I classified it as a snapshot test (not on the enumerated list) so M1=false; it is also defensibly readable as a package-contents/supply-chain POLICY check, under which M1 would be true. M2: the sole `continue-on-error: true` in the repo is test-build-linux.yml:194 on step 'Docker diagnostics on failure' (test-build-linux.yml:183), a diagnostics step, not security-or-quality."
+  },
+  {
+   "repo": "googleapis/mcp-toolbox-sdk-python",
+   "workflowCount": 12,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 12 grepped; lint-toolbox-core.yaml and conformance.yml read in full (the other three lint-*.yaml are the same shape per package). Real quality steps exist but all call installed tools: lint-toolbox-core.yaml:80 `black --check .`, :81 `isort --check .`, :86 `mypy ... -p toolbox_core`. conformance.yml:78 is a marketplace action (modelcontextprotocol/conformance); its `command: python packages/toolbox-core/tests/conformance/client.py` at :81 is an action INPUT, not a `run:` of a repo-local script, so it is excluded by M1's marketplace-action rule. schedule_reporter.yml:27 `uses: ./.github/workflows/cloud_build_failure_reporter.yml` is a repo-local reusable workflow but contains no `run:` of a repo-local script. BORDERLINE M2 recorded but NOT counted: nightly_tier_report.yml:59 `continue-on-error: true` on the step 'Run SDK Tier Assessment' (:53-58) - not counted because the workflow is a nightly REPORT rather than a gate and the failure is deliberately handled downstream at :61-68, which opens a '[Dashboard: Conformance] Weekly SDK Tier Assessment Failure' issue; the signal is redirected, not swallowed. The remaining markers are non-security: api-docs-backfill.yml:137 `exit 0` (no docs changes) and export_cloud_build_logs.yml:55 `exit 0` (no PR found). conformance.yml:83 `expected-failures: packages/toolbox-core/tests/conformance-baseline.yml` is a suppression baseline, an M3-shaped pattern, but M3 is not assessable because M1 is false."
+  },
+  {
+   "repo": "googlecloudrobotics/core",
+   "workflowCount": 4,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 4 workflows read in full. This is the closest M1 near-miss in my batch and I want it visible. check-bazel.yml:30 step \"Run .github/ci/presubmit.sh\" DOES invoke a repo-local script, so it passes the script half of M1. I opened the script: .github/ci/presubmit.sh:12-16 does only `bazel build --nobuild //...`, `bazel build //...` and `bazel test --test_output=errors //...`, with no lint, SAST, secret scan, licence check, dependency audit or coverage threshold. It therefore fails the enumerated security-or-quality list that sits textually inside M1's definition, so I counted it FALSE. Under a reading where build+test counts as quality this repo flips to M1 true, AND M3 would then be YES, because presubhelper.sh — precisely, presubmit.sh:27-43 — comments out an entire docker-dependent test block with the note \"Disable the test for now until someone has time and ideas how to resurrect it\". release.yml:68 `./.github/ci/release_binary.sh` is a release step. M2 false: the only `|| true` is check-bazel.yml:33 `cat ~/.cache/bazel/.../java.log || true`, a log dump on a diagnostic step; presubmit.yml:71 `run: exit 1` is a deliberate FAIL step, the opposite of neutering."
+  },
+  {
+   "repo": "gpustack/gguf-parser-go",
+   "workflowCount": 4,
+   "M1": true,
+   "M2": false,
+   "M3": "no",
+   "M1evidence": ".github/workflows/ci.yml:64 run: make ci (step name Make at :63, env LINT_DIRTY: true at :65-66). Makefile:140 defines ci: deps generate lint test build, and the lint target at Makefile:34-64 runs goimports-reviser (:44, :47) and golangci-lint run --fix (:53, :55) plus a dirty-tree gate at :57-62, so the step does invoke a repo-local target that concerns lint.",
+   "M2evidence": "",
+   "M3evidence": "",
+   "notes": "All 4 workflows read in full. M3 marked no on the frozen definition, which compares the script's scope against the STEP NAME: the step is named simply Make (ci.yml:63), which asserts nothing about scope, so there is no claim for the target to be narrower than. Recording what a name-bearing step would have exposed, without counting it: Makefile:43 and :46 restrict the goimports pass with find -maxdepth 1 and the exclusions ! -name gen.* ! -name zz_generated.*, and Makefile:44 and :47 discard all output with 1>/dev/null 2>&1; golangci-lint runs with --fix (:53, :55) so it rewrites rather than reports, and the only thing that actually fails the build on style is the LINT_DIRTY dirty-tree check at :57-62, which CI does enable at ci.yml:66. grep for continue-on-error, || true, exit 0 and no-fail across all 4 workflows returned zero; the only || occurrences are ternary defaults in sync.yml:52, :71, :86 expressions. ci.yml:17-37 paths-ignore excludes docs and markdown from triggering CI, which is trigger scope, not step neutering."
+  },
+  {
+   "repo": "grafana/grafana-plugin-sdk-go",
+   "workflowCount": 6,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 6 workflows read in full. M1 false: the lint is golangci-lint-action (ci.yml:27, marketplace) and proto validation is bufbuild's buf-setup/buf-breaking actions (validate-protos.yml:23,25, marketplace). ci.yml:43 `mage -v build` and ci.yml:52 `mage -v testRace` DO resolve to a repo-local Magefile.go, but they are build and test only, which fails the enumerated security-or-quality list that sits inside M1's definition. check-grafana-compatibility.yml:53 `make build-go` is a genuine trap I checked: it runs inside the GRAFANA checkout (grafana/grafana checked out at :24, `go mod edit -replace` at :49), so it is not this repo's Makefile. check-incompatibility.yml:32 installs gorelease, an installed tool. M2 false: renovate-approve.yml:252 `... | tail -1 || true` looks neutered but is FAIL-CLOSED — :253-256 immediately test for an empty verdict and `exit 1`. The other `|| true` at :104, :275 and :286 are gh PR housekeeping (rerun, remove-label, label colour)."
+  },
+  {
+   "repo": "heoblitz/Loupe",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Single workflow verify.yml, 252 lines, read in full (9 jobs). Many steps DO invoke repo-local scripts — scripts/ci-print-toolchain.sh (:32,:47,:74,:99,:124,:151,:179,:207,:237), scripts/verify-platform-builds.sh (:53), scripts/ci-run-with-diagnostics.sh (:77,:102,:127,:154,:182,:211,:240) — but none concerns an enumerated security/quality category: they are toolchain diagnostics, build verification, and an e2e harness respectively. The workflow being named \"Verify\" is not evidence of category; reading a step name into the category is backwards from M3's own rule. SENSITIVITY: this repo would flip to M1=true under a wider boundary where tests/e2e counted as quality — it is the strongest such case in the sample, with repo-local scripts genuinely driving the checks. M2: the eight `if:` occurrences (:56,:80,:105,:130,:157,:185,:214,:243) are all `if: failure()` on diagnostic artifact uploads, which is the opposite of neutering."
+  },
+  {
+   "repo": "hiero-ledger/hiero-consensus-node",
+   "workflowCount": 158,
+   "M1": true,
+   "M2": false,
+   "M3": "no",
+   "M1evidence": ".github/workflows/857-call-workflow-unit-tests.yaml:28 — step 'Test Templates' (:27) in job 'Validate Gomplate Templates' (:16) runs 'bash ./.github/workflows/support/tests/test-gomplate-templates.sh'. Script confirmed present via contents API (95 lines)",
+   "M2evidence": "none that qualifies. 60+ continue-on-error occurrences, every one mapped to its enclosing step name: all are teardown ('Always Destroy Kind Cluster', 'Stop Solo'), diagnostics ('Collect run logs in a log file', 'Upload log as artifact') or notification ('Find Commit Author in Slack', 'Create Rootly Alert', 'Report Failure (Rootly)'). The job-level ones (e.g. 201-user-sdpt-controller-adhoc.yaml:78, 221-disp-sdpt-controller.yaml:20) sit on job 'Verify Tag', release plumbing rather than a security/quality check. 'exit 0' hits (e.g. 201:251,:263) are early skips in step 'Tag SDPT Result'",
+   "M3evidence": "NO — scope matches the step name. test-gomplate-templates.sh:40 iterates '\"${TEMPLATES_DIR}\"/*.tpl'; that extension allowlist omits nothing, since all 20 files in .github/workflows/templates/ are .tpl. The skip-counts-as-PASSED early exit at :51-55 does not fire: the 3 smallest templates were each opened and all carry a guard matching the script's grep pattern at :35 (e.g. slack-env-failure-summary.json.tpl:10 'getenv \"SLACK_SUMMARY_TEXT\" | required'). Step name 'Test Templates' claims no more than the script does",
+   "notes": "All 158 workflows downloaded and grepped, 0 skipped; 802/857/201 plus two scripts opened in detail. .github/workflows/support/scripts/set-failure-mode.sh is invoked from ~20 workflows but was deliberately NOT counted for M1: it computes a failure-mode output for Slack notification (its own header, :4-14), i.e. reporting plumbing, not a security-or-quality step. 802-call-compile-and-spotless-check.yaml:89 'Spotless Check' runs the gradle wrapper, excluded. 823-call-verify-gradle-determinism.yaml:303,:307 'sha256sum -c' checks repo-local .sha256 manifests but sha256sum is a system tool, not a repo-local script."
+  },
+  {
+   "repo": "IndEcol/ODYM",
+   "workflowCount": 4,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 4 read in full. Every run: is a pip-installed tool or a marketplace action: test_package.yml:46-49 'Test with pytest' runs pytest with --cov; publish_pypi.yml and publish_testpypi.yml run 'python3 -m build' and pypa/gh-action-pypi-publish; update_license.yml uses FantasticFiasco/action-update-license-year. No repo-local script is invoked anywhere, so M1 false. grep for continue-on-error / || true / exit 0 / exit-zero across all 4 returned nothing, so M2 false. Noted but not scored: test_package.yml:49 measures coverage with '--cov=com', a package name carried over from the GitHub starter template that does not exist in this repo, making the coverage figure vacuous - an M3-shaped defect that cannot count because M1 is false."
+  },
+  {
+   "repo": "inovex/scrumlr.io",
+   "workflowCount": 8,
+   "M1": true,
+   "M2": false,
+   "M3": "yes",
+   "M1evidence": ".github/workflows/continuous-integration.yml:93 run: make format-check (step name Check Go formatting at :91, working-directory ./server); target defined at server/Makefile:61-63",
+   "M2evidence": "",
+   "M3evidence": "server/Makefile:62 cd src. The target chdirs into server/src before running goimports -l . at server/Makefile:63, so the repo's second Go module, server/e2e-tests (board_workflow_test.go, client.go, config.go, test_helpers.go, tls.go, its own go.mod and go.sum, and driven by the same workflow at continuous-integration.yml:233-239), is never format-checked. The step name at continuous-integration.yml:91 claims Check Go formatting with no qualifier. Secondary narrowing: the sibling format target at server/Makefile:55-58 runs both goimports -w . and gofmt -w ., while format-check at :63 runs goimports only.",
+   "notes": "All 8 workflows read (continuous-integration.yml in full, the other 7 via full-text greps for both the M1 script patterns and the M2 neutering patterns; the only hit was a corepack comment). grep for continue-on-error, || true, exit 0 and no-fail across all 8 returned zero, so M2 false. if: guards checked under the narrow reading: continuous-integration.yml:111 SonarQube skips dependabot PRs but still runs on push to main, because the pull_request context is null there and the != test is true; :223 and :243 gate e2e and cypress to pull_request, the normal effective place for them, not a dead default-branch guard. Present but NOT used as M1 evidence: continuous-integration.yml:54 yarn lint --max-warnings 0 and :57 yarn test --coverage, which dispatch to package.json scripts rather than a named repo file. UNVERIFIED secondary observation, deliberately not counted: the test-backend job installs Go but never installs goimports, and server/Makefile:63 is test -z \"$(goimports -l .)\", which returns success on empty output, so if goimports is absent from the runner image the check would pass vacuously. I could not verify the ubuntu-latest image contents from here, so this is flagged, not claimed."
+  },
+  {
+   "repo": "INRIA/spoon",
+   "workflowCount": 8,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "none that qualifies. tests.yml:125 (step 'Run Javadoc quality check' :124, job 'Javadoc quality' :111) runs 'nix develop .#extraChecks --command javadoc-quality'. 'javadoc-quality' names no file in the repo: it is bound inside flake.nix:159 by 'pkgs.writeScriptBin \"javadoc-quality\"' as an INLINE script body, which then calls ./chore/check-javadoc-regressions.py. Excluded by the same frozen rule that rejected ./mvnw pmd:check (wrapper reaching quality logic) and CS_basics' heredoc-generated validate-site.js (no repo file named by the step)",
+   "M2evidence": "none. Zero continue-on-error, '|| true' or 'exit 0' across all 8 workflows. flake.nix:95 contains 'exit 2' — a guard that FAILS outside the extraChecks shell, not a neutering",
+   "M3evidence": "not-applicable (M1 false)",
+   "notes": "All 8 workflows read, 0 skipped. PRESERVED NEAR-MISS, nix-flake-mediated quality step (not M1 per prereg): tests.yml:125 -> flake.nix:159-162 -> chore/check-javadoc-regressions.py; same shape at tests.yml:141 (reproducible-builds -> chore/check-reproducible-builds.sh, flake.nix:157) and :156 (maven-pom-quality, flake.nix:148). HAD M1 COUNTED IT, M3 WOULD BE YES, evidence already verified: chore/CheckJavadoc.java:48-58 EXCLUDED_TYPES hardcodes 9 exempt types incl. CtScanner, CtVisitor and JDTTreeBuilder, applied at :138-140; :134 'if (!member.isPublic()) return false' restricts the whole check to public members; and check-javadoc-regressions.py:128 returns 'other - reference', so only violations NEW relative to master fail, under a step named 'Run Javadoc quality check'. Recorded verbatim so a dated amendment to M1 could count it without redoing the work. Counting it would have put M1 at exactly 3/12 = 25%, precisely on the prereg's Path A gate, which is the strongest reason to hold the conservative line."
+  },
+  {
+   "repo": "jadler-mocking/jadler",
+   "workflowCount": 2,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Both read in full. codeql-analysis.yml is a pure marketplace-action SAST job (github/codeql-action/init at :46, autobuild at :57, analyze at :71), which the prereg explicitly excludes from M1; its only run: is commented out at :66-68. maven.yml:29-30 'Build with Maven' runs 'mvn verify', an installed toolchain command, not a repo-local script, and named as a build. So M1 false. grep for continue-on-error / || true / exit 0 / exit-zero across both returned nothing. CodeQL triggers on push and pull_request to master plus a weekly cron (codeql-analysis.yml lines 12-21 of the file, the on: block), so it does run on the default branch and the if:-guard clause of M2 does not fire. 'fail-fast: false' at :33 is matrix strategy, not neutering."
+  },
+  {
+   "repo": "jamesyc/TimeCapsuleSMB",
+   "workflowCount": 2,
+   "M1": false,
+   "M1evidence": "",
+   "M2": false,
+   "M2evidence": "",
+   "M3": "not-applicable",
+   "M3evidence": "",
+   "notes": "Both workflows read. The lint step at ci.yml:45-46 is `python -m ruff check src tests macos/TimeCapsuleSMB/tools tcapsule` — ruff invoked as a pip-installed module, which the prereg excludes from M1; likewise `python -m pytest` at :49 and :52. codeql.yml is entirely marketplace (github/codeql-action init at :33 and analyze at :38). The one repo-local script, `python3 macos/TimeCapsuleSMB/tools/package_app.py` at ci.yml:112, sits in the step \"Package and validate native app\", which is packaging rather than any of the prereg's security-or-quality categories. No continue-on-error, no `|| true`, no `exit 0` in either file."
+  },
+  {
+   "repo": "janekbaraniewski/openusage",
+   "workflowCount": 16,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 16 workflows fetched and scanned, 0 skipped. Every security/quality check is a MARKETPLACE action, which the prereg excludes from M1: golangci-lint-action (ci.yaml:25), codeql-action (codeql.yaml:34,42), govulncheck-action (govulncheck.yaml:26), scorecard-action (scorecard.yaml:29), dependency-review-action (dependency-review.yaml:20), lychee-action (lychee.yaml:46). The inline quality checks — gofmt (ci.yaml:128), go mod tidy (ci.yaml:146), go vet (ci.yaml:42) — are inline shell over the Go toolchain, not repo-local script FILES. M2: `|| true` / `exit 0` appear only in release.yaml:115,116,122,123 (cp LICENSE/README into archive), :168 (gh release view), :174 and :279 (no-changes-to-commit guards) — no security/quality gate. DISCLOSED BORDERLINE: ci.yaml:165-169 step \"Verify committed icon font matches its sources\" runs repo-local `python scripts/gen-icon-font.py` then `git diff --exit-code`. I counted it FALSE because it gates a generated ASSET (an icon font), not code security or quality, and it is not in the enumerated list. If the parent counts generated-artifact-freshness gates as quality, this repo flips to M1 true."
+  },
+  {
+   "repo": "karanhudia/borg-ui",
+   "workflowCount": 10,
+   "M1": true,
+   "M1evidence": ".github/workflows/security.yml:56 `python3 ../scripts/npm_audit_known_vulns.py gate --file npm-audit.json --level moderate`, step name 'Run npm audit' (:41), job 'Frontend Security (npm audit)' (:23). Second instance: security.yml:99 `python3 scripts/pip_audit_known_vulns.py ignore-args` inside step 'Run pip-audit' (:90).",
+   "M2": true,
+   "M2evidence": ".github/workflows/security.yml:136 `exit-code: '0'  # Report but don't fail` on the step 'Run Trivy vulnerability scanner (filesystem)' (:128) in job 'Trivy Filesystem Scan' (:123); same at security.yml:212 on 'Run Trivy vulnerability scanner (Docker image)' (:204) in job 'Trivy Docker Image Scan' (:163). Form: the `exit 0` form, forced through the action's exit-code input rather than a shell line - the scanner is configured so the security step can never fail.",
+   "M3": "yes",
+   "M3evidence": "Opened scripts/npm_audit_known_vulns.py. Under the bare step name 'Run npm audit' (security.yml:41) the real scope is three ways narrower: security.yml:55 passes `--omit=dev`, so devDependencies are never scanned; security.yml:56 passes `--level moderate` and the script drops everything below that at :88/:95 (`SEVERITY_ORDER.index(severity) < threshold`); and script :110-111 `non_allowlisted` subtracts every id in security/npm-audit-known-vulns.json before deciding. The pip side is the same pattern with a hardcoded exclusion list: step 'Run pip-audit' (security.yml:90) passes `--ignore-vuln GHSA-wp53-j4wj-2cfg` (:101), `--ignore-vuln GHSA-wj6h-64fc-37mp` (:102) and `--ignore-vuln CVE-2026-4539` (:103), plus dynamic ignores from scripts/pip_audit_known_vulns.py (:99).",
+   "notes": "security.yml read in full; the other 9 grepped for continue-on-error, exit-code, repo-local script calls and audit/lint/scan/coverage step names. The M3 narrowing is disclosed in comments (security.yml:44-54, :93-98) and the script refuses an allowlist entry that carries no reason (npm_audit_known_vulns.py:46-49) - M3 is still yes because the test is scope-vs-step-NAME and the name is the bare 'Run npm audit'. Two OTHER neutering-shaped patterns were examined and deliberately NOT counted, to keep M2 to genuinely defanged checks: (1) security.yml:55 `npm audit --omit=dev --json > npm-audit.json || true` is not a TRAILING `|| true` - the real gate runs at :56 and the step carries `continue-on-error: false` at :57; (2) security.yml:63-64 and :109-110 do end in `|| true` but sit in the artifact-producing steps 'Generate npm audit report' and 'Generate pip-audit report', not on a check. M2 is counted on the Trivy scans alone, where the scan itself is the thing that cannot fail."
+  },
+  {
+   "repo": "kdlbs/kandev",
+   "workflowCount": 20,
+   "M1": true,
+   "M2": true,
+   "M3": "yes",
+   "M1evidence": ".github/workflows/lint-harness-files.yml:53 run: python3 scripts/lint-spec-files.py --all (step name Lint specifications at :52). The same job also has :47 python3 .github/scripts/lint-harness-files.py --all (Lint harness files at :46) and :59 node scripts/validate-plugin-api-claims.mjs (Validate plugin API claims at :58). Fourth instance: architecture-lint.yml:75 python3 scripts/lint-architecture.py --all (step name Lint architecture at :71).",
+   "M2evidence": ".github/workflows/frontend-tests.yml:144 continue-on-error: true on the step Verify licenses manifest is fresh (:142). Licence checking is named in the category list and the form is the first enumerated one. The workflow says so itself at :148-152: the diff is reported as a warning, not a hard failure. Reinforced at :156 by git --no-pager diff --stat web/generated/licenses.json || true.",
+   "M3evidence": "scripts/lint-spec-files.py:40. lint_specs hardcodes specs_root = root / docs/specs, and :44 enumerates only specs_root.rglob(*.md). The step is named Lint specifications (lint-harness-files.yml:52) and the flag it is given is --all, whose own help text at scripts/lint-spec-files.py:549 reads Lint all specification files and whose success message at :563 prints All specification files passed. Three narrowings sit behind that claim: one hardcoded directory, so a specification anywhere else in the tree is never seen; an extension allowlist of *.md only; and an early return before the interesting check at :41-42, if not specs_root.exists(): return [], which means renaming or moving docs/specs leaves this required check green while it lints nothing. A fourth, a hardcoded exclusion list, sits in check_size: the legacy_size_exceptions map read from docs/specs/spec-lint.json lets named files exceed the limit.",
+   "notes": "20 workflows total. Read in full: architecture-lint.yml and lint-harness-files.yml. Read in part: frontend-tests.yml lines 118-220, where the M2 hit is. All 20 were fetched and grepped exhaustively for continue-on-error, || true, exit 0 and no-fail, so the M2 finding rests on a full sweep rather than a sample; 17 of 20 were not read line by line, so a second, different M2 or M3 instance could exist beyond the one reported. Other neutering hits examined and NOT used: the many exit 0 occurrences (backend-tests.yml:94, :204; e2e-tests.yml:102, :661, :1132; frontend-tests.yml:94, :201, :215, :271, :288, :316, :327; release.yml:250, :1044, :1141, :1987; pr-walkthrough.yml:420) are early returns in changed-files guards, for example frontend-tests.yml:199-202 exiting 0 when no Prettier-scoped file changed, not trailing neutering; release.yml:431, :1234, :1235, :1257 and update-agent-runtime-pins.yml:63 are git and process cleanup; release.yml:1217 and :1300 are best-effort diagnostics collection. The additional continue-on-error occurrences at e2e-tests.yml:263, :576, :592, :672, :882, :889, :1116 and release.yml:947 were not individually opened, so they are neither counted nor cleared. M2 already stands on frontend-tests.yml:144 alone."
+  },
+  {
+   "repo": "kgcrom/cluefin",
+   "workflowCount": 2,
+   "M1": false,
+   "M1evidence": "",
+   "M2": true,
+   "M2evidence": ".github/workflows/ci.yml:181 — `uv run pip-audit --desc --format json --output pip-audit-report.json || true` in the step named \"Run pip-audit vulnerability scan\" (name at :178, inside the `security` job). The trailing `|| true` means the dependency vulnerability audit can never fail the job; the report is merely uploaded as an artifact by the following step at :183-188.",
+   "M3": "not-applicable",
+   "M3evidence": "",
+   "notes": "Both workflows read. M1 is false because every security-or-quality tool is installed rather than repo-local: `uv run ruff check .` (ci.yml:43), `uv run ruff format --check .` (:47), `uv tool install pip-audit` then `uv run pip-audit` (:180-181). The `sudo make install` hits at ci.yml:78 and :135 are inside the step \"Install TA-Lib C library\" and build a downloaded third-party tarball (`wget ... ta-lib-0.4.0-src.tar.gz` at :72), so they are neither repo-local nor security-or-quality."
+  },
+  {
+   "repo": "konflux-ci/konflux-ci",
+   "workflowCount": 26,
+   "M1": true,
+   "M1evidence": ".github/workflows/kube-linter.yaml:22 step \"Run kube-linter\" (name at :21, workflow name \"Static code checks\" at :1) runs `./.github/scripts/run-kube-linter.sh` — a repo-local script in a lint/policy step. Further instances: verify-manifests-in-sync.yaml:49-51 step \"Verify manifests\" -> `bash .github/scripts/verify-manifests-in-sync.sh`; operator-verify-generated-files.yml:49 and :53.",
+   "M2": false,
+   "M3": "no",
+   "M3evidence": "Opened .github/scripts/run-kube-linter.sh. At script line 103 it runs `kube-linter lint ./.kube-linter/ --config ./.github/.kube-linter-config.yaml --verbose`. I then opened that config, expecting the narrowing to live there: it is a 3-line stub (`checks:` then `include: [ ]`), which leaves kube-linter's DEFAULT check set active — an empty `include` adds nothing, it does not subtract. The only scope limits are the find exclusion `! -path \"*/operator/upstream-kustomizations/*\"` (script:55-56, third-party manifests) and skipping kustomize Components (script:57-59), both documented with reasons at script:51-54. The step name \"Run kube-linter\" claims exactly what it does, so \"no\".",
+   "notes": "All 26 workflows fetched and scanned, 0 skipped. M2 checked with an UNLIMITED grep, which found 5 continue-on-error, all adjudicated: create-release-branch.yaml:31, renovate-manifest-companion.yaml:36, update-third-party-manifests.yaml:25 and update-upstream-manifests.yaml:27 all sit on \"Generate GitHub App token\" steps (token minting with fallback). The fifth, verify-manifests-in-sync.yaml:60, sits on step \"Cancel Operator E2E runs (manifests out of sync)\" which only fires `if: failure() && steps.verify.outcome == 'failure'` (:55-59) — it is the reaction to a failed gate, not the gate; the real gate at :49-51 is NOT neutered. The ~15 `|| true` in test-changelog.yaml (:37,52,66,93,118 and on) are in a job that :30 describes as demonstrating generate-changelog.sh output into GITHUB_STEP_SUMMARY, a report job rather than a gate. All job-level `if:` guards are needs-outputs or event scoping; none is dead on the default branch."
+  },
+  {
+   "repo": "kptdev/kpt",
+   "workflowCount": 8,
+   "M1": true,
+   "M2": false,
+   "M3": "yes",
+   "M1evidence": ".github/workflows/docs.yml:77 run: make verify (step name Verify spelling at :75, working-directory documentation), target at documentation/Makefile:15-17. Second instance: .github/workflows/go.yml:84 run: make fix vet fmt lint (step name Lint and Format at :83), targets at Makefile:50, :53, :69, :103. Further instances: release.yml:48 make all, release-api.yml:43 make api, live-e2e.yml:80 make test-live-apply.",
+   "M2evidence": "",
+   "M3evidence": "documentation/Makefile:17. The verify target is exactly: go run github.com/golangci/misspell/cmd/misspell@v0.8.0 -error content/ . The step is named Verify spelling (docs.yml:75) with no qualifier, but the checker only ever reads documentation/content/. The trigger is wider than the check: docs.yml:42-44 fires the job on documentation/**, **.md and the workflow file itself, so editing any markdown outside documentation/content (README.md, any other .md in the tree) runs a green Verify spelling that never opened the changed file. Corroborating second instance, for the Lint and Format step at go.yml:83: .golangci.yml:17 sets default: none, :40 has gosec commented out with the note # TODO: fix so the security rule class is off, and :68-72 hardcodes the path exclusions thirdparty/, third_party$, builtin$, examples$.",
+   "notes": "All 8 workflows read. M2 candidates found and rejected on the evidence, each with file:line so a looser recount needs no re-measurement: sonarcloud.yml:60 continue-on-error on the step Download PR number artifact (:53), :128 on Download coverage artifact (docker) (:121), :138 on Download coverage artifact (podman) (:130). All three are artifact-download plumbing rather than checks, and the failure is not actually swallowed: if both coverage downloads fail, coverage.out is absent and sonarcloud.yml:142 sed -i ... coverage.out fails the job, while the scan steps at :157 and :171 carry no continue-on-error. The five exit 0 hits (go.yml:145, docs.yml:94, e2eEnvironment.yml:95, live-e2e.yml:97, release-snapshot.yml:106) are all the same early return inside a Check results gate step, taken only when the paths-filter reports no relevant change, and each is followed by real exit 1 branches (e.g. docs.yml:98-100); not trailing, not neutering. No || true in any of the 8. Makefile:16 sets .SHELLFLAGS := -exc, so recipe lines do fail properly. Not followed, since kpt is already M1 and M3 true on airtight evidence: lint-api into make -C api lint, and the make/info.mk and make/testing.mk includes at Makefile:18-19."
+  },
+  {
+   "repo": "LedgerHQ/ledger-live",
+   "workflowCount": 70,
+   "M1": true,
+   "M1evidence": ".github/workflows/test-desktop-codechecks-reusable.yml:104-105 - step `- name: typecheck` / `run: pnpm desktop typecheck`. Resolves via root package.json:91 (\"desktop\": \"pnpm --filter ledger-live-desktop\") to apps/ledger-live-desktop/package.json:57 \"typecheck\": \"NODE_OPTIONS=... node scripts/typecheck.js\" -> repo-local script apps/ledger-live-desktop/scripts/typecheck.js. Static analysis = IN.",
+   "M2": false,
+   "M2evidence": "None qualifying, verified across ALL 70 workflows. continue-on-error appears in 7 files, every instance on a non-gate: S3 cache restore (test-mobile-e2e-reusable.yml:755,1026; test-desktop-reusable.yml:131; test-ui-e2e-only-desktop.yml:384), usage samplers (test-mobile-e2e-reusable.yml:847,1183), teardown/diagnostics (:1060,1068,1130), artifact download (:1416; test-desktop-reusable.yml:299), mitmproxy (test-desktop-reusable.yml:224,242,249), and \"QAA Allure Upload (Experimental)\" report jobs (:1377,1403; test-ui-e2e-only-desktop.yml:521,549; test-mobile-mock-reusable.yml:850). account-migration.yml:86 `|| true` is on a step literally named \"print diff during migration\" in a manual-dispatch-only workflow. build-wallet-cli-reusable.yml:44 is a Build job and release-prepare-hotfix.yml:105 a merge composite. test-coin-tester.yml:101 is a job-level continue-on-error on an integration-TEST job, excluded by the frozen rule (see sensitivity note on repo 1).",
+   "M3": "yes",
+   "M3evidence": "apps/ledger-live-desktop/scripts/typecheck.js:42 - `pass = /\\.tsx?/.test(fileName) && isAppSource && excluded.every(...)` - a file-extension allowlist (.ts/.tsx only, so .js/.jsx/.mjs diagnostics are dropped) combined with a path allowlist defined at :12-16 (src/, tests/, tools/ only). Load-bearing proof it is not a no-op: :43 `nbOfFilteredDiagnostics++` counts the suppressed diagnostics and :85 `console.log(\"(Filtered N errors)\")` prints that count; :81 sets process.exitCode = 1 for the SURVIVING subset only. The step name is bare \"typecheck\"; the real scope is ts/tsx under three directories of one app.",
+   "notes": "70 workflows total. Read closely: 10 (scan-sonar-reusable, test-boundaries-reusable, test-desktop-codechecks-reusable, test-desktop-e2e-lint-reusable, test-mobile-e2e-lint-reusable, build-and-test-pr, commitlint, test-mobile-e2e-reusable, test-ui-e2e-only-desktop, test-scope-reusable) = 60 SKIPPED for close reading. However ALL 70 were bulk-fetched and grepped for every M2 form, so the M2 result is not sampled. Default branch is `develop` (gh api repos/LedgerHQ/ledger-live --jq .default_branch), which is why the `if: github.ref == 'refs/heads/develop'` guards at build-wallet-cli-reusable.yml:70 and build-web-tools-reusable.yml:98 DO run on the default branch and are not the fourth M2 form. Not pursued further because M1 and M3 are already locked: lint:guardrails (apps/ledger-live-desktop/package.json:29) and the nx enforce-boundaries targets (test-boundaries-reusable.yml:62,65,68) run eslint/depcruise, installed tools with repo-local config, which adds no M1."
+  },
+  {
+   "repo": "LegalQuants/lq-ai",
+   "workflowCount": 4,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 4 workflows read. Real quality steps exist but every one invokes an INSTALLED tool rather than a repo-local script: ci.yml:135 `ruff check api scripts`, :139 `ruff format --check`, :142 and :192 `mypy`, :122 and :174 `uv lock --check`. ci.yml:63 `npm run check:lq-ai` resolves in web/package.json:12 to `svelte-kit sync && svelte-check --tsconfig ./tsconfig.lq-ai.json` - installed binaries, no repo-local file - so it fails the locked npm rule. stack-smoke.yml:91 `./scripts/stack-smoke.sh` IS a repo-local script, but the step is a boot/integration smoke ('Boot the compose stack and hold'), which is not one of the prereg's qualifying concerns, so conservatively not M1. M2: release.yml:176/:187/:192/:194 carry `|| true` and :180/:198/:209/:216 carry `exit 0` inside the 'Check breaking changes force a minor bump' policy gate, but these are intermediate command-substitution guards and legitimate early-outs; the gate still ends `exit 1` at release.yml:220, so it is not neutered. The `[allow-breaking-in-patch]` escape hatch at :214-216 is a documented commit-message override, not a blanket disable."
+  },
+  {
+   "repo": "lerd-env/lerd",
+   "workflowCount": 6,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "",
+   "M2evidence": "",
+   "M3evidence": "",
+   "notes": "All 6 workflows read in full. Quality steps exist but none invokes a repo-local security/quality script: ci.yml:44-45 Vet = go vet (toolchain), ci.yml:47-48 Format = inline gofmt, release.yml:43-47 the same. Repo-local invocations found are build-only (make build-ui at ci.yml:28, release.yml:27 and :109) or bare test runners (ci.yml:96-97 bats tests/installer/installer.bats; base-images.yml:156 and :407 go test -run TestImageReportsAdvertisedExtensions under the step name Verify the image loads every advertised extension). Both borderline cases recorded and called FALSE under the conservative rule that a bare test runner is not a security/quality script. grep across all 6 files for continue-on-error, || true and exit 0 returned zero hits; the if: guards present (base-images.yml:99,103,116,142,152 on steps.check.outputs.exists != true, and :248 on force_rebuild) are cache and rebuild logic, not dead security gates."
+  },
+  {
+   "repo": "membrane/api-gateway",
+   "workflowCount": 8,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "none. build-and-test.yml:23/:38 and codeql.yml:58 are plain 'mvn'; codeql.yml:38/:62 is the CodeQL marketplace action",
+   "M2evidence": "none that qualifies. The single hit, maven-publish.yml:30 '| head -1 || true', is on a value-extraction pipeline inside step 'Check GPG key expiry' (:27); the step still fails hard at :38 'exit 1' when the key is expired, so the check is not neutered. Marked false conservatively per prereg",
+   "M3evidence": "not-applicable (M1 false)",
+   "notes": "All 8 workflows read, 0 skipped. Zero continue-on-error anywhere. docker-publish.yml:118 cosign sign is a marketplace/installed tool."
+  },
+  {
+   "repo": "MetaMask/eth-phishing-detect",
+   "workflowCount": 1,
+   "M1": true,
+   "M1evidence": ".github/workflows/build-test.yml:38 - an UNNAMED step, `run: bin/compare-git-configs.sh \"$BASE_COMMIT\" \"$HEAD_COMMIT\"` -> repo-local script bin/compare-git-configs.sh. It validates invariants on the security-critical blocklist src/config.json between base and head: :15-16 extracts both revisions, :19 `node --import tsx bin/validate-new-config.js` runs the invariant check, :22-24 adds a CRLF guard. Policy/compliance on security data = IN.",
+   "M2": false,
+   "M2evidence": "None. No continue-on-error, no `|| true`, no trailing `exit 0` in the workflow. (The `exit 0` at bin/compare-git-configs.sh:26 is the final line of a script that has already exited 1 on failure at :24, not a mask.)",
+   "M3": "no",
+   "M3evidence": "The step has NO name to over-claim, so judged against the script's own name, bin/compare-git-configs.sh. It compares src/config.json (:15-16), which is the repo's only config file - contents/src lists clean-config.ts, config.json, constants.ts, detector.ts, index.ts, types.d.ts, types.ts, update-config.ts, utils.ts. Scope is complete, so NO.",
+   "notes": "The repo's single workflow, read in full. Note not counted because it is not one of the four prereg M2 forms: package.json:11 \"ci\": \"node --import tsx test | tap-summary --no-progress\" - the pipeline's exit status is tap-summary's, not node's, so the test gate depends on tap-summary propagating failure. Also observed and not scored: compare-git-configs.sh:19 invokes bin/validate-new-config.js while the file on disk is bin/validate-new-config.ts; tsx resolves the .js specifier to the .ts source and package.json:14-17 uses the same convention, so this is an established working pattern rather than a defect. `yarn ci` (build-test.yml:37) is the test suite, OUT by the frozen rule."
+  },
+  {
+   "repo": "Meteor-Community-Packages/meteor-collection2",
+   "workflowCount": 3,
+   "M1": false,
+   "M1evidence": "testsuite.yml:32 `run: cd tests && meteor npm install && meteor npm run test` -> tests/package.json:5 `\"test\": \"METEOR_PACKAGE_DIRS=../package TEST_BROWSER_DRIVER=puppeteer meteor test --once --driver-package meteortesting:mocha --raw-logs\"` — terminates in the EXTERNAL meteor CLI test runner (installed by meteorengineer/setup-meteor@v2 at :21) with no repo-local script path named. codeql.yml is entirely github/codeql-action/* marketplace actions, explicitly excluded by the prereg.",
+   "M2": false,
+   "M2evidence": "Grep for all four forms (continue-on-error, `|| true`, `exit 0`, dead `if:`) across all 3 workflow files returns NOTHING. Checked the codeql.yml `if:`/trigger trap specifically: codeql.yml:3-9 runs on push to master AND pull_request to master AND schedule, so it is not scheduled-only and not default-branch-dead. :21 `fail-fast: false` is a matrix setting.",
+   "M3": "not-applicable",
+   "M3evidence": "M1 is false, so M3 has no denominator entry per the prereg.",
+   "notes": "The advisor flagged codeql.yml as the likely M2 trap for this repo; checked and it is clean — it does fire on push and PR to the default branch. M1 false rests on the stated sub-rule: an external runner discovering tests by convention (`meteor test --once`) does not count, the same reading that excluded `vitest run` in repo 6."
+  },
+  {
+   "repo": "micro/mu",
+   "workflowCount": 3,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 3 workflows read in full. M1 false: the quality steps are inline shell over the Go toolchain, not repo-local script files — test.yml:21 \"Format check\" is an inline `gofmt -l .` block (it does correctly `exit 1` at :25), test.yml:29 is bare `go vet ./...`, test.yml:32/35 bare `go test`. M2 false: the only neutering pattern in the repo is deploy.yml:54 `sh scripts/deploy/enable-zero-downtime.sh || true`. That IS a repo-local script with a trailing `|| true`, but it is a DEPLOYMENT step, not a security or quality step, so it fails the M2 predicate. Recording it explicitly because it is the one thing here a looser reading would count."
+  },
+  {
+   "repo": "microsoft/OAT",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "The single workflow read in full (63 lines). Build-and-publish-docs only: dotnet workload install (:30), 'Build' dotnet publish (:32), mkdir/mv shuffling, chocolatey and docfx install, 'Run DocFx' (:45), upload-pages-artifact, deploy-pages. Every run: is an installed toolchain command, none is a repo-local script, and no step name is on the clause-(b) list, so M1 false. No continue-on-error, no trailing || true or exit 0, no if: guards at all, so M2 false. Noted but deliberately not scored: line 41 sets PowerShell 'Set-ExecutionPolicy Bypass' to install chocolatey, a real weakening, but it is not a CI security or quality CHECK being neutered."
+  },
+  {
+   "repo": "mkw-sp/mkw-sp",
+   "workflowCount": 4,
+   "M1": true,
+   "M1evidence": ".github/workflows/run_tidy.yml:23 — `run: python3 tools/tidy/main.py`, step name \"Run Tidy\" at :22. Script: tools/tidy/main.py. Secondary M1 instance: .github/workflows/clean_bmg.yml:22 — `run: python3 bmg-cleaner.py` (tools/bmg-cleaner/).",
+   "M2": false,
+   "M3": "yes",
+   "M3evidence": "tools/tidy/main.py:16 — `code_folders = [\"payload\", \"loader\", \"common\", \"include\", \"fuzz\", \"tools\"]`. This hardcoded folder allowlist omits `stub/`, which exists and holds C/C++ sources (Archive.cc, Dolphin.cc, LZMA.cc, Stub.cc, Strchr.c, Strncmp.c plus headers — confirmed via contents API). The repo's OWN clang-format job at .github/workflows/build_sp.yml:83 uses `dirs=\"common include loader payload stub\"`, so the project itself treats stub as C source requiring style enforcement, yet the step named \"Run Tidy\" (run_tidy.yml:22) silently skips it. main.py:11 also fixes an extension allowlist `(\"py\",\"h\",\"c\",\"hh\",\"cc\")`.",
+   "notes": "Read all 4 workflows. M2: no continue-on-error, no trailing `|| true`/`exit 0`; `fail-fast: false` (build_sp.yml:23) is matrix strategy, not neutering; build_sp.yml:42 `if:` is a cache-hit guard on a download step; the paths-ignore filters only exclude other workflow files, so Run Tidy still runs on the default branch. M3 judged on the invoked script only, per prereg. Note build_sp.yml:83-84 has the same M3 shape inline (hardcoded dirs + `.c|.h|.cc|.hh` allowlist) but runs an apt-installed clang-format, so it neither satisfies M1 nor stands in for the M3 judgment."
+  },
+  {
+   "repo": "mlb2251/stitch",
+   "workflowCount": 2,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Both workflows read in full. clippy.yml:20 step 'Run clippy' runs 'cargo clippy --no-deps -- -Dwarnings': passes clause (b) as lint, but cargo clippy is a toolchain tool, not a repo-local script, so clause (a) fails. test.yml:26 'test' -> 'make test' and test.yml:35 'check-dfa' -> 'make check-dfa' are repo-local (Makefile) but their step names are a plain test run and a data-consistency check, neither on the clause-(b) list. No continue-on-error, || true or exit 0; -Dwarnings makes clippy stricter, not weaker."
+  },
+  {
+   "repo": "NARUBROWN/spine",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Single workflow ci.yml, 163 lines, read in full. The \"quality\" job (:21) is genuinely quality-focused but every step is a toolchain or inline-shell call with no repo-local script: \"Check formatting\" (:40-47) is inline `gofmt -l .`, \"Run go vet\" (:50) is `go vet ./...`, \"Check module files\" (:52-56) is `go mod verify` + `go mod tidy` + `git diff --exit-code`. `go mod verify` is substantively a dependency-integrity check but is a toolchain command, and M1 requires a REPO-LOCAL script. No Makefile or scripts/ invocation anywhere. SENSITIVITY: stays M1=false even under a wider boundary where tests count, since the test jobs also call the go toolchain directly. M2: the `exit 0` at ci.yml:87 is NOT a trailing neuter — it is a guarded early exit inside \"Run unit tests\" for the case where `go list ./... | grep -v '/test$'` (:84) yields no packages, and it sits in a test job rather than a security/quality step. No `if:` conditions at all; `fail-fast: false` at :63,:97,:122 is matrix strategy."
+  },
+  {
+   "repo": "newrelic/terraform-provider-newrelic",
+   "workflowCount": 11,
+   "M1": true,
+   "M1evidence": ".github/workflows/test_lint.yml:46 step \"Lint\" (name at :45) runs `make lint`. Chain verified: GNUmakefile:38 `include build/lint.mk`, and build/lint.mk:21 `lint: deps spell-check gofmt golangci goimports outdated`. Confirmed there is no competing `lint:` redefinition in GNUmakefile.",
+   "M2": true,
+   "M2evidence": ".github/workflows/test_integration_all.yml:49 `continue-on-error: true` on step \"Integration Tests\" (running `make test-integration-all cover-report` at :50), plus job-level `continue-on-error: true` at test_integration_all.yml:23. Same pattern at test_integration_cron.yml:38 on the same step.",
+   "M3": "yes",
+   "M3evidence": "build/lint.mk:45 — the `goimports` member of `make lint` runs `@$(GOIMPORTS) -l -w -local $(PROJECT_MODULE) $(GO_FILES)`; the `-w` flag REWRITES files in place and exits 0, so it can never fail CI. build/lint.mk:37 — the `gofmt` member runs `@$(GOFMT) -e -l -s -d $(GO_FILES)`; `-l -d` only prints, gofmt exits 0 on unformatted files, and the target never tests the output, so it cannot fail either. build/lint.mk:16 hardcodes `GO_FILES ?= ... | grep -v -e '.git/' -e '/example/'` and :14 excludes \"/example\" from GO_PKGS. So a green step named \"Lint\" proves only golangci + misspell + outdated; two of its five members are structurally inert and example code is outside the step entirely.",
+   "notes": "All 11 workflows fetched and scanned, 0 skipped. M2 uses the plain reading of the prereg text (\"a security-or-quality step that is NEUTERED\") because the enumerated category list sits inside M1's definition, not M2's; a step named \"Integration Tests\" that cannot fail its job is structurally the M2 pattern. In fairness to the project the neutering is documented in-file at test_integration_all.yml:19-22 and a non-neutered counterpart exists at test_integration.yml:67 — but M2 as written is structural, not a question of honesty. Also checked and NOT counted: `cover-report` (build/test.mk:60-66) only generates an HTML report, with no threshold; release.yml:39 `./scripts/release.sh` is a release step; test_integration_cron.yml:67 `require('./scripts/detect-state-drift.js')` is an `if: always()` Slack report step, not a gate."
+  },
+  {
+   "repo": "nix-community/NUR",
+   "workflowCount": 3,
+   "M1": true,
+   "M1evidence": ".github/workflows/pr.yml:19 `- run: ./ci/test.sh` (unnamed step, workflow name 'Test'); the script runs mypy at ci/test.sh:10, `black --check .` at :12 and `ruff check .` at :14, plus a repos.json manifest-format gate at :17-23",
+   "M2": false,
+   "M3": "no",
+   "M3evidence": "There is no step name to overclaim against - pr.yml:19 is a bare `- run: ./ci/test.sh`, so by the locked rule the command is the name and cannot overclaim. Observation recorded but NOT counted: ci/test.sh:8 `cd \"${DIR}\"` sets the working directory to ci/, so `black --check .` (:12) and `ruff check .` (:14) cover only the ci/ directory rather than the repo tree. Had the step carried a name such as 'Lint', this would be a clear yes.",
+   "notes": "All 3 workflows read in full. check-nix-format.yml is a genuine quality gate but runs inline shell against `nixfmt` installed via nix-env at :33, not a repo-local script, so it does not establish M1. It does carry the changed-files narrowing - check-nix-format.yml:27 `git diff --name-only -r HEAD^1 HEAD` feeding the step named 'Check that Nix files are formatted according to the RFC style' at :34 - an M3-shaped pattern that is not countable because that step invokes no repo-local script. update.yml:33 `./ci/update-nur.sh` is repo-local but is the product update. No continue-on-error, `|| true` or `exit 0` appears anywhere in the 3 files."
+  },
+  {
+   "repo": "NYRDS/remixed-dungeon",
+   "workflowCount": 2,
+   "M1": true,
+   "M2": false,
+   "M3": "yes",
+   "M1evidence": ".github/workflows/python-tests.yml:52 — step 'Run All Spells Tests' (:51) in job 'Run Python HTTP API Tests' (:11) runs 'python3 tests/http_api/test_all_spells.py'. Script confirmed present via contents API (535 lines)",
+   "M2evidence": "none. Zero continue-on-error, '|| true' or 'exit 0' in either workflow. The script's exit code is honest: test_all_spells.py:531 'return 0 if failed == 0 else 1', called via :535 sys.exit(main())",
+   "M3evidence": "YES — tests/http_api/test_all_spells.py:229-237 defines a hardcoded 'expected_failures' allowlist ('NoCorpse','NotEnoughSP','NotTooFast','NotInOwnBody','resists','NoValidTarget','OutOfRange'); :243-250 converts any match into 'success=True'. So a spell that never actually executes — insufficient skill points, cooldown not elapsed, no valid target, out of range — is recorded as a pass. Compounded at :215-223, where a cast producing no log confirmation is also 'success=True'. The step name claims 'Run All Spells Tests' and the suite prints 'ALL SPELLS TEST SUITE' (:481), but the only way to fail is an error string outside that list",
+   "notes": "Both workflows read in full, 0 skipped (257 lines). The other four M1-qualifying steps are python-tests.yml:40 test_blood_transfusion.py, :44 test_level_navigation.py, :48 test_doctor_spells.py, :56 test_alchemy.py. Secondary M3 support, checked against the source of truth rather than assumed: the spell tables at test_all_spells.py:51-62 are a faithful copy of scripts/spells/CustomSpellsList.lua (all 10 affinities present, no drift today), but the 'Dev' affinity (lua:19 TestSpell, CurseItem) is unreachable because get_spells_for_class at :181 derives spells only from HERO_CLASS_SPELLS (:38-48) and no hero class maps to 'Dev'. This repo is the one that exposed a bug in my first-pass M1 detector — see payara notes."
+  },
+  {
+   "repo": "OAI/Arazzo-Specification",
+   "workflowCount": 7,
+   "M1": true,
+   "M1evidence": "schema-tests.yaml:35 `run: npm run test` (step name :34 \"Run tests\") -> package.json:9 `\"test\": \"(c8 --100 vitest --watch=false || echo ...) && bash scripts/schema-test-coverage.sh\"`. Terminal repo-local artifact: scripts/schema-test-coverage.sh, confirmed present (19 lines).",
+   "M2": false,
+   "M2evidence": "Only `exit 0` in the set is sync-main-to-dev.yaml:53, inside branch-sync housekeeping (skips PR creation when one already exists) — not a security-or-quality step. respec.yaml:51 and schema-publish.yaml:53 invoke local scripts but are build/publish steps.",
+   "M3": "yes",
+   "M3evidence": "scripts/schema-test-coverage.sh:12 and :17 — two `exit 0` early returns when SCHEMA_FILE (src/schemas/validation/schema.yaml) or TEST_DIR (tests/schema/pass) is missing, returning success BEFORE the actual check at :19 (`node scripts/schema-test-coverage.mjs`). Step claim is \"Run tests\"; the script can report success having measured nothing. Compounded by package.json:9 wrapping the `c8 --100` coverage gate in `|| echo 'No vitest tests found — skipping...'`.",
+   "notes": "Category assigned: coverage/tests. This is the textbook M3 pattern from the prereg's own example list: \"an early return before the interesting check\". The package.json `|| echo` is logged as an instrument limitation (see repo 1 notes), NOT counted toward M2, because `|| echo` is not among M2's four frozen forms."
+  },
+  {
+   "repo": "Ocelot-Social-Community/Ocelot-Social",
+   "workflowCount": 30,
+   "M1": true,
+   "M1evidence": ".github/workflows/ui-verify.yml:69-70 - step `- name: Check component completeness` / `run: npm run verify`, with ui-verify.yml:9-11 setting defaults.run.working-directory: packages/ui. Resolves to packages/ui/package.json:64 \"verify\": \"tsx scripts/check-completeness.ts\" -> repo-local script packages/ui/scripts/check-completeness.ts. Structure/completeness enforcement = IN.",
+   "M2": false,
+   "M2evidence": "None, verified across ALL 30 workflows: zero occurrences of continue-on-error. The only `exit 0` hits, test-backend.yml:257 and test-e2e.yml:375, are success exits inside neo4j readiness retry loops. The single `|| true` match is a comment in cache-cleanup.yml:32 explaining why there is deliberately no `|| true` on the deletes.",
+   "M3": "no",
+   "M3evidence": "packages/ui/scripts/check-completeness.ts:97 globs 'src/components/**/Os*.vue' - a filename-PREFIX allowlist - plus :98 'src/ocelot/components/**/*.vue'. Checked the actual tree before judging: every .vue under packages/ui/src/components today is OsBadge/OsButton/OsCard/OsIcon/OsMenu/OsModal/OsNumber/OsSpinner/OsValidationHint, so the prefix currently omits NOTHING. Latent narrowing only, marked NO per 'when unsure, mark no'. The script is a real gate: :242 process.exit(1), and :172 makes it fail on warnings as well as errors.",
+   "notes": "31 entries in .github/workflows, of which mlc_config.json is not a workflow, so workflowCount = 30. Read closely: 10 (branding-lint, maintenance-lint, ui-lint, ui-verify, check-documentation, test-schema-contract, test-backend, test-webapp, test.lint_pr, ui-size) = 20 SKIPPED for close reading, but ALL 30 were bulk-fetched and grepped for every M2 form, so the M2 result is not sampled. Other quality steps all resolve to installed tools: packages/ui/package.json:61-62 vue-tsc / eslint, packages/branding/package.json:28-30 eslint / tsc / publint+attw. test-schema-contract.yml:86-90 runs jest spec files, a test, OUT by the frozen rule."
+  },
+  {
+   "repo": "omacom/omarchy-plugin-marketplace",
+   "workflowCount": 10,
+   "M1": true,
+   "M1evidence": ".github/workflows/validate-submission.yml:110 `run: node scripts/security-baseline.mjs` (step name at :104 \"Run automated security baseline\"); script scripts/security-baseline.mjs confirmed present. Duplicate at validate-plugin-update.yml:101 (step name :95).",
+   "M2": false,
+   "M2evidence": "No qualifying form. All 5 `continue-on-error: true` sit on actions/deploy-pages DEPLOY steps (approve-submission.yml:522, delist-plugins.yml:476, deploy-pages.yml:98, refresh-catalog.yml:245, verify-plugin.yml:714). The `|| true` hits are on `gh api --method DELETE .../labels`. The `exit 0` hits (verify-plugin.yml:864,:881) are idempotency early-returns, not trailing.",
+   "M3": "no",
+   "M3evidence": "scripts/security-baseline-scope.mjs:39-57 `scannedExtensions` allowlist covers 18 extensions incl .sh .py .js .mjs .rb .lua .pl .zsh .desktop .service .sudoers — the obvious targets for shell/lua plugins are all present, plus fallbacks at :81 for extensionless files in bin/ and scripts/. Only narrowing is `excludedDirectories` at :28-38 (.github, docs, test, tests). Not narrower than \"security baseline\" claims.",
+   "notes": "Category assigned: security/policy scan. ===== GLOBAL SUMMARY FOR ALL 12 ===== TALLY: M1 = 9/12 = 75.0% (repos 1,2,3,4,5,8,9,11,12). M2 = 3/12 = 25.0% (repos 8,11,12). M3 = 2/9 M1-repos = 22.2% (repos 2,11). Route A (M1>=25% AND M3>=20%): PASS. Route B (M2>=15%): PASS. Both routes pass independently. ===== CAVEAT: n=12 against the prereg's target of n>=100. This is a PARTIAL SAMPLE, not the completed measurement; the verdict line in the prereg should not be filled from n=12 alone. ===== M1 INDIRECTION RULE applied uniformly: a task-runner target (npm/pnpm run X) counts only when the chain TERMINATES in a repo-owned file; sub-rule for test runners: counted when the invocation NAMES a repo-local path, not when an external runner discovers files by convention. ===== INSTRUMENT LIMITATION: 2 of 12 repos carry a functional neutering of the form `|| echo '...'` one level BELOW the workflow, in package.json (repo 2 package.json:9, repo 6 package.json:22). Functionally identical to `|| true` but NOT one of M2's four frozen forms, so both EXCLUDED. Had M2 been widened to cover it, M2 would read 5/12 = 41.7% instead of 25.0%. Definition not changed; old number kept beside it. ===== No repo owned by upgradedev was touched. All workflows read in full for every repo including both 29-workflow repos; zero skipped."
+  },
+  {
+   "repo": "OpenBMB/StaffDeck",
+   "workflowCount": 2,
+   "M1": false,
+   "M1evidence": "",
+   "M2": false,
+   "M2evidence": "",
+   "M3": "not-applicable",
+   "M3evidence": "",
+   "notes": "Both workflows read. codeql.yml is marketplace-only (github/codeql-action/init@v4 at :72, analyze@v4 at :101); the `make bootstrap` / `make release` strings at codeql.yml:96-97 are echo lines inside the unmodified manual-build-mode template stub guarded by `if: matrix.build-mode == 'manual'` (:90), not real invocations. release.yml runs repo-local `bash packaging/build_macos.sh` and `packaging/build_linux.sh` (:23,26,29), but those are build scripts, not security or quality. The `exit 0` at release.yml:64 was examined and NOT counted: it is a mid-script early exit inside \"Configure macOS signing\" that falls back to ad-hoc signing when signing secrets are absent, and the same script still raises `exit 1` at :75 when a partial secret set is supplied, so it is a documented fallback rather than a trailing neuter."
+  },
+  {
+   "repo": "openclaw/clickclack",
+   "workflowCount": 7,
+   "M1": true,
+   "M1evidence": ".github/workflows/ci.yml:81 step \"Coverage gate\" (name at :80) runs `bash scripts/check-go-coverage.sh` — a repo-local script, and coverage is explicitly in the enumerated quality list. Second instance: release.yml:199 `apps/desktop/scripts/verify-macos-release.sh` under step \"Verify checksums and sealed apps\" (:189-192).",
+   "M2": false,
+   "M3": "yes",
+   "M3evidence": "scripts/check-go-coverage.sh:15 filters the profile with `grep -v -e '/store/' -e '/storedb/' -e '/uploadstore/' coverage.out > coverage.filtered.out` — a hardcoded exclusion list stripping three packages BEFORE the 85% threshold is applied (threshold at :4, enforced at :18-29 against coverage.filtered.out). Compounding it, :11 measures only `go test ./apps/api/internal/...`, not the module. The step name \"Coverage gate\" (ci.yml:80) implies the repo's Go coverage; the actual scope is one subtree minus three packages. The script's own comment at :12-14 concedes the storage and upload adapters are excluded because their percentages are \"noisy\".",
+   "notes": "All 7 workflows read in full. M2 false: zero continue-on-error in the repo. The `|| true` and `exit 0` occurrences sit in clawsweeper-dispatch.yml (bot dispatch), crabbox-hydrate.yml, and fakeco-aws.yml (AWS cleanup calls such as :426,:430,:432,:952) — none is a security/quality gate. fakeco-aws.yml:37 `if: github.ref == 'refs/heads/main' && github.ref_protected` runs on the default branch, so it is not a dead guard."
+  },
+  {
+   "repo": "oscal-compass/compliance-trestle",
+   "workflowCount": 9,
+   "M1": true,
+   "M1evidence": ".github/workflows/python-test.yml:59-61 step \"Run code linting (ruff)\" -> run: make code-lint; target at Makefile:60-61 (hatch check code). Also python-test.yml:53-55 make mdformat, :62-65 make code-typing, :74-78 make check-for-changes.",
+   "M2": true,
+   "M2evidence": ".github/workflows/python-test.yml:63 continue-on-error: true on the step named \"Run code typing check (mypy)\" (name at :62, run: make code-typing at :64-65). Duplicated at .github/workflows/python-push.yml:96 for the same step. python-test.yml triggers on push to develop (the default branch) at :5-8, so the neutered static-analysis step runs and cannot fail the build.",
+   "M3": "yes",
+   "M3evidence": "Makefile:67 `hatch run -- mypy --pretty trestle` — the step name is \"Run code typing check (mypy)\" but mypy is pointed at the trestle/ package only, while the repo also carries tests/ and scripts/ Python trees. Compounding it, pyproject.toml:304-306 declares [[tool.mypy.overrides]] module = \"trestle.oscal.*\" with ignore_errors = true, exempting the repo's namesake generated package (11 files, 226,929 bytes) wholesale, and pyproject.toml:302 sets disable_error_code = [\"assignment\", \"attr-defined\"] globally.",
+   "notes": "All 9 workflows read, 0 skipped. Default branch is develop, not main. codeql-analysis.yml and scorecard.yml are marketplace-action only and do not contribute to M1. The `|| true` hits at python-push.yml:112,165,260 and python-test.yml:151,210 are `hatch env remove ... 2>/dev/null || true` cleanup and a `grep ... || true` inside a commit-lint pipeline whose result is then tested, so they neuter nothing and were not counted."
+  },
+  {
+   "repo": "OSSDrop/OSSDrop",
+   "workflowCount": 2,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "pr-guard.yml IS a policy check but is pure inline shell (pr-guard.yml:20-22, echo + exit 1) with no repo-local script, so not M1. update-list.yml calls three repo-local scripts - scripts/defer_submissions.py (:51), scripts/promote_queue.py (:55), scripts/build_readme.py (:58) - but all three are product generation under the step names 'Hold newly-merged tools for the next drip window', 'Promote due queued tools (daily drip)' and 'Rebuild README from tools.json'. update-list.yml:120 carries `continue-on-error: true` and :105/:128 carry `exit 0`, but all sit on the 'Sync website' and 'Finalize awards' product API calls, not on any security/quality step."
+  },
+  {
+   "repo": "Panchajanya1999/pingerr",
+   "workflowCount": 3,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Read all 3 workflows. The only lint is shellcheck.yml:22,30 via marketplace action ludeeus/action-shellcheck@master, which the prereg explicitly excludes from M1. pingerr.yml:40 (`sh \"$SCRIPT\"`) and :84 (`./\"$SCRIPT\"`) DO invoke repo-local scripts (pingerr_ash.sh, pingerr.sh), but the step runs the product and checks its exit code — a smoke run, not an enumerated security/quality concern. SENSITIVITY: would flip to M1=true if tests/smoke runs counted as quality. M2 near-misses rejected: `chmod +x \"$SCRIPT\" || true` at pingerr.yml:39 and :83 sits on a product-run step, not a security/quality step; shellcheck.yml:5-11 is a `paths:` filter, not an `if:` that never runs on default. Parked near-miss (not counted): shellcheck.yml:26 and :34 set `severity: error`, so all warning-level shellcheck findings are suppressed."
+  },
+  {
+   "repo": "pashagolub/pgxmock",
+   "workflowCount": 3,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 3 workflows read in full. M1 false: the lint is golangci-lint-action@v9 (build.yml:31, marketplace) and CodeQL is github/codeql-action (codeql-analysis.yml:45,59,72, marketplace); the test step is bare `go test` (build.yml:39) and \"Get dependencies\" is bare `go mod download` (build.yml:26) — no repo-local script anywhere. M2 false: zero continue-on-error, zero `|| true`, zero trailing `exit 0`. Worth naming since it looks like a candidate: build.yml:12 reads `if: true # false to skip job during debug` — a live debug toggle that is currently ON, so the job does run; not a dead guard."
+  },
+  {
+   "repo": "pass-culture/pass-culture-main",
+   "workflowCount": 47,
+   "M1": true,
+   "M1evidence": ".github/workflows/ci_sub_mypy_cop.yml:29 `body=\"$(./mypy_cop.sh \"...master_ignore_count\" \"...this_branch_ignore_count\")\"` with `working-directory: api` (:27), i.e. repo-local api/mypy_cop.sh; step name 'Create mypy cop report' (:25), workflow '3 [CI] MyPy cop'.",
+   "M2": true,
+   "M2evidence": ".github/workflows/ci_block_do_not_merge_pr.yml:17 `continue-on-error: true` at JOB level on `check-forbidden-pr-label`, whose only step is 'Fail because PR is labeled with do-not-merge' (:19) ending `exit 1` (:22). The job exists solely to go red on a do-not-merge label, and the job-level continue-on-error means it never can.",
+   "M3": "no",
+   "M3evidence": "Opened api/mypy_cop.sh (36 lines). It takes two integers as $1/$2 (:11-12) and echoes an HTML report with a coloured symbol (:17-36); it never gates. The step name is 'Create mypy cop report', which is exactly what it does, so the scope is not narrower than the name. The real narrowing - `grep \"type: ignore\" -r src | grep -vc /alembic/versions/` at ci_sub_mypy_cop.yml:18 and :21, which hardcodes an exclusion and limits scope to api/src - sits in the PRECEDING inline step, not in a repo-local script, and that step is named 'Count mypy ignore's on this branch and master', which is also accurate.",
+   "notes": "47 workflow files (the contents listing returns 49 entries, two of which are the subdirectories `scripts` and `templates`). Read in full: ci_daily_security_scan.yml, ci_sub_mypy_cop.yml, ci_block_do_not_merge_pr.yml. Grepped for neutering and repo-local script calls: ci_check_pr.yml, ci_check_push_on_master.yml, ci_check_push_on_maint.yml, ci_sub_compute_changes.yml, ci_sub_test_changes.yml, ci_sub_test_api_documentation.yml, ci_sub_test_api_client_update.yml, ci_sub_test_backend.yml, ci_sub_test_front_pro.yml, ci_sub_test_e2e.yml, ci_deploy_pr_preview.yml, ci_sub_dependabot_auto_merge.yml, ci_clean_close_stale_prs.yml. 11 examined in detail, 36 skipped (cd_* deploy, cd_sub_*, docker_*, slack_*, test_deploy*, tests_firebase_publish, dev_on_workflow_*, ci_clean_delete_pr_deployments, ci_delete_firebase_preview*, ci_ping_data_on_pr_db_changes, ci_deploy_storybook_preview, ci_sub_deploy_storybook, ci_sub_ping_data_team). Other quality steps all use installed tools or marketplace actions and so add nothing to M1: ci_sub_test_backend.yml:38 `mypy src` in docker, :52 astral-sh/ruff-action, :56 ruff format --check, :164 and :190 'Lint migration upgrades/downgrades' running squawk inside the image. Two M3-shaped patterns exist on NON-M1 steps and are therefore not counted: ci_daily_security_scan.yml:27 `semgrep scan --config auto . --exclude-rule=python.django.security.django-no-csrf-token.django-no-csrf-token` (a hardcoded rule exclusion under the step name 'Perform Semgrep Analysis'), and ci_sub_test_backend.yml:47/:51 `sed \"/squawk:ignore-next-statement/,/;$/d\"` stripping suppressed statements before the migration linter sees them. .github/workflows/scripts/ holds check-image-tag-exists.sh and check-schedule-exclusion.sh, both deploy/scheduling helpers rather than security or quality checks."
+  },
+  {
+   "repo": "payara/Payara",
+   "workflowCount": 6,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "none. .github/workflows contains only issue/PR triage and metrics automation; every step is either a marketplace action (github/issue-metrics@v3, actions/github-script@v6, tlolkema/simple-teams-message) or a short inline shell block computing dates and assignees",
+   "M2evidence": "none. Zero continue-on-error, '|| true' or 'exit 0' across all 6 workflows",
+   "M3evidence": "not-applicable (M1 false)",
+   "notes": "All 6 workflows read, 0 skipped: assign-community-prs.yaml, assign-issues.yaml, generate-metrics-report.yml, monitor-abandoned-issues.yaml, monitor-inactive-issues.yml, monitor-issues-in-voting.yaml. Payara has NO build, test or security workflow on GitHub Actions at all (it builds on Jenkins) — a distinct condition from having a narrowed or neutered check, and one that inflates neither M1 nor M2. METHOD NOTE FOR THE WHOLE RUN: my first-pass M1 regex required no space after 'run:', so it matched only continuation lines inside 'run: |' blocks and silently missed every single-line 'run: <cmd>'. Caught at repo 11, corrected, and all 12 repos re-scanned from the local copies; only NYRDS/remixed-dungeon changed verdict. Repos 1-8 had additionally been verified by hand-dumping their run:/uses: lines, which is why the bug did not alter them."
+  },
+  {
+   "repo": "perfectgf/lora-dataset-studio",
+   "workflowCount": 2,
+   "M1": true,
+   "M1evidence": ".github/workflows/ci.yml:290-291 step \"Enforce release asset policy\" -> run: python scripts/check_release_artifacts.py (repo-local script, licence/policy class). Same script invoked at release.yml:134 and, with the built artifact as an argument, at release.yml:158.",
+   "M2": false,
+   "M2evidence": "",
+   "M3": "no",
+   "M3evidence": "Opened scripts/check_release_artifacts.py (223 lines) and scripts/privacy_patterns.py. The exception list is empty and documented as measured-empty: cra.py:78 `ARCHIVE_EXCEPTIONS: tuple[...] = ()`, with cra.py:57-77 explaining why no entry is needed. The suffix allowlist at privacy_patterns.py:31-33 covers .py, .js, .jsx, .mjs, .md, .json, .yml, .yaml, .html, .css, .bat, .ps1, .txt, .map, .example, .cfg, .ini, .toml, .env, which spans this repo's actual languages (gh api .../languages returns Python 15.5MB, JavaScript 8.6MB, PowerShell 133KB, CSS 17.9KB, Batchfile 12.2KB), and cra.py:52-55 reports rather than skips any member too large to scan.",
+   "notes": "Both workflows read. Default branch main. M2 is false on inspection of every hit: all nine `exit 0` occurrences in ci.yml (:48, :58, :101, :207, :218, :224, :229, :235, :246) are fail-safe early exits in the change-size and Torch-overlay decision scripts that set run_heavy=true / run_torch=true, i.e. they cause MORE to run, and ci.yml:216-217 states that intent outright. The Lint job is deliberately unconditional and not behind the size gate, per the comment at ci.yml:130-133. No continue-on-error anywhere. One nuance recorded rather than counted for M3: at ci.yml:291 the script is invoked with no arguments, so only check_workflows() runs and no release asset is opened; the archive scan happens at release.yml:158 where the ZIP exists. The script's docstring at cra.py:3-4 states this behaviour explicitly, so I did not treat it as a hidden narrowing."
+  },
+  {
+   "repo": "piperhex/codex-switch",
+   "workflowCount": 3,
+   "M1": false,
+   "M1evidence": "Repo-local scripts run in CI but none by a security/quality step: release.yml:370 \"Test release metadata generators\" -> `node --test scripts/*.test.mjs` (unit test); release.yml:377 \"Generate and validate updater manifest\" -> `node scripts/generate-updater-manifest.mjs` (generator); dream-skin-resources.yml:40 -> `node scripts/prepare-dream-skin-release.mjs` (packaging). release.yml:166,248,307 `npm run check` -> package.json:26 `lerna run check` -> per-package tsc/eslint/cargo, i.e. installed tools.",
+   "M2": false,
+   "M2evidence": "None. Sole hit is release.yml:234 `exit 0`, a legitimate early-success exit inside a 3-attempt Android NDK install retry loop (release.yml:231-245), not a neutered gate.",
+   "M3": "not-applicable",
+   "notes": "ALL 3 workflows read. Repo has no security workflow at all (no CodeQL, no secret scan) and no push/PR-triggered CI: release.yml:10-12 fires on tags and workflow_dispatch only. A workflow-level `on:` restriction is not an `if:` and was deliberately NOT scored as M2. Contributors: piperhex, github-actions[bot], codex, TorbenXiong, yangpeng082416 - not ours."
+  },
+  {
+   "repo": "pkimetal/pkimetal",
+   "workflowCount": 6,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "",
+   "M2evidence": "",
+   "M3evidence": "",
+   "notes": "All 6 workflows read (ci.yml in full, the other 5 via full step-name and pattern greps). Three repo-local script invocations exist, none of them a security or quality check: pr-on-dependency-release.yml:39 ./update_dependencies.sh (step Run update_dependencies.sh at :38) and dev-build-on-dependency-update.yml:40 ./dev_update_dependencies.sh (step at :39) are dependency BUMP automation, not a dependency AUDIT. I opened update_dependencies.sh and it is go get -u, go mod tidy, go mod edit and six go get lines (:4-23), with no check that can fail. ci.yml:119 bash check_profile_autodetection.sh (step Profile auto-detection at :115) is a functional smoke test of the shipped certificate linter, not a CI quality gate on the repo. The genuine quality step, ci.yml:51-52 go vet ./..., is a toolchain call, and scorecard.yml:37 is the ossf marketplace action. M2 candidates rejected: ci.yml:127, :131 and docker-dev.yml:107, :117 are || true on docker logs and docker rm -f inside if: always() cleanup steps; ci.yml:93 exit 0 is the success branch of a readiness poll loop that ends in exit 1 at :98. ci.yml:70 gates the Container smoke test job to non-push events, so it does not run on push to main, but the comment at :68-69 says docker-dev.yml covers main, and under the narrow if: reading a PR-only test is not a dead default-branch guard. Worth seeing though it fits none of the three measures: update_dependencies.sh:15-17 documents adding a redundant -modfile=go.mod flag specifically to stop OpenSSF Scorecard's Pinned-Dependencies parser from flagging the fetch-latest calls."
+  },
+  {
+   "repo": "ProxyScrape/free-proxy-list",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "update.yml:39 `python scripts/update.py` is repo-local but the step name is 'Refresh proxy data' - the product, not a quality check. update.yml:47 has `exit 0` inside 'Commit and push changes' as an early out when the tree is clean, not a security/quality step. Workflow is workflow_dispatch-only (update.yml:10-11; the cron was deliberately removed per the comment at :3-9) - noted, but not counted for M2 because there is no security/quality step to neuter."
+  },
+  {
+   "repo": "pulseaiclub/phi",
+   "workflowCount": 4,
+   "M1": true,
+   "M1evidence": ".github/workflows/ci.yml:62 step \"Check\" runs `make check` -> Makefile:50 `check: fmt-check lint deadcode` -> Makefile:48 `deadcode: ./scripts/deadcode-check.sh`, a repo-local script. Second instance: protect-released-changelog.yml:29 `./verify_released_changelog.sh \"$BASE_REF\"` under step \"Protect the released changelog\" (:26), a policy step.",
+   "M2": false,
+   "M3": "no",
+   "M3evidence": "Anchoring on the step name as written: the step is called \"Check\" (ci.yml:62), which claims nothing specific, so nothing is overclaimed. I also opened the second candidate, verify_released_changelog.sh, because \"Protect the released changelog\" IS a specific claim: its scope is the region between the `<!-- Released section -->` markers (:31,:34) compared against the base branch, which is exactly what the name says, and it fails closed at :37-41. Recorded near-misses that did NOT meet the bar: .golangci.yml:226-229 excludes gosec entirely from `_test\\.go` files, :232-234 excludes gosec G404 globally, and scripts/deadcode.baseline is a 54-line hardcoded exclusion list — real narrowings, but not against anything the name \"Check\" promises.",
+   "notes": "All 4 workflows read in full. M2 false: zero continue-on-error, zero `|| true`, zero trailing `exit 0` across all four files. protect-released-changelog.yml:18 carries `if: ${{ !contains(github.event.pull_request.labels.*.name, 'Unlock Released Changelog') }}` — a deliberate label escape hatch that runs by default and only skips when someone applies the label, so it is not a dead guard. This is the repo whose M3 call I would flag as the most debatable in my batch: the gosec test-file exclusion is a genuine SAST narrowing, and it only escapes M3 because the step carries a generic name."
+  },
+  {
+   "repo": "RevolutionLA/dsh-dream-skin",
+   "workflowCount": 2,
+   "M1": true,
+   "M1evidence": "ci.yml:27 `run: npm test` (step name :26 \"Run tests\") -> package.json:57 `\"test\": \"node --test tests/*.test.cjs\"`. The invocation names a repo-local path; the 3 matching files (client.persistence.test.cjs, client.smoke.test.cjs, host.persistence.test.cjs) confirmed present in tests/.",
+   "M2": false,
+   "M2evidence": "ci.yml contains none of the four forms. stats-chart.yml:70 and :79 `exit 0` and :86 `|| true` are all inside the daily chart commit-and-push retry loop (chart artifact refresh), not a security-or-quality step.",
+   "M3": "no",
+   "M3evidence": "The glob tests/*.test.cjs matches ALL 3 files that exist in tests/ — all flat, all .test.cjs, no nested dirs and no other extensions, so the non-recursive glob loses nothing. ci.yml:29 \"Syntax check the host + client bundles\" runs `node --check lib/index.js && node --check lib/client.js`, which is exactly the 2 .js files present in lib/.",
+   "notes": "Category assigned: tests/quality. M1 rests on the stated sub-rule: counted because the invocation NAMES a repo-local path (tests/*.test.cjs), unlike repo 10 (`meteor test --once`) and repo 6 (`vitest run`) where an external runner discovers files by convention. Rule stated in advance and applied uniformly; the verdict is unchanged whichever way this single call goes (flipping it gives M1 8/12=66.7%, M3 2/8=25%, both routes still pass)."
+  },
+  {
+   "repo": "rhesis-ai/rhesis",
+   "workflowCount": 27,
+   "M1": true,
+   "M1evidence": ".github/workflows/lint.yml:246-247 step \"Check ConfigMap/ExternalSecret key overlap\" -> run: scripts/check-k8s-secret-overlap.sh (repo-local shell script, secrets/config class). Also lint.yml:114-115 \"Check migration chain\" -> scripts/check-alembic-head.sh; lint.yml:182 `node scripts/check-hardcoded-styles.js`; lint.yml:228 `python scripts/skill/validate.py`; frontend-test.yml:92 `node apps/frontend/scripts/check-ee-boundary.mjs`.",
+   "M2evidence": ".github/workflows/security.yml:34 — `if: github.event_name != 'push'` on the job `changes`. This is the prereg's literal enumerated `if:` form, not a trigger filter: the workflow does trigger on push to main (security.yml:4-5), and the Trivy job declares `needs: changes` (security.yml:98) plus `if: needs.changes.outputs.services != '[]'` (:99), so when `changes` is skipped on a default-branch push the Trivy vulnerability scan is skipped with it. Only the trufflehog secret scan survives a push to main.",
+   "M2": true,
+   "M3": "yes",
+   "M3evidence": "scripts/check-hardcoded-styles.js:109-128 EXCLUDE_PATTERNS — a hardcoded exclusion list dropping .module.css (:124 \"they might have hardcoded values for specific reasons\"), globals.css (:120), apps/documentation/components/ (:122 \"Temporarily exclude docs components\"), .test./.spec./storybook. The step is named \"Check for hardcoded styles\" (.github/workflows/lint.yml:170). On top of the script's own list, the workflow narrows the input further at lint.yml:173 with `grep -E '^(apps|ee)/frontend/src/.*\\.(ts|tsx|js|jsx)$'` — an extension allowlist that admits no .css and no .mdx, although the script itself handles .mdx (chs.js:443) and its whole-repo mode scans apps/documentation (chs.js:536).",
+   "notes": "All 27 workflows read, 0 skipped. Default branch main. NEAR-MISS deliberately NOT counted for M2: security.yml:122 and :134 both set `exit-code: 0` on the aquasecurity/trivy-action steps, so the vulnerability scanner can never fail the build regardless of CRITICAL/HIGH/MEDIUM findings. That is an action input rather than a shell `exit 0`, so it falls outside the prereg's four enumerated forms; recording it because it is the most interesting near-miss in the set. Also not counted: the `continue-on-error: false` lines at penelope-test.yml:45,53 and sdk-test.yml:48,59 are explicit non-neuterings. lint.yml is pull_request-only via `on:` (lint.yml:3-7), which is a trigger filter, not an `if:`, so it was not counted."
+  },
+  {
+   "repo": "rogerwelin/pg_column_tetris",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Single workflow test.yml, 31 lines, read in full. `make install` at :22 is a wrapper of the enumerated `make z` form, but the target is \"Install extension\" (:20) — a build/install step, not an enumerated security/quality concern — so it fails M1 on the category test rather than the form test. \"Run tests\" (:25-31) loops psql over repo-local test/sql/*.sql files, which is a test harness and also not enumerated. No lint, secret-scan, SAST or dependency-audit step exists in the repo. SENSITIVITY: under a wider boundary where tests counted as quality this becomes arguable, since the test step reads repo-local .sql fixtures, though it drives them with installed psql rather than a repo-local script. No M2 markers and no `if:` conditions anywhere."
+  },
+  {
+   "repo": "rulego/rulego",
+   "workflowCount": 3,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 3 workflows read in full. M1 false: every run step is the bare Go toolchain — `go get .` (build.yml:22, test.yml:42), `go build` (build.yml:51, test.yml:68), `go test` (test.yml:71,83, test-server.yml:39-41) — plus mysqladmin/mosquitto service setup. There is no linter step at all in this repo, and no repo-local script is invoked from any workflow. M2 false: zero continue-on-error, zero `|| true`, zero trailing `exit 0`. test.yml:70 and :82 carry `if: matrix.go-version ...` conditions, but that is ordinary matrix scoping, not a guard that makes a step dead on the default branch."
+  },
+  {
+   "repo": "sandbaseai/sandbase-harness",
+   "workflowCount": 6,
+   "M1": false,
+   "M1evidence": "No qualifying step. Only repo-local script in CI is ci.yml:70 \"Release smoke\" -> package.json:71 `node scripts/smoke-release.mjs`; opened it, it is a functional CLI smoke test (init + start), not security/quality. ci.yml:30 typecheck -> package.json:67 `tsc --noEmit`; ci.yml:67 -> package.json:70 `npm pack --dry-run`. Security steps are marketplace-only: codeql.yml:28,34 and scorecards.yml:28.",
+   "M2": false,
+   "M2evidence": "None. grep for continue-on-error / '|| true' / 'exit 0' over all 6 workflows: 0 hits. (package.json:74 format:check is a no-op stub but no workflow invokes it.)",
+   "M3": "not-applicable",
+   "notes": "ALL 6 workflows read. === TOTALS ACROSS THE 12 REPOS (n=12; the prereg targets n>=100, so this is a PARTIAL measurement; the prereg verdict line was NOT filled in and docs/PREREG_BASE_RATE_2026-08-31.md was NOT modified) === M1 = 7/12 = 58.3% (ledger-live, agent-swarm, Ocelot, acryl, stella, eth-phishing-detect, Wegent). M2 = 1/12 = 8.3% (agent-swarm only). M3 = 3/7 = 42.9% (yes: ledger-live, agent-swarm, stella; no: Ocelot, acryl, eth-phishing-detect, Wegent). Path A (M1>=25% AND M3>=20%) clears on this subsample; Path B (M2>=15%) does not. === FROZEN M1 RULE, written after repo 3, applied uniformly, re-checked against repos 1-3 with no call changed === IN: secret scan, SAST, dependency audit, licence, lint, format check, typecheck/static analysis, policy/boundary/structure enforcement, coverage threshold, compliance. OUT: functional/unit/integration/e2e tests, build, packaging, release-artifact generation, cleanup/teardown, reporting. The step must ultimately execute a file living in the repo; a make/npm/pnpm target counts only if it resolves to a repo-local file (the prereg counts `make z`), not if it resolves to an installed binary (tsc, eslint, biome, prettier). === METHOD === Every workflow of every repo was bulk-fetched and grepped locally for all four M2 forms including the `if:`-never-on-default-branch form. GitHub code search was tried and ABANDONED as unreliable: it returned 0 continue-on-error for IntuneGet where local grep found 1, and 2 files for ledger-live where local grep found 7. No reported number rests on code search. === SENSITIVITY A READER MUST SEE === M2 hinges on the frozen rule putting behaviour tests OUT of the security/quality population. If tests count as quality, M2 becomes 4/12 = 33% and Path B also clears: ledger-live test-coin-tester.yml:101 (job-level continue-on-error on the whole Coin Tester integration job), IntuneGet scan-apps.yml:141, Wegent test.yml:248-258 (accepts pytest exit 134 as success). That definitional choice was made before any number was seen and applied to all 12. === ROBUSTNESS === Path A clears under every flagged judgment call: counting dust's dangerfile (M1 8/12, M3 3/8), rejecting stella's M3 (M3 2/7), both (M1 8/12, M3 2/8), or counting tests as quality (M1 9/12, M3 3/9). Path A fails only if M3 <= 1/7, requiring two of {ledger-live, agent-swarm, stella} to be wrong. === EXCLUSIONS === No repo is owned by upgradedev. Contributor logins checked on 8 of 12 for the prereg's 'written by us' exclusion; no tf/Fousekis/upgradedev appears anywhere."
+  },
+  {
+   "repo": "sboulema/CodeNav",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Single workflow workflow.yml, read in full. Steps are `dotnet test` (:33 and :67), `dotnet publish` (:43, :92), an inline vsix manifest edit (:70), plus marketplace actions (timheuer/vsix-version-stamp, mathieudutour/github-tag-action, ncipollo/release-action). No repo-local script invoked, no security-or-quality step, and the three-token sweep returned zero hits. The `if: github.ref_name == 'main'` at :104 gates the Release job, which is a deployment gate and not a security-or-quality check."
+  },
+  {
+   "repo": "seisman/HinetPy",
+   "workflowCount": 4,
+   "M1": true,
+   "M1evidence": ".github/workflows/check.yml:30 — `run: make check`, step name \"Check code style\" at :29, job \"Code Styles\" at :14. `make z` is an enumerated qualifying form in the prereg. Target resolves to Makefile:32-34 (`check:` / `ruff check .` / `ruff format --check .`).",
+   "M2": false,
+   "M3": "no",
+   "M3evidence": "Opened Makefile:32-34 and the resolved config in pyproject.toml:57-92. Scope is NOT narrower than the step name: `ruff check .` runs over the whole repo, and pyproject.toml:58-88 selects a broad ruleset (29 rule families) that INCLUDES \"S\" flake8-bandit security rules at :81, plus B, BLE, PL, RUF and others — i.e. broader than the \"Check code style\" name implies, not narrower. The ignore list at :93-106 is a short list of ordinary style/docstring exceptions (E501, D200, D205, PLR2004, S603, SIM117 ...) and disables no rule class the step name implies. Repo is single-language Python, so no uncovered-language gap.",
+   "notes": "Read all 4 workflows. M2: no continue-on-error, `|| true` or `exit 0` anywhere. All four `if:` conditions examined and none gates a security/quality step off the default branch — docs.yml:56 `github.ref == 'refs/heads/main'` gates a deploy and runs ON main; pypi-publish.yml:15 and :34 gate publishing; tests.yml:25 runs on every push to main and only restricts fork PRs. AMBIGUITY DISCLOSED: this M1=true rests on `make check` being a wrapper that dispatches to a repo-local Makefile, which the prereg lists as a qualifying form (`make z`) even though the target ultimately runs pip-installed ruff. Under a strict reading of the counter-clause (\"a step calling ONLY a pip/npm-installed tool does not count\") this repo would be M1=false and the subsample M1 would be 1/12 rather than 2/12. Not counted as M3, but noted: Makefile:36-37 defines a `typecheck` (mypy) target that CI never invokes — a check that is absent rather than narrowed."
+  },
+  {
+   "repo": "sepivip/SeekerClaw",
+   "workflowCount": 2,
+   "M1": true,
+   "M1evidence": "build.yml:44 `run: node tests/nodejs-project/tool-schemas.test.js` (step name :41 \"Validate tool input_schemas\"). Also build.yml:50 `node tests/nodejs-project/smoke.js` (step name :46) and build.yml:122 `node \"tests/nodejs-project/${t}.test.js\"` (step name :60). All confirmed present in tests/nodejs-project/ (88 .test.js files).",
+   "M2": false,
+   "M2evidence": "The only `continue-on-error: true` is release.yml:139, attached to an actions/download-artifact@v4 step fetching the Google Play AAB — not a security-or-quality step. No `|| true`, no trailing `exit 0`, no dead `if:` on any quality step.",
+   "M3": "no",
+   "M3evidence": "tests/nodejs-project/ci-coverage-manifest.test.js:1-31 is a meta-test that FAILS CI if any of the 88 *.test.js files is neither in the build.yml for-loop allowlist nor in its SKIP_REASONS map with a written reason; ~35 skips each carry an explicit reason (:60-95). smoke.js:15 claims `node --check` on every .js and does so; its require-phase skips are documented at :23-26. The \"Financial-flow\" step actually runs BROADER than its name.",
+   "notes": "Category assigned: tests/quality. This repo is the counter-example in the set — it has the exact structural guard whose absence produces M3 elsewhere (a drift-detector on the hand-maintained CI list). Called \"no\" deliberately despite a large hardcoded list, because the list is machine-enforced against the filesystem."
+  },
+  {
+   "repo": "SoftBlack42/StarPie",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Single workflow build-and-test.yml, read in full (35 lines). Steps are checkout, setup-dotnet, `dotnet restore`, `dotnet build`, `dotnet publish`, upload-artifact. No repo-local script, no security-or-quality step of any kind, no neutering tokens. Observation not counted anywhere: the workflow is named 'Build and Test' and the job 'Build & Verify StarPie', but it contains no `dotnet test` step at all. That is a name-versus-reality gap, but M3 is defined over the scope of an invoked repo-local script and M1 is false here, so under the frozen definitions it scores nothing."
+  },
+  {
+   "repo": "SonarSource/sonar-scanner-msbuild",
+   "workflowCount": 12,
+   "M1": true,
+   "M1evidence": ".github/workflows/ci.yml:204 — step 'Run UTs and compute coverage' runs `.\\scripts\\run-unit-tests.ps1 -SourcesDirectory \"${{ github.workspace }}\" -BuildConfiguration Release`; script path scripts/run-unit-tests.ps1. Coverage is explicitly on the enumerated list. Two further repo-local invocations, not counted as the security-or-quality anchor: ci.yml:112 `. .\\scripts\\create-choco-packages.ps1` (packaging) and its-windows.yml:272 `bash scripts/run-its.sh` (integration tests).",
+   "M2": false,
+   "M2evidence": "Full sweep of all 12 workflows for continue-on-error, `|| true` and `exit 0` returned zero hits.",
+   "M3": "yes",
+   "M3evidence": "scripts/run-unit-tests.ps1:19-26 — the step is named 'Run UTs and compute coverage', but the script does not discover test projects; it calls Run-Tests-With-Coverage against a hardcoded list of exactly 8 .csproj paths. Verified against the repo rather than inferred: `gh api repos/SonarSource/sonar-scanner-msbuild/contents/Tests` lists 9 test projects (Common.Test, PackagingTest, PostProcessor.Test, PreProcessor.Test, Shim.Test, TFS.Test, Tasks.IntegrationTest, Tasks.UnitTest, MSBuild.Test, plus the LogArgs and TestUtilities helpers). SonarScanner.MSBuild.PackagingTest is in Tests/ but absent from the list, and scripts/run-unit-tests.ps1:18 carries the in-script comment '# PackagingTest runs during Build stage.' acknowledging it. Reinforcing narrowing on the same line: scripts/run-unit-tests.ps1:14 pins `--filter \"TestCategory!=NoWindows\"`, a test-category exclusion applied to the coverage run.",
+   "notes": "All 12 workflows scanned; ci.yml, automated-release.yml and its-windows.yml read around their script-invoking steps. The M3 finding is the strongest in this batch because it is verified against a directory listing rather than read off the script alone: a new test project added to the solution is silently excluded from both the test run and the coverage number while the step keeps its generic 'Run UTs and compute coverage' name. I did NOT count the AltCover assembly filter at scripts/run-unit-tests.ps1:12 (`AltCoverAssemblyFilter=testhost|AltCover|Microsoft|protobuf|Humanizer|GraphQL|StructuredLogger|Test`) as evidence, because excluding test assemblies from coverage instrumentation is normal practice. Separately noted, not counted anywhere: ci.yml:198 passes `/d:sonar.sca.exclusions=\"its/projects/**\"` to the SonarQube SCA scan, a real scope exclusion on a security scan, but it sits on an installed-tool step (dotnet-sonarscanner, restored at ci.yml:185) so under the prereg it feeds neither M1 nor M3."
+  },
+  {
+   "repo": "spring-cloud/spring-cloud-function",
+   "workflowCount": 11,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "none. ci.yaml:25 and pr.yaml:9 delegate to the external repo spring-cloud/spring-cloud-github-actions. Chain followed into both local composite actions: .github/actions/release-train-test/action.yml:7 runs './mvnw ... clean verify' and .github/actions/release-train-build/action.yml:8-12 is an inline block also calling ./mvnw — wrapper, excluded",
+   "M2evidence": "none. Zero continue-on-error, '|| true' or 'exit 0' across all 11 workflows",
+   "M3evidence": "not-applicable (M1 false)",
+   "notes": "All 11 workflows read, 0 skipped (508 lines total), plus both local composite actions opened and followed to their run: steps per the uses:-chain rule. Like eclipse.platform.ui, the real CI/PR logic lives in an external shared actions repo."
+  },
+  {
+   "repo": "stella/stella",
+   "workflowCount": 39,
+   "M1": true,
+   "M1evidence": ".github/workflows/dependency-audit.yml:55-56 - step `- name: Audit dependencies` / `run: bun scripts/dependency-audit.ts --check` -> repo-local script scripts/dependency-audit.ts. Also dependency-audit.yml:61-62 `bun --no-env-file scripts/check-trusted-dependencies.ts`; ci.yml:436-438 \"Check AI prompt sync\" -> `bash .ai/shared/scripts/sync-ai-skills.sh --check .`; ci.yml:494,504 \"Resolution range guard\" -> `bun scripts/check-resolution-ranges.ts`; ci.yml:597-599 \"Release changelog guard\" -> `bash scripts/check-release-changelog.sh`; ci.yml:1022-1024 \"Bridge-version guard\" -> `bash scripts/check-bridge-version.sh`.",
+   "M2": false,
+   "M2evidence": "None qualifying, verified across ALL 39 workflows. continue-on-error hits: ai-provider-canary.yml:147 (artifact download), deploy-landing.yml:130 (best-effort IndexNow SEO ping), release.yml:597,613 (attestation retry - release.yml:626 comments \"No continue-on-error: a third refusal fails the release\"), scorecard.yml:34 (on the CHECKOUT step, not the scan; the scan at :42 and SARIF upload at :51 are gated on steps.checkout.outcome == 'success' and :38-40 emits a visible warning when skipped). All `|| true` are teardown or log-tail. All `exit 0` are documented skip paths in change-detection blocks or in the ci.yml:2365-2425 aggregation gate, which exits 1 on any failure and at :2411-2414 even fails when CI was not run at all.",
+   "M3": "yes",
+   "M3evidence": "PRIMARY, a hardcoded exclusion list, verbatim a prereg M3 example: step NAMED \"Resolution range guard\" (ci.yml:494) runs scripts/check-resolution-ranges.ts, which at :146-157 defines ALLOWED_BELOW_FLOOR and at :174-175 `continue`s past every package in it (\"grandfathered intentional override\"), and at :179 SKIPS every override that is not an exact semver - that is, it skips ranges, the very thing its name says it guards. CORROBORATING: step NAMED \"Audit dependencies\" (dependency-audit.yml:55) runs scripts/dependency-audit.ts whose :32 `GATED_SEVERITIES = new Set([\"high\",\"critical\"])` means moderate/low advisories can never fail the step, and whose :5-8,:28-31 subtract scripts/dependency-audit-baseline.json - currently carrying 2 accepted HIGH advisories (GHSA-5p2g-fcmc-qvqq, GHSA-w3rx-r6r6-pgpr, both image-size) - so --check fails only on a NEW high/critical advisory.",
+   "notes": "39 workflows total; ALL 39 bulk-fetched and grepped for every M2 form, ~8 read closely. In fairness on M3, both scripts are documented and ratcheting: dependency-audit.ts warns when a baselined advisory is resolved and ships a --self-test mode, and ALLOWED_BELOW_FLOOR carries a written reason per entry. M3 is nonetheless YES because the prereg measures actual scope against the step NAME, not whether the narrowing is honest. This repo has by far the richest set of repo-local CI check scripts in the sample, which is the phenomenon the prereg is trying to size. Contributors: jan-kubica, stella-provenance-updater[bot], dependabot, github-actions[bot], nnad3N, stella-lingo[bot] - not ours."
+  },
+  {
+   "repo": "step-security/dev-machine-guard",
+   "workflowCount": 11,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "",
+   "M2evidence": "",
+   "M3evidence": "",
+   "notes": "All 11 workflows fetched; gosec.yml and tests.yml read in full, the other 9 via exhaustive pattern greps plus full reads of every region a grep flagged. The script sweep ran twice: once for POSIX forms (make, ./x.sh, bash/sh/python/node/pwsh + file, scripts/, hack/, tools/, go run, ./cmd) and once for Windows forms (backslash paths ending .ps1/.sh/.py/.cmd/.bat, the pwsh & call operator, Invoke-Expression), because five of the files are long and pwsh-heavy. The Windows sweep returned only release.yml:570 and test-build.yml:274, both '& $tool -c $stage -s install.cmd -o dist -q', where $tool is the downloaded Microsoft IntuneWinAppUtil.exe (release.yml:560, test-build.yml:264), not a repo-local check script. So the only repo-local invocations in the repo remain tests.yml:101 make test and tests.yml:144 make smoke, both bare test runners, hence M1 false. Every security check (codesign, spctl, Authenticode, Ed25519 checksum verify) is INLINE bash/pwsh in the workflow, never a repo-local script. NOT COUNTED FOR M2 BUT WORTH SEEING: gosec.yml:40 runs the SAST scan with args -no-fail, and the comment at gosec.yml:38 says so outright (-no-fail keeps the workflow green). That is functionally identical to continue-on-error but is not one of the four enumerated M2 forms, so it is excluded rather than silently widening the frozen definition. Candidates checked and rejected on the evidence: msi-smoke.yml:256 trailing exit 0 in the step Verify uninstall cleanup (:222) is not neutering, since the step exits 1 at :233-235 and :247-249 before reaching it and the comment at :239-243 explains it only clears a stale LASTEXITCODE from schtasks; release-macos.yml:172,181 and test-macos-signing.yml:215,224 are || true on diagnostic notarytool info/log calls followed by exit 1 at :173 and :182; release-macos.yml:226 is best-effort gh release delete-asset cleanup; verify-release.yml:318,319,337 only capture output for the real assertions at :320, :326 and :339. No continue-on-error anywhere. verify-release.yml is workflow_dispatch + workflow_call only, which is orchestration, not a dead default-branch guard."
+  },
+  {
+   "repo": "strands-labs/robots",
+   "workflowCount": 14,
+   "M1": true,
+   "M1evidence": ".github/workflows/changelog-fragment.yml:139 `python3 scripts/check_changelog_fragment.py --base-ref \"$BASE_REF\" --head \"$HEAD_SHA\"`, step name 'Check the branch's entries and the fragments it adds' (:135). Also merge-base-overlap.yml:110 `python3 scripts/check_merge_base_overlap.py` under 'Check for an untested overlap with the base' (:106), and agent-api-check.yml:103 `python .github/scripts/agent_api_snapshot.py snapshot`.",
+   "M2": true,
+   "M2evidence": ".github/workflows/llm-input-safety.yml:44 and :67 - the security grep that IS the check ends `2>/dev/null || true`, with `set +e` at :37 and :59 and a final step literally named 'Always pass' at :78-82. Form: trailing `|| true` plus set +e on a security step. The workflow header at :3-6 states it is 'Intentionally warn-only'.",
+   "M3": "no",
+   "M3evidence": "Opened scripts/check_changelog_fragment.py. It is deliberately scoped to the branch's own fragments (docstring :53-55: 'Only the branch's own fragments... wiring [the whole directory] in would accuse a branch of a malformed fragment already on the base'), implemented at :288-315 via `--diff-filter=AM` against the merge base. That narrowing is stated IN THE STEP NAME - 'Check the branch's entries and the fragments it adds' - so the scope is not narrower than the name implies. merge-base-overlap.yml:106 'Check for an untested overlap with the base' is the same self-describing pattern.",
+   "notes": "14 workflows total; all 14 grepped for neutering and repo-local script invocations, llm-input-safety.yml read in full, and agent-api-check.yml, changelog-fragment.yml and merge-base-overlap.yml read around their check steps. This is the clean case where the narrowing is real but the step names say so - both workflows even cite tests pinning that the check is not defeated (changelog-fragment.yml:133, merge-base-overlap.yml:105). Other M2-shaped instances examined and not counted: agent-api-check.yml:169 `continue-on-error: true` sits on 'Post or update PR comment (best-effort)', a comment-posting step rather than a check, and agent-api-check.yml:137-139 'Diff contracts' uses `set +e` and stores the exit code as a step output. codeql.yml and dependency-review.yml are pure marketplace actions with no neutering."
+  },
+  {
+   "repo": "STS-Rosario/carpoolear",
+   "workflowCount": 3,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 3 read in full. lint.yml:22 'npm run lint' passes clause (b), but package.json:24 defines lint as 'eslint --ext .js src' - a thin alias to an npm-installed tool with no repo-local script, so clause (a) fails and M1 is false. Recorded for context but not scored: that eslint invocation is scoped to .js files under src in a Vue project, an M3-shaped narrowing that cannot count because M3 applies only among M1 repos. frontend-tests.yml and update-snapshots.yml are Playwright test and snapshot jobs, not on the clause-(b) list. grep for continue-on-error / || true / exit 0 across all 3 returned nothing; the only if: guard is 'if: failure()' on an artifact upload at frontend-tests.yml:45, not a security step."
+  },
+  {
+   "repo": "sympozium-ai/sympozium",
+   "workflowCount": 5,
+   "M1": true,
+   "M2": false,
+   "M3": "yes",
+   "M1evidence": ".github/workflows/build.yaml:94 run: make helm-sync-check (step name Check Helm chart CRDs in sync at :93, inside the Verify job), target at Makefile:464-475. Second instance in the same job: build.yaml:86 make generate under the step Check generated code is up to date (:84).",
+   "M2evidence": "",
+   "M3evidence": "Makefile:464-475. The target performs TWO comparisons and only one of them can fail. The first, Makefile:465-466, diff -qr config/crd/bases/ charts/sympozium/crds/ || (echo ERROR && exit 1), works: the failing || compound is the last command on that recipe line, so make reads the failure. The second, Makefile:467-474, covers charts/sympozium-crds/templates/ and cannot fail for two independent reasons. The pipeline ends in || true at Makefile:473, which swallows the exit 1 raised inside the subshell at :472, and the last command on that logical recipe line is rm -rf $tmp at :474, whose status is the one make reads. So an out-of-sync sympozium-crds chart prints ERROR: sympozium-crds chart templates are out of sync and the target still succeeds, after which Makefile:475 prints Helm chart CRDs are in sync unconditionally. The step is named Check Helm chart CRDs in sync (build.yaml:93), and half of what it appears to check is unenforceable. Makefile:477-479, helm lint charts/sympozium/ and helm lint charts/sympozium-crds/, is cited only as proof that both charts exist.",
+   "notes": "All 5 workflows read (build.yaml in full, the other 4 via full step-name and pattern greps). On M2 being false despite the || true at Makefile:473: this task splits the two measures by where you look. Procedure (d) greps the WORKFLOW text for M2's four forms, procedure (e) opens the invoked SCRIPT for M3. A || true inside an invoked Makefile falls on the M3 side of that line and is counted there; counting it in both would inflate two independent threshold paths from one finding. This is not an unsearched column: the set of security-or-quality steps invoking a repo-local script is exactly the M1-true set, and I opened those scripts in 4 of the 5 M1-true repos (scrumlr server/Makefile, kpt Makefile and documentation/Makefile, gguf-parser-go Makefile, sympozium Makefile); sympozium is the only script-level || true found. Workflow-level M2 candidates rejected: docs.yml:50 || true on a best-effort gh release download of prior chart packages; release.yaml:155 and :269 exit 0 early returns taken when git diff --cached --quiet reports nothing staged to commit. No continue-on-error anywhere in the 5. Present but not used as M1 evidence: integration-kind.yaml:84 bash ./test/integration/test-api-smoke.sh (step Run API smoke tests at :83) is a repo-local script but a test runner, and integration-kind.yaml:47 make docker-build is a build. Note that release.yaml:140 Sync CRDs to Helm charts re-syncs at release time, so drift is repaired there regardless of the CI gate."
+  },
+  {
+   "repo": "TanyaShue/MaaYYs",
+   "workflowCount": 3,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "",
+   "M2evidence": "",
+   "M3evidence": "",
+   "notes": "All 3 workflows read in full. Pure build/package/release; no lint, scan, audit, licence or coverage step exists at all. The three || true occurrences (build-release.yml:222, :264, :335) sit on chmod +x inside build/package steps, not security-or-quality steps."
+  },
+  {
+   "repo": "TencentBlueKing/blueking-paas",
+   "workflowCount": 1,
+   "M1": false,
+   "M1evidence": "",
+   "M2": false,
+   "M2evidence": "",
+   "M3": "not-applicable",
+   "M3evidence": "",
+   "notes": "Only one file in .github/workflows: release-cli.yml. It builds Go binaries entirely through the marketplace action wangyoucao577/go-release-action@v1.51 (release-cli.yml:36). The `make build` at release-cli.yml:43 is passed as the action's build_command input, and it is a compile step, not security or quality. No continue-on-error, no `|| true`, no `exit 0` anywhere in the file. This is a large monorepo whose real CI evidently lives outside GitHub Actions; the measurement is of GitHub Actions only."
+  },
+  {
+   "repo": "tess1o/geopulse",
+   "workflowCount": 8,
+   "M1": false,
+   "M2": true,
+   "M3": "not-applicable",
+   "M1evidence": "none. Only quality invocation is .github/workflows/pr-ci.yml:168 './mvnw -pl backend pmd:check' and pre-release.yml:124 — vendored wrapper + Maven Central plugin, excluded by prereg's pip/npm-installed-tool clause",
+   "M2evidence": ".github/workflows/pr-ci.yml:154 — 'continue-on-error: true  # Non-blocking' at JOB level on job 'code-quality' (name: 'Code Quality (PMD)', :151), so the entire PMD static-analysis job is non-blocking; ALSO .github/workflows/pre-release.yml:125 — step-level continue-on-error: true directly on step 'Run PMD analysis' (:123, run at :124)",
+   "M3evidence": "not-applicable (M1 false)",
+   "notes": "All 8 workflows read, 0 skipped. Job-level neutering (pr-ci.yml:154) is the stronger of the two findings: the whole PMD job cannot fail the build. Wrapper+plugin quality step (not M1 per prereg): pr-ci.yml:168 ./mvnw pmd:check. Other '|| true' hits (manual-full-e2e.yml, pr-ci.yml:260-270, pre-release.yml:229-241) are all docker log/prune teardown, not security-or-quality steps."
+  },
+  {
+   "repo": "thoughtbot/flightdeck",
+   "workflowCount": 7,
+   "M1": true,
+   "M2": false,
+   "M3": "yes",
+   "M1evidence": ".github/workflows/ci.yaml:72-73 - job 'lint', step name 'Lint', 'run: make all/lint'; the makefile is repo-local (repo-root file named 'makefile'). Two more clause-(b) steps in the same file invoke the same repo-local makefile: ci.yaml:16-17 'Check format' -> make all/checkfmt and ci.yaml:29-30 'Validate' -> make all/validate.",
+   "M3evidence": "makefile:7-15 builds SUBMODULES from a depth-limited wildcard (platform/modules/*, platform, aws/*/modules/*, aws/*); makefile:65-66 turns all/lint into 'make submodules SUBMODULESCOMMAND=lint'; makefiles/terraform.mk:22-27 then runs 'tflint --config=$(TFLINTRC)' with no path argument, so tflint only ever sees the current directory. Measured against the repo tree: 63 directories contain .tf files and 62 match that wildcard. The exception, aws/network/modules/vpc-endpoints/s3-vpc-endpoint, sits one level deeper (aws/*/modules/*/*). Its parent aws/network/modules/vpc-endpoints contains only a README.md, so the wildcard matches an empty container, tflint finds nothing there, and a complete real module (main.tf, outputs.tf, variables.tf, versions.tf) is never linted, format-checked or validated by a target named 'all/lint'. Command producing the counts: gh api \"repos/thoughtbot/flightdeck/git/trees/main?recursive=1\" --jq '.tree[] | select(.path|endswith(\".tf\")) | .path' | sed 's|/[^/]*$||' | sort -u  -> 63 dirs over 252 .tf files.",
+   "notes": "All 7 workflows read. M2 false: grep for continue-on-error / || true / exit 0 / exit-zero across all 7 returned nothing, and ci.yaml carries no if: guards at all, so no security or quality step is neutered. Secondary M3 support, weaker and therefore not relied on: .tflint.hcl:43-45 sets rule terraform_unused_required_providers enabled = false. dynamic-security.yml and dynamic-readme.yml only call reusable workflows in thoughtbot/templates."
+  },
+  {
+   "repo": "tinylib/msgp",
+   "workflowCount": 2,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "",
+   "M2evidence": "",
+   "M3evidence": "",
+   "notes": "Both workflows read in full and the Makefile read to EOF. Repo-local invocations are test.yml:34 make ci under the step name test (:33) and validate.yml:34 make prepare under the step name prepare generated code (:33). Makefile:53-62 is the complete ci target: it depends on prepare, runs arch, conditionally installs tinygo from a .deb (:55-61), then ends at :62 with go test -v ./... ./_generated. There is no vet, lint, spell or format step anywhere in it, so the step concerns neither security nor quality and M1 is false. Makefile:47-50 shows prepare is pure codegen (go install, go generate). The one real quality step, validate.yml:35-39 lint, is the golangci/golangci-lint-action marketplace action, which the prereg explicitly excludes from M1. grep for continue-on-error, || true and exit 0 across both files returned zero."
+  },
+  {
+   "repo": "Trisia/gotlcp",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Single workflow go.yml, 36 lines, read in full. `go build -v ./...` (:33) and `go test -v -short ./...` (:36) are toolchain calls, not repo-local scripts; no lint, SAST, secret or dependency-audit step exists. No M2 markers and no `if:` anywhere. SENSITIVITY: stays M1=false even if tests counted, since the test step is a toolchain call. Parked near-misses (not counted under the frozen definitions): go.yml:29 `rm -f go.sum` immediately before `go mod tidy` at :30 discards the dependency lockfile on every run, defeating checksum pinning; and `-short` at :36 skips long tests. Neither matches an M1 or M2 form."
+  },
+  {
+   "repo": "ugurkocde/IntuneGet",
+   "workflowCount": 14,
+   "M1": false,
+   "M1evidence": "No repo-local security/quality script. package.json:15 lint = `eslint .`, :17 test = `vitest run`, :12 build:ci = `next build` - installed tools. ci.yml:36-37 fetches actionlint remotely via `go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12`. ci.yml:145-152 Trivy is a marketplace action. The two repo-local scripts CI does run are PRODUCT data pipelines, not repo quality gates: scan-apps.yml:147 `.github/scripts/scan-app.ps1` (scans third-party WinGet installers, the product's own input data) and sync-manifests.yml:849 `node scripts/build-catalog-snapshot.mjs` (artifact generation). Both OUT by the frozen rule.",
+   "M2": false,
+   "M2evidence": "None qualifying, verified across ALL 14 workflows. The sole continue-on-error is scan-apps.yml:141 on the step \"Scan app in isolated runner\" (:147 .github/scripts/scan-app.ps1), a per-app product data-collection step whose per-app failures are expected and handled (:150 uploads the result with `if: always()`, :159 branches on `steps.scan.outcome == 'failure'`). ci.yml:162 `exit 0` is a container readiness loop and ci.yml:159 `|| true` is docker teardown.",
+   "M3": "not-applicable",
+   "notes": "14 workflows total; ALL 14 bulk-fetched and grepped for every M2 form, 5 read closely (ci, release, scan-apps, publish-packager, sync-manifests). The 9 not read closely are product data pipelines by name (build-app-list, categorize-apps, cla, extract-icons, heal-icons, inherit-variant-icons, purge-generic-icons, reconcile-icon-state, resolve-app-requests). This repo is where GitHub code search was proven unreliable: it returned 0 hits for continue-on-error under path:.github/workflows while local grep found scan-apps.yml:141. That discovery is why every repo in this run was re-swept by bulk fetch. Not scored but relevant to the sensitivity note on repo 1: if the app-scan step counts as a security step, this repo becomes M2=true. Contributors: ugurkocde, github-actions[bot], dependabot, schenardie, claude, pl4nty - not ours."
+  },
+  {
+   "repo": "VerifyTests/DiffEngine",
+   "workflowCount": 6,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 6 workflows read in full. The two steps that concern quality/policy are inline shell, not repo-local scripts: publish-nuget.yml:58 'Verify every RID has a native renderer' (run: | block) and test.yml:227 'Check the macOS dylib is universal' (run: | block). on-push-do-docs.yml:12 'Run MarkdownSnippets' installs MarkdownSnippets.Tool as a dotnet global tool, excluded by the prereg's installed-tool clause. Full three-token sweep across all 6: the only hits are on-push-do-docs.yml:20 and :23, `git commit ... || echo \"nothing to commit\"` and `git push ... || echo \"nothing to push\"` in a docs-push step, which is not security-or-quality."
+  },
+  {
+   "repo": "viperproject/silver",
+   "workflowCount": 3,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Read all 3 workflows in full. No repo-local script is invoked for security or quality: scala.yml runs `sbt publishLocal` (:39) and `sbt -v +test` (:42), both build-tool calls; carbon_silicon_ci.yml is inline git plumbing plus the marketplace action convictional/trigger-workflow-and-wait@v1.6.5 (:64); update_submodules.yml is git submodule plumbing. Checked specifically for local composite actions (`uses: ./...`) since a delegated workflow could have hidden a qualifying step — a sweep across all 21 workflows in this sample found zero, so this dimension is closed on evidence. M2: carbon_silicon_ci.yml:60 (`git commit -am ... || echo`) and update_submodules.yml:36 (`git commit -am ... && git push || echo`) are idempotency guards on git plumbing, not security/quality steps; carbon_silicon_ci.yml:73 `if: always()` is on branch cleanup; scala.yml:44 gates artifact archiving to one matrix leg. Parked near-miss (not an M2 form): carbon_silicon_ci.yml:8 triggers on `pull_request_target` with `secrets.PAT` in scope, which the authors' own comment at :6-7 acknowledges as a risk."
+  },
+  {
+   "repo": "vllm-project/tpu-inference",
+   "workflowCount": 5,
+   "M1": false,
+   "M1evidence": "",
+   "M2": false,
+   "M2evidence": "",
+   "M3": "not-applicable",
+   "M3evidence": "",
+   "notes": "All 5 workflows read. Quality gating runs entirely through the marketplace action pre-commit/action@v3.0.1 (pre-commit.yml:33) with pip-installed pre-commit (:31), which the prereg excludes from M1. The two genuinely repo-local scripts are not security or quality: release.yml:62 `bash .github/scripts/determine_release_vars.sh` (release variables) and update_readme.yml:35 `python scripts/update_readme.py` (docs). The lone `exit 0` at check_ready_label.yml:36 is the passing branch of an if/else whose else is `exit 1` at :41, so it is a working gate rather than a neutering."
+  },
+  {
+   "repo": "web-infra-dev/rslint",
+   "workflowCount": 8,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "",
+   "M2evidence": "",
+   "M3evidence": "",
+   "notes": "All 8 workflows read (ci.yml in full across two passes, the other 7 via full-text greps for both pattern families). M1 marked FALSE under a rule stated once and applied identically to all 12 repos: the prereg names four qualifying forms, ./x.sh, python tools/y.py, make z and node scripts/w.js, all of which name a repo file path or make, and it excludes a step calling ONLY a marketplace action or a pip/npm-installed tool; on that reading a package.json alias such as npm run x or pnpm x does not qualify, because the tool it reaches is npm-installed. This is the conservative side of a genuinely ambiguous line, since an npm alias is structurally the same dispatch as make z, so the candidates are listed here with file:line for a recount under the wider reading: ci.yml:130 npm run lint:go (step go vet at :129), :133 npm run format:go (step go fmt at :132), :136 pnpm check-spell (step Check Spell at :135), :169 pnpm format:check (step Format at :168), :184 pnpm run lint --format github (step Dogfooding at :183), :187 pnpm typecheck. Under the wider reading rslint flips to M1 true and the check-spell and dogfooding configs would need opening for M3. Everything else is toolchain or marketplace: golangci-lint-action at ci.yml:124, cargo fmt --all -- --check at :381, cargo clippy -D warnings at :384. The only repo-local file invocation in the repo is codegen, not a check: ci.yml:178, ci.yml:248 and release.yml:295 go run ./tools/dump_rule_schemas. Local composite actions under ./.github/actions/ (setup-go, setup-node, setup-rust, windows-disable-cpu-hogs) are repo-local but all are environment setup. M2: the only two hits in all 8 files are ci.yml:45 and ci.yml:219, both continue-on-error: true on the step Disable CPU hogs (Windows), a runner-tuning step, not a security or quality check. No || true and no exit 0 anywhere."
+  },
+  {
+   "repo": "wecode-ai/Wegent",
+   "workflowCount": 12,
+   "M1": true,
+   "M1evidence": ".github/workflows/repository-policy.yml:60 - step `- name: Run repository policy check` -> :66-67 `bash \"$GITHUB_WORKSPACE/trusted-policy/scripts/hooks/check-repository-policy.sh\"`, i.e. the repo-local script scripts/hooks/check-repository-policy.sh checked out at :33-39. Policy/compliance = IN.",
+   "M2": false,
+   "M2evidence": "None qualifying, verified across ALL 12 workflows. Every `|| true` is process-kill or docker-rm teardown (e2e-tests.yml:262,529,538,547,744,994,1003,1012,1026,1035). e2e-tests.yml:1153 `exit 0` is a legitimate \"Platform E2E is not required for this pull request\" skip. The 10 continue-on-error hits are all in wework-e2e.yml (:295,356,398,544,656,710,758,810,855,1097) on diagnostic artifact uploads and one build-cache restore. lint.yml's per-job `if:` guards depend on the change classifier but pass `--all` on merge_group (lint.yml:44-45), so they are not a never-runs condition.",
+   "M3": "no",
+   "M3evidence": "Opened scripts/hooks/check-repository-policy.sh (113 lines). It FAILS CLOSED, the opposite of the M3 pattern: :33-36 and :55-58 `exit 2` when the pattern variable is unset or empty; :68 scans the whole tree with `git grep --full-name -n -E --untracked --exclude-standard -f \"$PATTERN_FILE\" -- .`; :100-106 exits 1 on any unapproved match; :108-111 even reports stale approvals. The only exclusion, :69 `':(exclude)scripts/hooks/check-repository-policy.sh'`, is the script excluding itself.",
+   "notes": "12 workflows total; ALL 12 bulk-fetched and grepped for every M2 form, 5 read closely (lint, test, e2e-tests, repository-policy, ci-cache-warmup). The 7 not read closely - publish-base-image, publish-image, snapshot-image, sync-docs, update-contributors, wework-app, wework-e2e - are none of them security/quality gates by name. Also excluded from M1: lint.yml:45,48 `.github/scripts/classify-ci-changes.sh` is a repo-local script but performs CI routing, not a security/quality check. Note not scored as M2 (see the sensitivity note on repo 1): test.yml:248-258 accepts pytest exit code 134 (SIGABRT) as success when coverage.xml exists - conditional, documented, and the else branch still propagates `exit \"$PYTEST_EXIT\"`, and a unit-test step is OUT of the population by the frozen rule."
+  },
+  {
+   "repo": "weiesky/cc-viewer",
+   "workflowCount": 4,
+   "M1": true,
+   "M1evidence": "ci.yml:39 `run: pnpm run verify:boundaries` -> package.json:15 `\"verify:boundaries\": \"node scripts/verify-boundaries.mjs\"`. Terminal artifact scripts/verify-boundaries.mjs confirmed present (502 lines). Second instance ci.yml:36 verify:tarball -> package.json:17 scripts/verify-tarball-contract.mjs.",
+   "M2": false,
+   "M2evidence": "release.yml:74 `continue-on-error: true` is on the mac electron-builder BUILD step (documented at :105-112 as tolerating an expired Apple Developer Agreement for notarization) — a build/release step, not security-or-quality. bump-homebrew.yml:70 and star-history.yml:47 `exit 0` are benign retry/no-op control flow.",
+   "M3": "no",
+   "M3evidence": "scripts/verify-boundaries.mjs:131 walker regex /\\.(m?js|jsx)$/ matches the repo's actual languages — apps/web/src contains only .jsx and .js files (App.jsx, main.jsx, tokenInterceptor.js etc.), no TypeScript, so there is no language-coverage gap. An allowlist exists at scripts/boundary-allowlist.json but the header at :39-40 states only R1-dyn/R3/R5 entries are honored and hard rules IGNORE the allowlist.",
+   "notes": "Category assigned: lint/architecture quality gate. Checked specifically for the \"ruleset covers one language while the repo has three\" M3 pattern by listing apps/web/src — it came back all-JSX, so the narrow-looking regex is in fact complete coverage."
+  },
+  {
+   "repo": "whoahaow/rjsxrd",
+   "workflowCount": 1,
+   "M1": false,
+   "M1evidence": "",
+   "M2": false,
+   "M2evidence": "",
+   "M3": "not-applicable",
+   "M3evidence": "",
+   "notes": "Single workflow frequent_update.yml, named \"Update VPN Configs\". It checks out, installs pip dependencies (:33, :36) and runs the repo's own application on a schedule (`cd source && python main.py --use-git --no-proxy-check` at :43), then reports failure at :45-47. There is no lint, test, secret-scan, SAST, dependency-audit, licence, coverage or policy step of any kind, and no continue-on-error, `|| true` or `exit 0` in the file."
+  },
+  {
+   "repo": "WordPress/wordpress-playground",
+   "workflowCount": 15,
+   "M1": true,
+   "M1evidence": "ci.yml:63 `- run: bash tools/check-node-engine-alignment.sh` in the lint job; script tools/check-node-engine-alignment.sh confirmed present (79 lines). Also ci.yml:496 `run: node tools/scripts/check-publish-package-overrides.mjs` (step name :495 \"Validate publish package overrides\", 114 lines, present) and ci.yml:82 `node --test packages/meta/src/pr-labels/*.test.mjs` (step name :81).",
+   "M2": true,
+   "M2evidence": "ci.yml:224 `continue-on-error: true` at JOB level on job `test-file-locking` (declared ci.yml:217; the key is a sibling of `runs-on` at :225, so it governs the whole job, not a matrix leg). This is a TEST/quality job whose failure never fails the workflow. The workflow runs on push to trunk, the default branch (ci.yml:2-6), and the job's `if:` at :219 (`github.repository == 'WordPress/wordpress-playground' || ...`) is satisfied on the canonical repo, so it genuinely runs and its failure is tolerated. Form: job-level continue-on-error.",
+   "M3": "no",
+   "M3evidence": "tools/check-node-engine-alignment.sh only compares where engines.* is declared (:57-58, `jq '.engines.node // empty'` guarded by `[ -n ... ]`), which fits the name \"alignment\"; it covers root + ALL non-private lerna packages and carries a sanity assertion at :39-44 that @wp-playground/cli appears in the lerna list (an explicit anti-empty guard). tools/scripts/check-publish-package-overrides.mjs:26-28 skips private / no-publishConfig packages, which is correct for a PUBLISH-time check.",
+   "notes": "Categories: lint/policy (engine alignment, publish overrides) and tests. Other neutering hits examined and excluded as non-quality: ci.yml:613 `timeout 120s docker system prune -af || true`, ci.yml:576 `exit 0` in a changed-files early exit, refresh-php-next.yml:73 `git rm -rf . || true`. The M2 hit is the job-level flag specifically, which the advisor flagged as the pattern grep alone would misread."
+  },
+  {
+   "repo": "yennanliu/CS_basics",
+   "workflowCount": 5,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "M1evidence": "none that qualifies. validate-pages.yml:370 'node validate-site.js' — file is NOT in the repo (contents API 404); it is heredoc-generated at validate-pages.yml:88 'cat > validate-site.js << VALIDATESCRIPT', so it fails the M1 fetch gate. refresh-data.yml:27 'python3 script/categorize_lc_by_type.py' and deploy-pages.yml:54 / validate-pages.yml:81 'bash site/build.sh' ARE repo-local scripts, but are data-refresh and site-build steps, not security or quality",
+   "M2evidence": "none that qualifies. java-syntax-check.yml:53 '| tee /tmp/compile_output.txt || true' is tee-capture on the javac pipeline; the step still fails at :70 'exit 1' when errors are found. :69 'grep \"error:\" ... || true' sits inside the already-failing branch. Marked false conservatively",
+   "M3evidence": "not-applicable (M1 false)",
+   "notes": "All 5 workflows read, 0 skipped. Strong M3-SHAPED near-miss that is not countable because the logic is an INLINE run block rather than a repo file: java-syntax-check.yml:41-42 scans only leetcode_java/src/main/java with a hardcoded '! -path \"*/dev/Sorting/*\"' exclusion, under a step named 'Compile all Java files (syntax check)' (:36). By contrast python-syntax-check.yml:53 EXCLUDED=('ref_code/','courses/','archived/') is honestly signposted by its step name 'Byte-compile all first-party Python files' (:46) and would not have been M3 even if countable."
+  },
+  {
+   "repo": "yolain/ComfyUI-Easy-Media",
+   "workflowCount": 1,
+   "M1": false,
+   "M1evidence": "",
+   "M2": false,
+   "M2evidence": "",
+   "M3": "not-applicable",
+   "M3evidence": "",
+   "notes": "Single workflow publish.yml, \"Publish to Comfy registry\". Three steps of substance: an inline shell snippet extracting the version from pyproject.toml (:25), the marketplace action softprops/action-gh-release@v2 (:35), and Comfy-Org/publish-node-action@v1 (:41). No repo-local script is invoked, no security or quality step exists, and there is no continue-on-error, `|| true` or `exit 0`. The `if: ${{ github.repository_owner == 'yolain' }}` at :18 guards publishing from forks and does not gate any security-or-quality step."
+  },
+  {
+   "repo": "zgsm-ai/everything-ai-coding",
+   "workflowCount": 12,
+   "M1": true,
+   "M1evidence": ".github/workflows/validate-pr.yml:34 `python scripts/validate_curated.py $CHANGED --index-path catalog/index.json`, step name 'Validate curated.json files' (validate-pr.yml:23); script = scripts/validate_curated.py",
+   "M2": false,
+   "M3": "no",
+   "M3evidence": "scripts/validate_curated.py:41-164 validates every entry in every path passed, and main() at :167-213 exits 1 on any error. It hardcodes its enums at :14-34 (VALID_TYPES, VALID_CATEGORIES, VALID_INSTALL_METHODS) instead of reading catalog/schema.json as its own module docstring at :2 claims - but the STEP name is only 'Validate curated.json files' and promises neither schema-file-driven nor full-tree validation, so conservatively no.",
+   "notes": "12 workflows total; read 5 in full or near-full (test.yml, validate-pr.yml, sync-test.yml, release-catalog-bundle.yaml, curated-from-issue.yml) and grepped all 12 for continue-on-error / `if: false` / `|| true`. Skipped detailed reads of 7 (deploy-frontend, deploy-pages, publish-site, sync-cosgraph-plugins, sync-cosknow-plugins, sync-csc-plugins, sync.yml). M1 is counted on the policy/validation reading: the step blocks a PR when contributed catalog entries break the rules, the same class as lint. test.yml:27 `python -m pytest tests/ -v` is a bare test and is excluded by the locked rule. M2 false: sync.yml:162/169/177/184/192/200 all carry `continue-on-error: true` but sit on data-crawl and sync product steps (crawl_mcp_so.py, sync_mcp.py, sync_mcp_registry.py, sync_rules.py, sync_windsurfrules.py, sync_skills.py); the other hits are cleanup or labelling (curated-from-issue.yml:210 label API, release-catalog-bundle.yaml:183 `gh release delete`, sync-cosgraph-plugins.yml:162, sync-cosknow-plugins.yml:172). validate-pr.yml:31 `exit 0` is a no-changes early out, not trailing."
+  },
+  {
+   "repo": "ZhiXuanWang/cf-speed-dns",
+   "workflowCount": 3,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "All 3 read in full. dns_cf.yml:29 `python dnscf.py` and dns_pod.yml:30 `python dnspod.py` are repo-local scripts, but the step names are 'run dnscf' and 'run dnspod' - the product (pushing DNS records to Cloudflare and DNSPod), not a security or quality check. No lint, secret-scan, SAST, dependency-audit or coverage step exists anywhere in the repo. M2: sync.yml:38-42 'Sync check' uses `if: failure()` and ends `exit 1`, the opposite of neutering; sync.yml:18 `if: ${{ github.event.repository.fork }}` does stop the job on the upstream repo, but it guards a fork-sync job, not a security/quality step."
+  },
+  {
+   "repo": "zhzLuke96/douyin-dl-user-js",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Single workflow release.yml, 44 lines, read in full. It has real quality steps — \"Typecheck\" `pnpm typecheck` (:33) and \"Lint\" `pnpm lint` (:36) — but I opened package.json and they resolve to `tsc --noEmit` (package.json:10) and `eslint src/` (package.json:11): bare invocations of npm-installed tools with no repo-authored logic, which the prereg excludes from M1. AMBIGUITY DISCLOSED: `pnpm run x` is structurally a wrapper dispatching to repo-local config, like the enumerated `make z`, but it is not itself enumerated and resolves to a bare installed tool, so per the instruction to mark false when unsure I did not count it. COUNTERFACTUAL for re-aggregation: if pnpm wrappers counted, this repo would be M1=true AND M3=yes — `eslint src/` at package.json:11 is scoped to src/ only, while the build entrypoint build.mjs (referenced package.json:7-9) sits at the repo root and is never linted, under a step named simply \"Lint\". STRONGEST SUBSTANTIVE NEUTERING IN THE SAMPLE, though M2=false under the frozen definitions: release.yml:4-6 triggers only on `push: tags: v*`, so the repo's ONLY lint and typecheck steps never run on a push to the default branch or on any pull request — they fire only at release time, after the code has already landed. This is a trigger filter, not one of the four enumerated M2 forms (`continue-on-error`, trailing `|| true`, trailing `exit 0`, or an `if:` that never runs on default), and counting it would be consistent neither with how I treated the `paths:` filters on pingerr and HinetPy nor with the frozen text, so it is recorded here rather than counted."
+  },
+  {
+   "repo": "zillionare/zillionare",
+   "workflowCount": 1,
+   "M1": false,
+   "M2": false,
+   "M3": "not-applicable",
+   "notes": "Only repo-local script call is news-crawler.yml:74 `poetry run python scripts/enhanced_news_crawler.py` under step name 'Run news crawler' - the PRODUCT (data generation), not a security/quality check, so not M1 under the locked reading (qualifying concerns = secrets/SAST/dep-audit/lint/licence/policy/coverage/compliance; bare tests and product jobs excluded). The only `|| true` is news-crawler.yml:87 `cp -r temp_news/* . 2>/dev/null || true`, a file copy, not a security/quality step. No lint, secret-scan, SAST, audit or coverage step exists anywhere in the repo."
+  }
+ ]
+}

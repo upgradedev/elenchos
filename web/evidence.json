@@ -9,5 +9,20 @@
     "recorded_at": "2026-09-02T11:33:45Z",
     "content_id": "d97a440abab2005d9b57f4396d8733de746833e2fe4a8a7277b267195f38c854",
     "step_conclusion": "success"
+  },
+  "metrics": {
+    "audited_repos": 120,
+    "narrow_script_rate": "21/47",
+    "suppressed_exit_rate": "18/120",
+    "github_secret_baseline_recall": "6%",
+    "nemotron_killtest_score": "16/14/14",
+    "template_baseline_score": "2/20",
+    "oracle_calibration_score": "20/20"
+  },
+  "forges": {
+    "github": { "status": "live", "repos_scanned": 84 },
+    "azure_devops": { "status": "evaluated", "repos_scanned": 36 },
+    "gitlab": { "status": "declared", "repos_scanned": 0 },
+    "bitbucket": { "status": "declared", "repos_scanned": 0 }
   }
 }

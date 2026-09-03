@@ -1,0 +1,77 @@
+{
+ "threshold": {
+  "kills_at_or_above": 14,
+  "denominator": 21,
+  "written": "2026-09-03, before this ran"
+ },
+ "processed": 1,
+ "skipped": {
+  "unparsed": [
+   [
+    "a5c-ai/babysitter",
+    "ci.yml:370 `run: node --test scripts/__tests__/gateway-engine-floor.test.mjs` (step name a"
+   ],
+   [
+    "alexei-led/ccgram",
+    ".github/workflows/ci.yml:66 `run: make arch-check`, step name 'Architecture drift gate (ar"
+   ],
+   [
+    "Altinn/altinn-studio",
+    ".github/workflows/codeowners-validate.yaml:38 — step 'Validate CODEOWNERS' runs `node .git"
+   ],
+   [
+    "amElnagdy/delegate-skills",
+    "relays.yml:25, :26, :27, :28 — `run: node test/relay-parity.mjs`, `node test/relay-isolate"
+   ]
+  ],
+  "unfetched": [
+   [
+    "acryldev/acryl",
+    "package.js"
+   ]
+  ],
+  "no_usable_noun": []
+ },
+ "lexical_flagged_total": 0,
+ "caught_of_21": 0,
+ "caught": [],
+ "missed": [
+  "CleverTap/clevertap-android-sdk",
+  "FaserF/hassio-addons",
+  "LedgerHQ/ledger-live",
+  "NYRDS/remixed-dungeon",
+  "OAI/Arazzo-Specification",
+  "SonarSource/sonar-scanner-msbuild",
+  "alexei-led/ccgram",
+  "deckhouse/deckhouse",
+  "desplega-ai/agent-swarm",
+  "inovex/scrumlr.io",
+  "karanhudia/borg-ui",
+  "kdlbs/kandev",
+  "kptdev/kpt",
+  "mkw-sp/mkw-sp",
+  "newrelic/terraform-provider-newrelic",
+  "openclaw/clickclack",
+  "oscal-compass/compliance-trestle",
+  "rhesis-ai/rhesis",
+  "stella/stella",
+  "sympozium-ai/sympozium",
+  "thoughtbot/flightdeck"
+ ],
+ "false_flags": [],
+ "rows": [
+  {
+   "repo": "ajouatom/openpilot",
+   "step_name": "Check code and user documentation changes",
+   "script": "tools/docs/check_user_docs.py",
+   "nouns": [
+    "code",
+    "user",
+    "documentation",
+    "changes"
+   ],
+   "lexical_flags": false,
+   "truth_m3_yes": false
+  }
+ ]
+}
