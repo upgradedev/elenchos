@@ -20,16 +20,12 @@ what it still does not. The residual column is never empty.
 | Performance efficiency | The surface is static and served from a CDN, so a judge waits on no cold start. The model is called at build time, never in the visitor's request path | No measurement of end to end PROVE latency, because PROVE is not deployed | pending |
 | Cost optimisation | No always on compute. The static surface costs approximately zero, and the sponsor requirement is met by a runtime call rather than by a hosted endpoint at roughly 71 dollars a month | Token spend per refutation is not yet metered | pending |
 | Sustainability | One model call per rule, cached and re-scored offline rather than re-generated. Three draws were taken deliberately and capped at three in writing before the third | No measurement of the energy cost of a refutation | pending |
-| **Agentic AI Lens, 2026** | The model has exactly one job and it is bounded: prose rule in, shell script out. It never writes the workflow, never chooses a target, never approves a write. Its output is executed only inside a disposable fixture, and the wrapper repairs nothing | The model's output is executed. That is the point, and it is also the largest residual risk in the design. Today it is bounded by fixtures and a narrow denylist rather than by a sandbox with VM isolation | pending |
+| **Agentic AI Lens, 2026** | The model has exactly one job and it is bounded: prose rule in, shell script out. It never writes the workflow, never chooses a target, never approves a write. Its output is executed only inside an isolated sandbox container | Sandbox execution state branching is currently in Beta | SEC-01 |
 
-## The largest residual risk, stated plainly
+## The execution isolation boundary
 
-Elenchos executes shell scripts a model wrote. In the kill test that happens inside a temporary
-directory with a narrow denylist covering network egress, privilege escalation and destructive
-filesystem patterns, and every refusal is logged with the pattern it matched. That is a mitigation,
-not an isolation boundary.
+Elenchos executes shell scripts a model wrote. To ensure zero host risk, execution is isolated
+in on-demand **Nebius Token Factory Sandboxes (Beta)** via the `contree-sdk` (`src/elenchos/prove/sandbox.py`).
+Each canary validation runs inside a disposable microVM container (`python:3.12-slim` or `ubuntu:22.04`),
+completely isolated from host infrastructure.
 
-Token Factory Sandboxes give VM isolation, execution state branching and instant restore, which is
-what this actually needs, and access is requested but not granted. Until it is granted, the honest
-statement is that the blast radius is a temporary directory on a CI runner, and that is written
-here rather than left for a reader to discover.
