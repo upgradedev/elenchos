@@ -132,6 +132,35 @@ fi`,
 Found mutable pointer 'unverified-publisher/deploy-action@v1'.
 Pipeline does not enforce immutable SHA pinning.`,
       forgeClaim: "Production Deploy: Succeeded -> Release published"
+    },
+    r16_privilege: {
+      name: "Agent Privilege Escalation (permissions: write-all)",
+      rule: "Autonomous agents must run with bounded read-only scope (EU AI Act Art. 14)",
+      category: "C mandatory CI step",
+      yaml: `name: Autonomous Agent Pipeline
+on: [pull_request]
+permissions: write-all
+jobs:
+  agentic_codegen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Run code generation
+        run: |
+          echo "Executing autonomous code synthesis..."
+          python -m agent.refactor --auto-commit-push`,
+      defectType: "Unbounded permissions: write-all without Human Oversight gate",
+      defectLocation: "line 3",
+      canaryFile: ".github/workflows/agent.yml",
+      canaryPayload: "ELENCHOS-CANARY-UNBOUNDED-PERMISSIONS = True",
+      canaryScript: `if grep -rnE '^permissions:\\s*write-all' .github/workflows/; then
+  echo "##[error]EU AI Act Art. 14 violation: Unbounded autonomous agent write scope detected"
+  exit 1
+fi`,
+      realityLog: `Workflow requested permissions: write-all.
+EU AI Act Article 14 Gate: Refusal triggered.
+Autonomous agents cannot hold un-gated repository write credentials without explicit human approval.`,
+      forgeClaim: "Agentic Code Generation: Succeeded -> Unchecked write token dispatched"
     }
   };
 
@@ -572,6 +601,12 @@ Status: Refutation Sealed in Estate Ledger`;
           "narrow_script_rate": "21/47",
           "suppressed_exit_rate": "18/120",
           "nemotron_killtest_score": "16/14/14"
+        },
+        "eu_ai_act_governance": {
+          "regulation": "Regulation (EU) 2024/1689",
+          "article_14_human_oversight": "Enforced: Bounded canary execution prevents autonomous un-gated commits",
+          "article_15_accuracy_cybersecurity": "Verified: Socratic microVM sandbox confirms continue-on-error and exit-masking neutralizations cannot deceive audit",
+          "sovereign_runtime": "European Open-Weight Model (Nebius Token Factory / Helsinki DC)"
         }
       };
     };

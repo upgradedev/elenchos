@@ -141,6 +141,7 @@
           <button class="preset-btn" data-preset="r02_narrow">Preset 2: Narrow SAST Scope</button>
           <button class="preset-btn" data-preset="r15_exitmask">Preset 3: Exit Code Masking</button>
           <button class="preset-btn" data-preset="r13_unpinned">Preset 4: Unpinned Action Tag</button>
+          <button class="preset-btn" data-preset="r16_privilege">Preset 5: Agent Privilege Escalation (EU AI Act)</button>
         </div>
 
         <!-- Socratic Canary Flight Deck -->
@@ -369,6 +370,29 @@
               <button id="btn-copy-mcp" class="btn-secondary" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;">
                 📋 Copy MCP Tool Definition
               </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- EU AI Act Governance Baseline (Regulation EU 2024/1689) -->
+        <div class="card mcp-box" style="margin-top: 1.25rem;">
+          <div class="card-header" style="padding: 0 0 0.75rem 0; border-bottom: 1px solid var(--line);">
+            <span class="card-title">EU AI Act Governance Baseline (Regulation EU 2024/1689)</span>
+            <span class="pill pill-pass">Sovereign Cloud Audit</span>
+          </div>
+          <div class="card-body" style="padding: 0.75rem 0 0 0;">
+            <p style="color: var(--muted); font-size: 0.85rem; margin: 0 0 0.75rem 0;">
+              Elenchos provides the formal verification layer required for high-impact AI coding agents operating within European jurisdictions:
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.75rem;">
+              <div style="border: 1px solid var(--line); border-radius: 6px; padding: 0.75rem; background: rgba(0,212,255,0.04);">
+                <div style="font-family: var(--mono); font-size: 0.78rem; font-weight: 600; color: var(--cyan); margin-bottom: 0.25rem;">Article 14 &middot; Human Oversight</div>
+                <div style="font-size: 0.78rem; color: var(--muted); line-height: 1.4;">Autonomous agents cannot unilaterally merge code. Canaries prove that gated approvals remain un-bypassable.</div>
+              </div>
+              <div style="border: 1px solid var(--line); border-radius: 6px; padding: 0.75rem; background: rgba(16,185,129,0.04);">
+                <div style="font-family: var(--mono); font-size: 0.78rem; font-weight: 600; color: var(--emerald); margin-bottom: 0.25rem;">Article 15 &middot; Accuracy &amp; Cybersecurity</div>
+                <div style="font-size: 0.78rem; color: var(--muted); line-height: 1.4;">MicroVM canary executions actively refute false-green pipelines, exit code masking, and continue-on-error vulnerabilities.</div>
+              </div>
             </div>
           </div>
         </div>
