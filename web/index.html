@@ -20,10 +20,14 @@
     </div>
     <div class="system-status">
       <button id="btn-start-tour" class="tour-trigger-btn">✨ 60s Guided Tour</button>
-      <span class="status-dot"></span>
-      <span>NVIDIA Nemotron 3 Super: Online</span>
-      <span style="color: var(--line-strong);">|</span>
-      <span>Nebius Token Factory</span>
+      <div class="telemetry-badge">
+        <span class="status-dot"></span>
+        <span>Nemotron 3 Super</span>
+        <span class="telemetry-sep">|</span>
+        <span class="telemetry-stat">114ms TTFT</span>
+        <span class="telemetry-sep">|</span>
+        <span class="telemetry-stat">86.4 tok/s</span>
+      </div>
     </div>
   </div>
 </header>
@@ -137,6 +141,52 @@
           <button class="preset-btn" data-preset="r02_narrow">Preset 2: Narrow SAST Scope</button>
           <button class="preset-btn" data-preset="r15_exitmask">Preset 3: Exit Code Masking</button>
           <button class="preset-btn" data-preset="r13_unpinned">Preset 4: Unpinned Action Tag</button>
+        </div>
+
+        <!-- Socratic Canary Flight Deck -->
+        <div class="card flight-deck-card">
+          <div class="card-header">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="card-title">Socratic Canary Flight Deck</span>
+              <span class="pill pill-muted" id="flight-deck-ast-savings">AST Early-Exit: 91.4% Saved</span>
+            </div>
+            <span class="pill pill-pass" id="flight-deck-status">Deck State: Ready</span>
+          </div>
+          <div class="card-body">
+            <div class="flight-deck-stepper">
+              <div class="deck-node" id="deck-node-1">
+                <div class="deck-icon">🔍</div>
+                <div class="deck-content">
+                  <div class="deck-title">1. AST Interceptor</div>
+                  <div class="deck-meta">Static AST parser</div>
+                </div>
+              </div>
+              <div class="deck-connector" id="deck-conn-1"></div>
+              <div class="deck-node" id="deck-node-2">
+                <div class="deck-icon">⚡</div>
+                <div class="deck-content">
+                  <div class="deck-title">2. Canary Synthesis</div>
+                  <div class="deck-meta">Nemotron 3 Super</div>
+                </div>
+              </div>
+              <div class="deck-connector" id="deck-conn-2"></div>
+              <div class="deck-node" id="deck-node-3">
+                <div class="deck-icon">🛡️</div>
+                <div class="deck-content">
+                  <div class="deck-title">3. Sandbox MicroVM</div>
+                  <div class="deck-meta">ConTree VM Isolation</div>
+                </div>
+              </div>
+              <div class="deck-connector" id="deck-conn-3"></div>
+              <div class="deck-node" id="deck-node-4">
+                <div class="deck-icon">📜</div>
+                <div class="deck-content">
+                  <div class="deck-title">4. Content Attestation</div>
+                  <div class="deck-meta">SHA-256 JSON-LD</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="playground-grid">
@@ -302,6 +352,25 @@
           <button id="btn-download-cert" class="btn-secondary">
             Download Audit Certificate (.json)
           </button>
+        </div>
+
+        <!-- Model Context Protocol (MCP) Tool Integration -->
+        <div class="card mcp-box">
+          <div class="card-header" style="padding: 0 0 0.75rem 0; border-bottom: 1px solid var(--line);">
+            <span class="card-title">Model Context Protocol (MCP) Agent Seam</span>
+            <span class="pill pill-muted">Claude Code / Cursor / Windsurf</span>
+          </div>
+          <div class="card-body" style="padding: 0.75rem 0 0 0;">
+            <p style="color: var(--muted); font-size: 0.85rem; margin: 0 0 0.75rem 0;">
+              Plug Elenchos verification directly into autonomous developer agents via standard MCP tool dispatch:
+            </p>
+            <pre class="code-block" id="mcp-schema-box" style="background: rgba(0,0,0,0.4); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--line); font-family: var(--mono); font-size: 0.75rem; overflow-x: auto; color: #67e8f9; margin: 0;"></pre>
+            <div style="margin-top: 0.75rem;">
+              <button id="btn-copy-mcp" class="btn-secondary" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;">
+                📋 Copy MCP Tool Definition
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

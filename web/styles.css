@@ -848,3 +848,109 @@ footer a:hover {
   text-decoration: underline;
 }
 
+/* --- Telemetry Badge --- */
+.telemetry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--cyan);
+}
+.telemetry-sep {
+  color: var(--line-strong);
+}
+.telemetry-stat {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* --- Socratic Canary Flight Deck --- */
+.flight-deck-card {
+  margin-bottom: 1.25rem;
+  background: linear-gradient(180deg, rgba(10, 17, 40, 0.95), rgba(4, 8, 26, 0.95));
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+.flight-deck-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+.deck-node {
+  flex: 1;
+  min-width: 10rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: all 0.25s ease;
+}
+.deck-node.active {
+  background: rgba(0, 212, 255, 0.12);
+  border-color: var(--cyan);
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.25);
+}
+.deck-node.complete {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--emerald-line);
+}
+.deck-icon {
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+}
+.deck-content {
+  display: flex;
+  flex-direction: column;
+}
+.deck-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.deck-meta {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+.deck-connector {
+  width: 1.5rem;
+  height: 2px;
+  background: var(--line);
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.25s ease;
+}
+.deck-connector.active {
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+.deck-connector.complete {
+  background: var(--emerald);
+}
+
+/* MCP Tool Spec */
+.mcp-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  margin-top: 1rem;
+}
+

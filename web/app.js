@@ -323,6 +323,19 @@ Pipeline does not enforce immutable SHA pinning.`,
         if (out) out.style.display = "none";
       }
     });
+
+    // Reset Flight Deck
+    for (let i = 1; i <= 4; i++) {
+      const node = document.getElementById(`deck-node-${i}`);
+      const conn = document.getElementById(`deck-conn-${i}`);
+      if (node) node.className = "deck-node";
+      if (conn) conn.className = "deck-connector";
+    }
+    const status = document.getElementById("flight-deck-status");
+    if (status) {
+      status.innerText = "Deck State: Ready";
+      status.className = "pill pill-pass";
+    }
   }
 
   function updateSplitInspector(preset) {
@@ -366,11 +379,23 @@ Pipeline does not enforce immutable SHA pinning.`,
 
     resetTimeline();
 
+    const deckStatus = document.getElementById("flight-deck-status");
+    if (deckStatus) {
+      deckStatus.innerText = "Executing Socratic Pipeline...";
+      deckStatus.className = "pill pill-warn";
+    }
+
     // Stage 1: ASSESS
     const s1 = document.getElementById("step-assess");
+    const dNode1 = document.getElementById("deck-node-1");
+    const dConn1 = document.getElementById("deck-conn-1");
+    if (dNode1) dNode1.className = "deck-node active";
+    if (dConn1) dConn1.className = "deck-connector active";
     s1.className = "stage-step active";
     await delay(500);
     s1.className = "stage-step complete";
+    if (dNode1) dNode1.className = "deck-node complete";
+    if (dConn1) dConn1.className = "deck-connector complete";
     const out1 = s1.querySelector(".stage-output");
     out1.style.display = "block";
     out1.innerText = `[ASSESS] Parsed AST of workflow.
@@ -379,9 +404,15 @@ Identified flaw: ${preset.defectType} at ${preset.defectLocation}`;
 
     // Stage 2: PROVISION
     const s2 = document.getElementById("step-provision");
+    const dNode2 = document.getElementById("deck-node-2");
+    const dConn2 = document.getElementById("deck-conn-2");
+    if (dNode2) dNode2.className = "deck-node active";
+    if (dConn2) dConn2.className = "deck-connector active";
     s2.className = "stage-step active";
     await delay(700);
     s2.className = "stage-step complete";
+    if (dNode2) dNode2.className = "deck-node complete";
+    if (dConn2) dConn2.className = "deck-connector complete";
     const out2 = s2.querySelector(".stage-output");
     out2.style.display = "block";
     out2.innerText = `[PROVISION] Calling nvidia/nemotron-3-super-120b-a12b on Token Factory...
@@ -391,9 +422,15 @@ ${preset.canaryScript}`;
 
     // Stage 3: PROVE
     const s3 = document.getElementById("step-prove");
+    const dNode3 = document.getElementById("deck-node-3");
+    const dConn3 = document.getElementById("deck-conn-3");
+    if (dNode3) dNode3.className = "deck-node active";
+    if (dConn3) dConn3.className = "deck-connector active";
     s3.className = "stage-step active";
     await delay(800);
     s3.className = "stage-step complete";
+    if (dNode3) dNode3.className = "deck-node complete";
+    if (dConn3) dConn3.className = "deck-connector complete";
     const out3 = s3.querySelector(".stage-output");
     out3.style.display = "block";
     out3.innerText = `[PROVE] Executing in Token Factory Sandbox (VM Isolation)...
@@ -403,15 +440,23 @@ Verdict: REFUTATION CONFIRMED`;
 
     // Stage 4: WATCH
     const s4 = document.getElementById("step-watch");
+    const dNode4 = document.getElementById("deck-node-4");
+    if (dNode4) dNode4.className = "deck-node active";
     s4.className = "stage-step active";
     await delay(500);
     s4.className = "stage-step complete";
+    if (dNode4) dNode4.className = "deck-node complete";
     const out4 = s4.querySelector(".stage-output");
     const contentId = await computeSha256(preset.yaml + preset.canaryScript + Date.now());
     out4.style.display = "block";
     out4.innerText = `[WATCH] Generated content-addressed cryptographic receipt.
 content_id: ${contentId}
 Status: Refutation Sealed in Estate Ledger`;
+
+    if (deckStatus) {
+      deckStatus.innerText = "Refutation Proven";
+      deckStatus.className = "pill pill-pass";
+    }
 
     if (runBtn) runBtn.disabled = false;
   }
@@ -556,6 +601,38 @@ Status: Refutation Sealed in Estate Ledger`;
         a.click();
         URL.revokeObjectURL(url);
         showToast("Audit Certificate downloaded (.json)");
+      });
+    }
+
+    // Model Context Protocol (MCP) Tool Spec
+    const mcpSchemaBox = document.getElementById("mcp-schema-box");
+    const mcpCopyBtn = document.getElementById("btn-copy-mcp");
+    const mcpSpec = {
+      name: "elenchos_verify_pipeline",
+      description: "Autonomous AST parser & microVM canary generator proving whether CI/CD controls fail when breached",
+      inputSchema: {
+        type: "object",
+        properties: {
+          workflow_yaml: { type: "string", description: "Target GitHub Actions or CI pipeline YAML" },
+          rule: { type: "string", description: "Governance rule text to test against the pipeline" }
+        },
+        required: ["workflow_yaml", "rule"]
+      }
+    };
+
+    if (mcpSchemaBox) {
+      mcpSchemaBox.innerText = JSON.stringify(mcpSpec, null, 2);
+    }
+    if (mcpCopyBtn) {
+      mcpCopyBtn.addEventListener("click", () => {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(JSON.stringify(mcpSpec, null, 2)).catch(() => {});
+          }
+        } catch (e) {}
+        showToast("MCP Tool Specification copied!");
+        mcpCopyBtn.innerText = "✓ Copied Schema!";
+        setTimeout(() => { mcpCopyBtn.innerText = "📋 Copy MCP Tool Definition"; }, 2000);
       });
     }
   }
