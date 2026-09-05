@@ -266,10 +266,51 @@
 
   <!-- TAB 3: ESTATE COCKPIT (MAXIMOS VIEW) -->
   <section id="tab-estate" class="tab-content">
+
     <div class="card">
       <div class="card-header">
-        <span class="card-title">Enterprise Estate Overview &middot; 200 Repositories</span>
-        <span class="pill pill-warn">Auditor Dashboard</span>
+        <span class="card-title">Found in the wild</span>
+        <span class="pill pill-pass">Read only, reproducible, third party</span>
+      </div>
+      <div class="card-body">
+        <p style="color: var(--muted); font-size: 0.9rem; margin-top: 0;">
+          Not our repositories and not a simulation. Each line was produced by
+          <code>elenchos assess</code>, then opened in the raw file and checked line by line before
+          it was written here. Run the command yourself and compare.
+        </p>
+
+        <div class="pair" style="margin-top: 1rem;">
+          <div class="claim">&#x1F3C6; Platinum Compliance Check</div>
+          <div class="was">continue-on-error: true, so the step reports failure and the job stays green</div>
+          <div class="where"><a href="https://github.com/FaserF/hassio-addons/blob/main/.github/workflows/orchestrator-ci.yaml#L388">FaserF/hassio-addons &middot; orchestrator-ci.yaml:388</a></div>
+        </div>
+
+        <div class="pair">
+          <div class="claim">&#x2705; Compliance Check &amp; Comment</div>
+          <div class="was">the command's failure is discarded by the shell</div>
+          <div class="where"><a href="https://github.com/FaserF/hassio-addons/blob/main/.github/workflows/orchestrator-intake.yaml#L64">FaserF/hassio-addons &middot; orchestrator-intake.yaml:64</a></div>
+        </div>
+
+        <div class="pair">
+          <div class="claim">Audit pre-agent workspace</div>
+          <div class="was">continue-on-error: true, on a step whose name promises an audit</div>
+          <div class="where"><a href="https://github.com/home-assistant/core/blob/dev/.github/workflows/check-requirements.lock.yml#L771">home-assistant/core &middot; check-requirements.lock.yml:771</a></div>
+        </div>
+
+        <p style="color: var(--muted); font-size: 0.85rem;">
+          A neighbouring step in that same file also carries continue-on-error and is deliberately
+          <strong>not</strong> reported, because its name promises nothing. A step that makes no
+          claim cannot exceed it, which is why the count is a floor rather than an estimate.
+        </p>
+
+        <pre style="font-family: var(--mono); font-size: 0.78rem; color: var(--muted); overflow-x: auto; background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 8px;">pip install -e .
+elenchos estate home-assistant --limit 12</pre>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Estate view</span>
+        <span class="pill pill-warn">The buyer runs 200 repositories. The panel below is his situation, not our data</span>
       </div>
       <div class="card-body">
         <p style="color: var(--muted); font-size: 0.9rem; margin-top: 0; margin-bottom: 1.25rem;">
