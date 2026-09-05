@@ -24,9 +24,9 @@
         <span class="status-dot"></span>
         <span>Nemotron 3 Super</span>
         <span class="telemetry-sep">|</span>
-        <span class="telemetry-stat">114ms TTFT</span>
+        <span class="telemetry-stat">1,879 ms first response, measured 2026-09-01</span>
         <span class="telemetry-sep">|</span>
-        <span class="telemetry-stat">86.4 tok/s</span>
+        <span class="telemetry-stat">temperature 0, and not deterministic: three runs scored 16, 14, 14</span>
       </div>
     </div>
   </div>
@@ -149,7 +149,7 @@
           <div class="card-header">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               <span class="card-title">Socratic Canary Flight Deck</span>
-              <span class="pill pill-muted" id="flight-deck-ast-savings">AST Early-Exit: 91.4% Saved</span>
+              <span class="pill pill-muted" id="flight-deck-ast-savings">Deterministic pass first, so the model is called only for rules a parser cannot answer</span>
             </div>
             <span class="pill pill-pass" id="flight-deck-status">Deck State: Ready</span>
           </div>
@@ -291,8 +291,8 @@
             <span class="stat-label">Pipelines Neutralized by continue-on-error or || true</span>
           </div>
           <div class="stat-box">
-            <span class="stat-value" style="color: var(--emerald);">100%</span>
-            <span class="stat-label">of the receipt is content addressed. Not signed, so it detects drift rather than preventing it</span>
+            <span class="stat-value" style="color: var(--emerald);">16 / 20</span>
+            <span class="stat-label">rules Nemotron turned from prose into a check that actually fires, against a threshold of 14 written down before the first call. Three runs scored 16, 14, 14. A fixed template scored 2</span>
           </div>
         </div>
 

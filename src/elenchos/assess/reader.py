@@ -38,7 +38,10 @@ NEUTERING = [
      "the pipeline ends in a command that succeeds on empty input, so the exit code is always 0"),
 ]
 
-STEP_NAME = re.compile(r"^\s*-?\s*name:\s*(.+?)\s*$")
+# A step's name is always indented, because a step is always inside a list inside a job. A `name:`
+# at column zero is the workflow's own name, and counting it as a control inflates every number
+# that follows. Found by the sponsor swap test, which expected one step and got two.
+STEP_NAME = re.compile(r"^[ 	]+-?[ 	]*name:[ 	]*(.+?)[ 	]*$")
 SECURITY_WORD = re.compile(
     r"(?i)(secur|secret|scan|audit|vuln|sast|dast|codeql|trivy|gitleaks|trufflehog|lint|compliance)")
 
