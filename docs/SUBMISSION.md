@@ -23,6 +23,10 @@ the video upload as public rather than unlisted, the form's CAPTCHA, and pressin
 Your pipeline's green check is a claim, not a control. Elenchos pushes a build that breaks the rule
 and returns the green run as proof.
 
+NVIDIA Nemotron 3 Super, on Nebius Token Factory, is what turns a rule someone wrote in a sentence
+into the check that enforces it. Remove it and the rule stays a sentence, there is no control to
+test, and the deterministic stages have no input.
+
 Maximos is an engineering director at a regulated company. Two hundred repositories across GitHub
 and Azure DevOps, fifty engineers, contractor teams outside his organisation entirely. Once a year
 he signs a statement that the security checks are in place. At the last audit he was asked to prove

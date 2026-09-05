@@ -292,7 +292,7 @@ Autonomous agents cannot hold un-gated repository write credentials without expl
       </div>
       <div class="receipt-row">
         <span class="receipt-label">Execution Environment:</span>
-        <span class="receipt-value">Token Factory Sandbox (ConTree OCI / Linux runner)</span>
+        <span class="receipt-value">GitHub Actions runner. Token Factory Sandbox is requested and not deployed</span>
       </div>
       <div class="receipt-row">
         <span class="receipt-label">Verification Timestamp:</span>
@@ -444,7 +444,7 @@ Identified flaw: ${preset.defectType} at ${preset.defectLocation}`;
     if (dConn2) dConn2.className = "deck-connector complete";
     const out2 = s2.querySelector(".stage-output");
     out2.style.display = "block";
-    out2.innerText = `[PROVISION] Calling nvidia/nemotron-3-super-120b-a12b on Token Factory...
+    out2.innerText = `[PROVISION] Replay of a recorded run. This page makes no model call; nvidia/nemotron-3-super-120b-a12b is called at build time, not when you click.
 Synthesized Canary: ${preset.canaryFile}
 Shell check:
 ${preset.canaryScript}`;
@@ -462,7 +462,7 @@ ${preset.canaryScript}`;
     if (dConn3) dConn3.className = "deck-connector complete";
     const out3 = s3.querySelector(".stage-output");
     out3.style.display = "block";
-    out3.innerText = `[PROVE] Executing in Token Factory Sandbox (VM Isolation)...
+    out3.innerText = `[PROVE] Replay, simulated. The real refutation ran on a GitHub Actions runner and is linked above. Token Factory Sandbox VM isolation is requested and not deployed.
 Container Exit Code: 1 (Finding caught)
 Forge Reported Status: SUCCESS (Swallowed by ${preset.defectType})
 Verdict: REFUTATION CONFIRMED`;
@@ -605,7 +605,7 @@ Status: Refutation Sealed in Estate Ledger`;
         "eu_ai_act_governance": {
           "regulation": "Regulation (EU) 2024/1689",
           "article_14_human_oversight": "Enforced: Bounded canary execution prevents autonomous un-gated commits",
-          "article_15_accuracy_cybersecurity": "Verified: Socratic microVM sandbox confirms continue-on-error and exit-masking neutralizations cannot deceive audit",
+          "article_15_accuracy_cybersecurity": "The deterministic reader confirms continue-on-error and exit-masking neutralizations cannot deceive audit",
           "sovereign_runtime": "European Open-Weight Model (Nebius Token Factory / Helsinki DC)"
         }
       };
@@ -644,7 +644,7 @@ Status: Refutation Sealed in Estate Ledger`;
     const mcpCopyBtn = document.getElementById("btn-copy-mcp");
     const mcpSpec = {
       name: "elenchos_verify_pipeline",
-      description: "Autonomous AST parser & microVM canary generator proving whether CI/CD controls fail when breached",
+      description: "Deterministic pipeline reader and canary generator, proving whether CI/CD controls fail when breached",
       inputSchema: {
         type: "object",
         properties: {
@@ -712,7 +712,7 @@ Status: Refutation Sealed in Estate Ledger`;
       tab: "tab-playground",
       badge: "Step 3 / 5 · Socratic Sandbox",
       title: "Autonomous Canary Synthesis",
-      text: "NVIDIA Nemotron 3 Super synthesizes the canary test script, which runs inside a Nebius Token Factory Sandbox (contree microVM) to prove the failure."
+      text: "NVIDIA Nemotron 3 Super synthesizes the canary test script. Today it runs on a GitHub Actions runner; a Nebius Token Factory Sandbox is requested and not deployed. It proves the failure."
     },
     {
       targetId: "estate-search",
