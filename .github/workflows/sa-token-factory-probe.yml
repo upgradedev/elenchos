@@ -1,0 +1,54 @@
+name: Probe, can the service account call Token Factory
+
+# One question, asked once, read only: does api.tokenfactory.nebius.com accept a service account
+# IAM token, using the credentials already in this repository's secrets?
+#
+# If yes, a scheduled job can publish a dated Nemotron receipt with no new secret, and the model
+# stops being invisible on the path an anonymous visitor walks. If no, that is written down and the
+# limitation stands, stated rather than guessed.
+#
+# Manual only. It costs one completion of a few tokens when it succeeds and nothing when it fails.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sa-token-factory-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    name: Ask once, read only
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEBIUS_SA_KEY_B64: ${{ secrets.NEBIUS_SA_KEY_B64 }}
+      NEBIUS_SA_KEY_ID: ${{ secrets.NEBIUS_SA_KEY_ID }}
+      NEBIUS_SA_ID: ${{ secrets.NEBIUS_SA_ID }}
+    steps:
+      - name: Fail early if the credentials are absent
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in NEBIUS_SA_KEY_B64 NEBIUS_SA_KEY_ID NEBIUS_SA_ID; do
+            if [ -z "${!name:-}" ]; then echo "missing secret: ${name}"; missing=1; fi
+          done
+          # A missing secret is a missing call. It is never reported as a verdict about the API.
+          test "${missing}" -eq 0
+
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+
+      - name: Install the Nebius SDK
+        run: python -m pip install --quiet nebius
+
+      - name: Ask
+        run: python scripts/probe_sa_token_factory.py
