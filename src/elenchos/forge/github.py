@@ -56,6 +56,23 @@ class GitHubForge:
                         base64.b64decode(blob["content"]).decode("utf-8", "replace")))
         return out
 
+    def list_repos(self, owner: str, limit: int = 30) -> List[str]:
+        """Every repository an owner has, newest first. Read only.
+
+        Tries the organisation endpoint and falls back to the user one, because an owner is one or
+        the other and guessing wrong should not read as "no repositories".
+        """
+        names: List[str] = []
+        for endpoint in ("/orgs/%s/repos" % owner, "/users/%s/repos" % owner):
+            try:
+                page = self._get("%s?per_page=%d&sort=pushed" % (endpoint, min(limit, 100)))
+            except ForgeUnavailable:
+                continue
+            if page:
+                names = [r["full_name"] for r in page if not r.get("archived")][:limit]
+                break
+        return names
+
     # ----------------------------------------------------------------- write
 
     def _guard(self, repo: str, branch: str) -> None:

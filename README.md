@@ -203,6 +203,24 @@ A step named "Platinum Compliance Check" that cannot fail. Open
 [the file at line 388](https://github.com/FaserF/hassio-addons/blob/main/.github/workflows/orchestrator-ci.yaml#L388)
 and check it against the output before believing either of us.
 
+One repository is a curiosity. The buyer has two hundred, so read the estate:
+
+```bash
+python -m elenchos estate home-assistant --limit 12
+```
+
+```
+home-assistant/core
+    .github/workflows/check-requirements.lock.yml:771  Audit pre-agent workspace
+
+12 repositories read, 11 run a pipeline, 1 have at least one step naming enforcement
+the pipeline does not apply.
+1 could not be read. Unreadable is not clean, and it is counted separately.
+```
+
+Unreadable is its own bucket. Folding it into the clean count is the same defect this project
+exists to name, so it is counted apart and printed apart.
+
 `assess` never writes. It is constructed with an empty allowlist, so every write path refuses
 before a socket opens, and a test asserts that rather than trusting the sentence. Pushing a canary
 to prove a finding needs a repository you own and lives behind a separate command.
