@@ -179,6 +179,37 @@ cd elenchos
 python -m pip install -r requirements/ci.txt
 ```
 
+Point it at any public repository. No token, no account, nothing is written:
+
+```bash
+python -m elenchos assess FaserF/hassio-addons
+```
+
+That is a repository we have nothing to do with, and it prints this:
+
+```
+FaserF/hassio-addons: 29 workflow files, 295 named steps
+
+  .github/workflows/orchestrator-ci.yaml:388
+    claims    Platinum Compliance Check
+    actually  continue-on-error: true, so the step reports failure and the job stays green
+
+  .github/workflows/orchestrator-intake.yaml:64
+    claims    Compliance Check & Comment
+    actually  || true, so the command's failure is discarded by the shell
+```
+
+A step named "Platinum Compliance Check" that cannot fail. Open
+[the file at line 388](https://github.com/FaserF/hassio-addons/blob/main/.github/workflows/orchestrator-ci.yaml#L388)
+and check it against the output before believing either of us.
+
+`assess` never writes. It is constructed with an empty allowlist, so every write path refuses
+before a socket opens, and a test asserts that rather than trusting the sentence. Pushing a canary
+to prove a finding needs a repository you own and lives behind a separate command.
+
+When a repository comes back with nothing, the output says that a clean read is not a clean bill of
+health, because this reads workflow files one hop and line by line.
+
 Run the repository's own gates, including the proof that each gate can fail:
 
 ```bash
