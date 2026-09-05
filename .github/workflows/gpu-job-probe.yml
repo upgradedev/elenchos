@@ -3,7 +3,7 @@ name: GPU AI Job probe
 # Answers one narrow question: does a Nebius AI Job with a GPU preset actually reach
 # RUNNING, and how long does it take?
 #
-# The July 2026 Archon entry recorded three CPU jobs accepted, stuck in PROVISIONING
+# An earlier entry in this workspace recorded three CPU jobs accepted, stuck in PROVISIONING
 # with zero instances, terminating in ERROR after ~30 minutes with empty details. The
 # cause was never established, and a 2026-08-31 capacity read showed we DO hold quota
 # (32 on-demand single GPU, 128 preemptible). So one success proves nothing. Run this

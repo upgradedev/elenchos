@@ -1,0 +1,114 @@
+name: Submission video
+
+# Builds the judge video from the deployed site and the real refutation run, per beat, audio
+# locked. Adapted from the submission kit, whose per-beat property is the one that matters: each
+# beat is synthesized alone, measured with ffprobe, and given a visual window equal to its measured
+# length. Changing one line of narration costs one text-to-speech call and one compose, so "leave
+# the video to the end" stops being an argument.
+#
+# It refuses to run against anything but the exact commit it was asked for, and refuses unless the
+# refutation run it points at is genuinely green. A video narrating evidence that is not there is
+# the failure this whole project is about.
+#
+# The upload to YouTube is not here and cannot be. That needs the owner's identity.
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: "The exact 40 character commit the video must be built from."
+        required: true
+      refutation_run_id:
+        description: "The run id of the green run on the commit that breaks the rule."
+        required: true
+        default: "33625228654"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build:
+    name: Capture, compose and verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ELENCHOS_RELEASE_SHA: ${{ inputs.release_sha }}
+      ELENCHOS_REFUTATION_RUN_ID: ${{ inputs.refutation_run_id }}
+    steps:
+      - name: Bind the video to evidence that actually exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          [[ "${ELENCHOS_RELEASE_SHA}" =~ ^[a-f0-9]{40}$ ]]
+          test "${GITHUB_SHA}" = "${ELENCHOS_RELEASE_SHA}"
+          [[ "${ELENCHOS_REFUTATION_RUN_ID}" =~ ^[1-9][0-9]*$ ]]
+          run="repos/${GITHUB_REPOSITORY}/actions/runs/${ELENCHOS_REFUTATION_RUN_ID}"
+          # The run must be green. The whole video says so out loud.
+          test "$(gh api "$run" --jq .conclusion)" = success
+          test "$(gh api "$run" --jq .path)" = ".github/workflows/canary-target.yml"
+          echo "bound to $(gh api "$run" --jq .html_url)"
+
+      - name: Checkout the exact commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.release_sha }}
+
+      - name: Confirm the live surface serves that commit
+        run: |
+          set -euo pipefail
+          deployed="$(curl -sS --fail https://upgradedev.github.io/elenchos/DEPLOYED_SHA | tr -d '[:space:]')"
+          echo "deployed ${deployed}, recording ${ELENCHOS_RELEASE_SHA}"
+          test "${deployed}" = "${ELENCHOS_RELEASE_SHA}"
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+
+      - name: Create one media root under the runner temp
+        run: |
+          set -euo pipefail
+          root="$(mktemp -d "${RUNNER_TEMP}/elenchos-video-XXXXXX")"
+          echo "ELENCHOS_VIDEO_ROOT=${root}" >>"${GITHUB_ENV}"
+          echo "FFMPEG=$(command -v ffmpeg)" >>"${GITHUB_ENV}"
+          echo "FFPROBE=$(command -v ffprobe)" >>"${GITHUB_ENV}"
+
+      - name: Generate measured narration and captions
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: python3 video/generate-narration.py
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+
+      - name: Install a browser for the recording
+        run: |
+          set -euo pipefail
+          npm init -y >/dev/null
+          npm install --save-dev @playwright/test
+          npx playwright install --with-deps chromium
+
+      - name: Record the journey against the deployed site
+        run: node web/video/capture-production.mjs
+
+      - name: Compose the video
+        run: python3 video/build-video.py
+
+      - name: Verify the shipped file, not the build
+        run: python3 scripts/verify_video_sync.py
+
+      - name: Publish the video and its receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: elenchos-submission-video
+          path: |
+            ${{ env.ELENCHOS_VIDEO_ROOT }}/*.mp4
+            ${{ env.ELENCHOS_VIDEO_ROOT }}/video-receipt.json
+            ${{ env.ELENCHOS_VIDEO_ROOT }}/narration/timing.json
+            ${{ env.ELENCHOS_VIDEO_ROOT }}/narration/captions.en.srt
+          if-no-files-found: error
+          retention-days: 30

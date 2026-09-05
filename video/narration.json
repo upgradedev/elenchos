@@ -1,0 +1,62 @@
+{
+  "_comment": "Seven beats. Every figure in here is measured and every one has a file, a run URL or a command behind it in the repository. captionText carries the exact spelling a judge will check. speechText carries the form a voice engine pronounces correctly. Nothing is rounded up and nothing is claimed that the code cannot reach.",
+
+  "schemaVersion": "elenchos.submission-video/v1",
+
+  "provider": "elevenlabs",
+  "elevenLabs": {
+    "voiceId": "pNInz6obpgDQGcFmaJgB",
+    "modelId": "eleven_multilingual_v2",
+    "outputFormat": "mp3_44100_128"
+  },
+
+  "languageCode": "en-GB",
+  "voice": "en-GB-Neural2-B",
+  "speakingRate": 0.98,
+
+  "segments": [
+    {
+      "id": "hook",
+      "_beat": "The problem in the buyer's words, and the measured base rate. No market, one named role.",
+      "captionText": "Once a year an engineering director signs that the security checks are in place. At the last audit he was asked to prove it for one repository. All he had was a green tick. Across 120 public repositories, 21 of the 47 that run their own security script have it narrower than the step's name claims.",
+      "speechText": "Once a year, an engineering director signs a statement that the security checks are in place. At the last audit, he was asked to prove it for one repository. All he had was a green tick. We measured 120 public repositories, none of them ours. Of the 47 that run their own security script, 21 have it narrower than the step's name claims."
+    },
+    {
+      "id": "proof",
+      "_beat": "The refutation. A real green run on a commit built to break the rule.",
+      "captionText": "This is a real GitHub Actions run. It reports success on commit 9762a80, which carries a file the pipeline's own scan detects. The log reads: planted finding detected, this build must not pass. The step exited 1. The job is green.",
+      "speechText": "This is a real Git Hub Actions run. It reports success, on a commit carrying a file that the pipeline's own scan detects. The log reads: planted finding detected, this build must not pass. The step exited with a one. The job is green.",
+      "_evidence": "https://github.com/upgradedev/elenchos/actions/runs/33625228654"
+    },
+    {
+      "id": "deeper",
+      "_beat": "The second lie, and it was not in the design. Found by reading the API back.",
+      "captionText": "There is a second lie in that run, and it is the sharper one. The forge reports the scan step itself as success. continue-on-error rewrites the step's own conclusion, so the badge, the job and the API all agree. Only the log disagrees. A dashboard built on step conclusions calls this pipeline healthy.",
+      "speechText": "There is a second lie in that run, and it is the sharper one. The forge reports the scan step itself as a success. Continue on error rewrites the step's own conclusion, so the badge, the job, and the A P I all agree with each other. Only the log disagrees. A dashboard built on step conclusions would call this pipeline healthy."
+    },
+    {
+      "id": "wild",
+      "_beat": "It is not only our repository. Third party, verified against the raw file.",
+      "captionText": "Point it at a repository we have nothing to do with. In FaserF/hassio-addons it finds a step named Platinum Compliance Check carrying continue-on-error: true, at orchestrator-ci.yaml line 388. In home-assistant/core, a step named Audit pre-agent workspace. Open the files and check.",
+      "speechText": "Point it at a repository we have nothing to do with. In one, it finds a step named Platinum Compliance Check, carrying continue on error true, at line three eighty eight. In another, a step named Audit pre agent workspace. Open the files and check them against the output."
+    },
+    {
+      "id": "model",
+      "_beat": "Where the sponsor's model is load-bearing, with the pre-registered number.",
+      "captionText": "Nemotron 3 Super, on Nebius Token Factory, does one job: it reads a rule written in prose and produces the shell script that enforces it. On twenty rules registered in advance it scored 16, 14 and 14, against a threshold of 14 written down before the first call. A fixed template scored 2.",
+      "speechText": "Nemotron three Super, on Nebius Token Factory, does one job. It reads a rule written in plain prose, and produces the shell script that enforces it. On twenty rules registered in advance, it scored sixteen, fourteen, and fourteen, against a threshold of fourteen that was written down before the first call. A fixed template scored two."
+    },
+    {
+      "id": "surface",
+      "_beat": "The surface the buyer already opens, and the trigger that fires without asking.",
+      "captionText": "Three lines in the pipeline the team already has. The finding arrives in the run summary and as an annotation on the diff, on a pull request they already read, without anyone asking. It does not fail the build by default, because a tool that reddens your pipeline on day one gets uninstalled that afternoon.",
+      "speechText": "Three lines, in the pipeline the team already has. The finding arrives in the run summary, and as an annotation on the diff, on a pull request they already read, without anyone asking for it. It does not fail the build by default, because a tool that reddens your pipeline on day one gets uninstalled that afternoon."
+    },
+    {
+      "id": "close",
+      "_beat": "The one sentence, and the honest limit.",
+      "captionText": "Your pipeline's green check is a claim, not a control. Elenchos pushes a build that breaks the rule and returns the green run as proof. Every number here carries the command that produced it, and what is not deployed says so in the same sentence.",
+      "speechText": "Your pipeline's green check is a claim, not a control. Elenchos pushes a build that breaks the rule, and returns the green run as proof. Every number you have seen carries the command that produced it. And anything that is not deployed says so, in the same sentence that names it."
+    }
+  ]
+}
