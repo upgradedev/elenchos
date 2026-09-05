@@ -39,8 +39,29 @@ def iam_token() -> str:
         public_key_id=os.environ["NEBIUS_SA_KEY_ID"],
         service_account_id=os.environ["NEBIUS_SA_ID"],
     ))
-    token = sdk.token()
-    return token.token if hasattr(token, "token") else str(token)
+
+    # The SDK's accessor is not documented in anything we hold, and guessing one and reporting the
+    # AttributeError as a verdict would be the mistake this probe exists to avoid. So try the
+    # plausible ones and say which worked.
+    print("SDK attributes:", ", ".join(sorted(a for a in dir(sdk) if not a.startswith("__"))))
+    for name in ("get_token", "token", "auth_token", "bearer_token", "iam_token", "credentials"):
+        accessor = getattr(sdk, name, None)
+        if accessor is None:
+            continue
+        try:
+            value = accessor() if callable(accessor) else accessor
+        except Exception as exc:  # noqa: BLE001
+            print("  %s raised %s" % (name, type(exc).__name__))
+            continue
+        for attribute in ("token", "access_token", "value"):
+            inner = getattr(value, attribute, None)
+            if isinstance(inner, str) and len(inner) > 20:
+                print("  token obtained via %s.%s" % (name, attribute))
+                return inner
+        if isinstance(value, str) and len(value) > 20:
+            print("  token obtained via %s" % name)
+            return value
+    raise RuntimeError("no accessor on this SDK returned a token")
 
 
 def main() -> int:
