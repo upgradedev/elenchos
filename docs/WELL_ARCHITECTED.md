@@ -20,12 +20,23 @@ what it still does not. The residual column is never empty.
 | Performance efficiency | The surface is static and served from a CDN, so a judge waits on no cold start. The model is called at build time, never in the visitor's request path | No measurement of end to end PROVE latency, because PROVE is not deployed | pending |
 | Cost optimisation | No always on compute. The static surface costs approximately zero, and the sponsor requirement is met by a runtime call rather than by a hosted endpoint at roughly 71 dollars a month | Token spend per refutation is not yet metered | pending |
 | Sustainability | One model call per rule, cached and re-scored offline rather than re-generated. Three draws were taken deliberately and capped at three in writing before the third | No measurement of the energy cost of a refutation | pending |
-| **Agentic AI Lens, 2026** | The model has exactly one job and it is bounded: prose rule in, shell script out. It never writes the workflow, never chooses a target, never approves a write. Its output is executed only inside an isolated sandbox container | Sandbox execution state branching is currently in Beta | SEC-01 |
+| **Agentic AI Lens, 2026** | The model has exactly one job and it is bounded: prose rule in, shell script out. It never writes the workflow, never chooses a target, never approves a write | **The model's output is executed, and today it is executed in a temporary directory on a CI runner behind a narrow denylist, not in an isolated sandbox.** That is a mitigation, not an isolation boundary, and it is the largest residual risk in the design. Token Factory Sandboxes give the VM isolation this needs; access is requested and not granted | pending |
 
-## The execution isolation boundary
+## The execution isolation boundary, stated as it actually is
 
-Elenchos executes shell scripts a model wrote. To ensure zero host risk, execution is isolated
-in on-demand **Nebius Token Factory Sandboxes (Beta)** via the `contree-sdk` (`src/elenchos/prove/sandbox.py`).
-Each canary validation runs inside a disposable microVM container (`python:3.12-slim` or `ubuntu:22.04`),
-completely isolated from host infrastructure.
+Elenchos executes shell scripts a model wrote. **Today that happens in a temporary directory on a
+CI runner**, with a narrow denylist covering network egress, privilege escalation and destructive
+filesystem patterns, and every refusal logged with the pattern it matched. That is a mitigation.
+It is not an isolation boundary, and calling it one would be the unearned security claim this
+project exists to expose.
+
+`src/elenchos/prove/sandbox.py` holds the adapter for **Nebius Token Factory Sandboxes**, which
+give VM isolation, execution state branching and instant restore. **It has never executed against
+a real sandbox.** Access is Beta, it was requested, and it has not been granted. Without the
+`contree-sdk` present the adapter falls back to a simulator, and the test asserts exactly that:
+`assert "simulated" in res["provider"]`.
+
+So the honest statement, and the one that goes in front of a judge: the blast radius of a
+model-written script is currently a temporary directory on a GitHub runner. The sandbox is the
+roadmap, and the surface says so in the same sentence that names it.
 
