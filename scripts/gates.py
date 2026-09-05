@@ -292,6 +292,37 @@ def gate_our_own_workflows_obey_our_own_rules():
     return hits
 
 
+def gate_docs_point_at_real_paths():
+    """Every doc names at least one path in this repository, and every path it names exists.
+
+    From the recruiter lens, K3 half C: a document that points at nothing is describing a system
+    that is not here. Two failure modes, both real. A doc naming a file that was renamed or never
+    existed sends a reader looking for something that is not there. A doc naming no path at all is
+    prose with no anchor in the tree it ships inside.
+
+    Only backticked tokens that look like repository paths are checked, so ordinary prose and
+    commands are left alone.
+    """
+    candidate = re.compile(r"`([A-Za-z0-9_./-]+\.(?:py|md|json|yml|yaml|html|js|mjs|css|toml|txt|lock|in))`")
+    hits = []
+    docs = sorted((ROOT / "docs").rglob("*.md"))
+    for path in docs:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        relative = path.relative_to(ROOT).as_posix()
+        named = 0
+        for match in candidate.finditer(text):
+            token = match.group(1)
+            if token.startswith("http") or token.count("/") == 0 and "." not in token:
+                continue
+            named += 1
+            if not (ROOT / token).exists():
+                line = text[:match.start()].count(chr(10)) + 1
+                hits.append("%s:%d names %r, which is not in the tree" % (relative, line, token))
+        if named == 0:
+            hits.append("%s names no path in this repository" % relative)
+    return hits
+
+
 def gate_source_file_length():
     """STANDARDS A1. No source file over 800 lines."""
     hits = []
@@ -313,6 +344,7 @@ GATES = [
     ("numbers-carry-their-source", gate_numbers_carry_their_source),
     ("every-python-file-parses", gate_every_python_file_parses),
     ("our-own-workflows-obey-our-own-rules", gate_our_own_workflows_obey_our_own_rules),
+    ("docs-point-at-real-paths", gate_docs_point_at_real_paths),
     ("source-file-length", gate_source_file_length),
 ]
 
@@ -359,6 +391,8 @@ def selftest():
         ("our-own-workflows-obey-our-own-rules", ".github/workflows/w.yml",
          "on: push" + chr(10) + "jobs:" + chr(10) + "  a:" + chr(10) + "    steps: []" + chr(10),
          gate_our_own_workflows_obey_our_own_rules),
+        ("docs-point-at-real-paths", "docs/x.md", "It lives in `src/nowhere/missing.py`.",
+         gate_docs_point_at_real_paths),
     ]
     ok = True
     for name, relative, poison, gate in checks:
