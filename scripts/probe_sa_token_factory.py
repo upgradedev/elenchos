@@ -54,7 +54,12 @@ def iam_token() -> str:
         except Exception as exc:  # noqa: BLE001
             print("  %s raised %s" % (name, type(exc).__name__))
             continue
-        for attribute in ("token", "access_token", "value"):
+        # Say what came back before deciding it is not a token. Two runs were spent because the
+        # probe checked for shapes it expected instead of printing the shape it got.
+        print("  %s returned %s: %r" % (name, type(value).__name__, str(value)[:120]))
+        print("     attributes: %s" % ", ".join(
+            sorted(a for a in dir(value) if not a.startswith("_"))[:25]))
+        for attribute in ("token", "access_token", "value", "iam_token", "bearer"):
             inner = getattr(value, attribute, None)
             if isinstance(inner, str) and len(inner) > 20:
                 print("  token obtained via %s.%s" % (name, attribute))
