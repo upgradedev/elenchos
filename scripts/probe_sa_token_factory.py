@@ -40,34 +40,20 @@ def iam_token() -> str:
         service_account_id=os.environ["NEBIUS_SA_ID"],
     ))
 
-    # The SDK's accessor is not documented in anything we hold, and guessing one and reporting the
-    # AttributeError as a verdict would be the mistake this probe exists to avoid. So try the
-    # plausible ones and say which worked.
-    print("SDK attributes:", ", ".join(sorted(a for a in dir(sdk) if not a.startswith("__"))))
-    # get_token_sync first: the async get_token raises TypeError when called with no loop.
-    for name in ("get_token_sync", "get_token", "token", "auth_token", "bearer_token", "iam_token"):
-        accessor = getattr(sdk, name, None)
-        if accessor is None:
-            continue
-        try:
-            value = accessor() if callable(accessor) else accessor
-        except Exception as exc:  # noqa: BLE001
-            print("  %s raised %s" % (name, type(exc).__name__))
-            continue
-        # Say what came back before deciding it is not a token. Two runs were spent because the
-        # probe checked for shapes it expected instead of printing the shape it got.
-        print("  %s returned %s: %r" % (name, type(value).__name__, str(value)[:120]))
-        print("     attributes: %s" % ", ".join(
-            sorted(a for a in dir(value) if not a.startswith("_"))[:25]))
-        for attribute in ("token", "access_token", "value", "iam_token", "bearer"):
-            inner = getattr(value, attribute, None)
-            if isinstance(inner, str) and len(inner) > 20:
-                print("  token obtained via %s.%s" % (name, attribute))
-                return inner
-        if isinstance(value, str) and len(value) > 20:
-            print("  token obtained via %s" % name)
-            return value
-    raise RuntimeError("no accessor on this SDK returned a token")
+    # Signature read from the SDK source rather than guessed:
+    #   get_token_sync(timeout: float | None, options: dict[str, str] | None = None) -> Token
+    # Four runs were spent trying accessors with no arguments. Reading the source took one minute
+    # and answered it, which is the lesson worth keeping from this file.
+    token = sdk.get_token_sync(30.0)
+    for attribute in ("token", "access_token", "value"):
+        inner = getattr(token, attribute, None)
+        if isinstance(inner, str) and len(inner) > 20:
+            print("token obtained via get_token_sync().%s" % attribute)
+            return inner
+    if isinstance(token, str) and len(token) > 20:
+        return token
+    raise RuntimeError("get_token_sync returned %s with no token string: %r"
+                       % (type(token).__name__, str(token)[:80]))
 
 
 def main() -> int:
