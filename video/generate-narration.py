@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Generate short, measured TTS scenes and aligned captions in CI.
 
-Copied from a prior entry in this workspace, master a1feb16, file video/generate-narration.py.
-The pristine copy is kept at ../../upstream/a prior entry in this workspace/generate-narration.py, so
+Copied from an earlier entry in this workspace, master a1feb16, file video/generate-narration.py.
+The pristine copy is kept at ../../upstream/an earlier entry in this workspace/generate-narration.py, so
 `diff` shows every change the kit made. Those changes are:
 
   1. Per-scene caching. A scene is re-synthesized only when its speech text or its
