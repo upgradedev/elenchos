@@ -154,6 +154,53 @@ def gate_only_one_declared_theatre():
     return hits
 
 
+# Words that promise a running capability to whoever reads the surface. Each one must sit next to
+# a qualifier saying what is actually deployed, or the page is making a claim the code cannot back.
+CAPABILITY_TERMS = [
+    "token factory sandbox", "microvm", "vm isolation", "sandbox execution",
+    "cryptographically sealed", "tamper-proof", "tamper proof", "signed provenance",
+    "air-gapped", "air gapped", "self-hosted", "zero data leakage",
+]
+
+# A qualifier tells the reader the capability is not running today. "Simulated" counts, because a
+# labelled simulation is honest; an unlabelled one is not.
+QUALIFIERS = [
+    "not deployed", "declared", "simulated", "simulation", "roadmap", "requested",
+    "beta, not", "not signed", "not tamper", "is not air", "would run", "planned",
+]
+
+CLAIM_WINDOW = 240
+
+
+def gate_surface_claims_are_backed():
+    """Every capability the judge-facing surface names is running, or labelled as not running.
+
+    This is the rule this project sells, applied to this project. The entry argues that a green
+    check is a claim until someone proves it. A demo that names a capability the code cannot reach
+    is the same defect, on the same axis, and it is the single most attackable thing we could ship.
+
+    The check is proximity based rather than clever: a capability word must have a qualifier within
+    CLAIM_WINDOW characters. Crude, and it fails closed.
+    """
+    hits = []
+    for path in sorted((ROOT / "web").rglob("*.html")):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        low = text.lower()
+        for term in CAPABILITY_TERMS:
+            start = 0
+            while True:
+                at = low.find(term, start)
+                if at == -1:
+                    break
+                start = at + len(term)
+                window = low[max(0, at - CLAIM_WINDOW):at + len(term) + CLAIM_WINDOW]
+                if not any(q in window for q in QUALIFIERS):
+                    line = text[:at].count(chr(10)) + 1
+                    hits.append("%s:%d claims %r with nothing saying whether it runs"
+                                % (path.relative_to(ROOT), line, term))
+    return hits
+
+
 def gate_source_file_length():
     """STANDARDS A1. No source file over 800 lines."""
     hits = []
@@ -171,6 +218,7 @@ GATES = [
     ("domain-imports-no-sdk", gate_domain_imports_no_sdk),
     ("no-compliance-words", gate_no_compliance_words),
     ("only-one-declared-theatre", gate_only_one_declared_theatre),
+    ("surface-claims-are-backed", gate_surface_claims_are_backed),
     ("source-file-length", gate_source_file_length),
 ]
 
@@ -206,6 +254,9 @@ def selftest():
         ("only-one-declared-theatre", ".github/workflows/sneaky.yml",
          "steps:\n  - name: Run security scan\n    continue-on-error: true\n",
          gate_only_one_declared_theatre),
+        ("surface-claims-are-backed", "web/x.html",
+         "<p>Runs in Token Factory Sandbox with full VM isolation.</p>",
+         gate_surface_claims_are_backed),
     ]
     ok = True
     for name, relative, poison, gate in checks:

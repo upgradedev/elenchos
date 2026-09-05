@@ -16,7 +16,7 @@
   <div class="wrap header-inner">
     <div class="brand">
       <a href="#" class="mark">ἔλεγχος <span>/ elenchos</span></a>
-      <span class="badge-arch">Token Factory Sandbox</span>
+      <span class="badge-arch">Token Factory Sandbox &middot; requested, not deployed</span>
     </div>
     <div class="system-status">
       <button id="btn-start-tour" class="tour-trigger-btn">✨ 60s Guided Tour</button>
@@ -112,7 +112,7 @@
           </div>
           <div style="border: 1px solid var(--line); border-radius: 8px; padding: 1rem; background: var(--bg-card);">
             <div style="font-family: var(--mono); font-weight: 600; color: var(--cyan); margin-bottom: 0.3rem;">3. PROVE</div>
-            <div style="font-size: 0.82rem; color: var(--muted);">Runs in Token Factory Sandbox (VM isolation). Proves whether the pipeline turns red or falsely remains green.</div>
+            <div style="font-size: 0.82rem; color: var(--muted);">Proves whether the pipeline turns red or falsely stays green. Today the canary runs as a real commit on a real GitHub pipeline. Token Factory Sandbox VM isolation is requested and not deployed, so it is drawn here as the roadmap it is.</div>
           </div>
           <div style="border: 1px solid var(--line); border-radius: 8px; padding: 1rem; background: var(--bg-card);">
             <div style="font-family: var(--mono); font-weight: 600; color: var(--cyan); margin-bottom: 0.3rem;">4. WATCH</div>
@@ -132,7 +132,7 @@
       </div>
       <div class="card-body">
         <p style="color: var(--muted); font-size: 0.9rem; margin-top: 0; margin-bottom: 1rem;">
-          Select a defective CI workflow preset or inspect the YAML directly. Trigger the Socratic Audit to observe how Nemotron 3 Super identifies the false claim and proves it in the Token Factory Sandbox.
+          Select a defective CI workflow preset or inspect the YAML directly. Trigger the Socratic Audit to watch how Nemotron 3 Super turns the rule into a check. This panel is a simulation of the flow, not a live run. The one real refutation on this page is the receipt above, and it links to the GitHub run that produced it. Token Factory Sandbox.
         </p>
 
         <!-- Preset Buttons -->
@@ -175,7 +175,7 @@
                 <div class="deck-icon">🛡️</div>
                 <div class="deck-content">
                   <div class="deck-title">3. Sandbox MicroVM</div>
-                  <div class="deck-meta">ConTree VM Isolation</div>
+                  <div class="deck-meta">ConTree VM isolation &middot; declared, not deployed</div>
                 </div>
               </div>
               <div class="deck-connector" id="deck-conn-3"></div>
@@ -215,7 +215,7 @@
 
           <!-- Right: Execution Trace Timeline -->
           <div>
-            <div style="font-family: var(--mono); font-size: 0.78rem; color: var(--muted); margin-bottom: 0.5rem;">Agent Execution Trace (Token Factory Sandbox)</div>
+            <div style="font-family: var(--mono); font-size: 0.78rem; color: var(--muted); margin-bottom: 0.5rem;">Agent execution trace, simulated. Token Factory Sandbox is requested and not deployed</div>
             
             <div class="stage-timeline">
               <!-- Step 1 -->
@@ -241,7 +241,7 @@
               <!-- Step 3 -->
               <div id="step-prove" class="stage-step">
                 <div class="stage-header">
-                  <span class="stage-name"><span>3. PROVE</span> &middot; Sandbox Execution</span>
+                  <span class="stage-name"><span>3. PROVE</span> &middot; sandbox execution, simulated</span>
                   <span class="pill pill-muted">Step 3</span>
                 </div>
                 <div class="stage-body">Runs canary in isolated VM and checks exit codes against forge response.</div>
@@ -292,7 +292,7 @@
           </div>
           <div class="stat-box">
             <span class="stat-value" style="color: var(--emerald);">100%</span>
-            <span class="stat-label">Cryptographically Sealed Provenance Hashes</span>
+            <span class="stat-label">of the receipt is content addressed. Not signed, so it detects drift rather than preventing it</span>
           </div>
         </div>
 
@@ -338,7 +338,7 @@
       </div>
       <div class="card-body">
         <p style="color: var(--muted); font-size: 0.9rem; margin-top: 0; margin-bottom: 1.25rem;">
-          Every Elenchos refutation is cryptographically sealed with content-addressed SHA-256 hashes of the prompt, model output, and target commit. No score is self-awarded: every verdict points to an immutable execution receipt.
+          Every Elenchos refutation is content addressed, with SHA-256 hashes of the prompt, the model output and the target commit. It is not signed and it is not tamper proof: a digest lets a reader detect drift only against a copy they already hold. Saying more than that would be the unearned security claim this project exists to expose. No score is self-awarded: every verdict points to an immutable execution receipt.
         </p>
 
         <div class="receipt-box" id="receipt-details-box">
@@ -391,7 +391,7 @@
               </div>
               <div style="border: 1px solid var(--line); border-radius: 6px; padding: 0.75rem; background: rgba(16,185,129,0.04);">
                 <div style="font-family: var(--mono); font-size: 0.78rem; font-weight: 600; color: var(--emerald); margin-bottom: 0.25rem;">Article 15 &middot; Accuracy &amp; Cybersecurity</div>
-                <div style="font-size: 0.78rem; color: var(--muted); line-height: 1.4;">MicroVM canary executions actively refute false-green pipelines, exit code masking, and continue-on-error vulnerabilities.</div>
+                <div style="font-size: 0.78rem; color: var(--muted); line-height: 1.4;">Canary executions actively refute false-green pipelines, exit code masking and continue-on-error vulnerabilities.</div>
               </div>
             </div>
           </div>

@@ -67,9 +67,14 @@ pipeline go green on a commit that breaks the rule it claims to enforce is not.
 
 ## Where the sponsor's model is load-bearing
 
-Remove Nemotron and Elenchos can still read pipelines, still break controls and still produce
-receipts, but it can no longer take a rule a human wrote in a sentence and turn it into a check
-that runs. That is the one job it does, and the split is measured rather than asserted.
+Remove Nemotron and the product stops doing the thing it is for. A rule a human wrote in a
+sentence stays a sentence. Nothing turns "every workflow declares permissions" into a check that
+runs, so there is no control to test, and with no control there is nothing to refute. The
+deterministic stages have no input.
+
+That is the one job it does, and the split is measured rather than asserted. On twenty rules
+registered in advance it scored 16, 14 and 14 against a threshold of 14 written down first, while
+a fixed template scored 2.
 
 The model returns a **shell script and never YAML**. Deterministic code writes the workflow around
 it, in [`src/elenchos/provision/wrapper.py`](src/elenchos/provision/wrapper.py). That division was
