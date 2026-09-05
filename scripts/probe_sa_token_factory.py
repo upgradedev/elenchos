@@ -44,7 +44,8 @@ def iam_token() -> str:
     # AttributeError as a verdict would be the mistake this probe exists to avoid. So try the
     # plausible ones and say which worked.
     print("SDK attributes:", ", ".join(sorted(a for a in dir(sdk) if not a.startswith("__"))))
-    for name in ("get_token", "token", "auth_token", "bearer_token", "iam_token", "credentials"):
+    # get_token_sync first: the async get_token raises TypeError when called with no loop.
+    for name in ("get_token_sync", "get_token", "token", "auth_token", "bearer_token", "iam_token"):
         accessor = getattr(sdk, name, None)
         if accessor is None:
             continue
