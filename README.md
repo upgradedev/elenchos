@@ -23,6 +23,7 @@ red.
 - [Architecture](#architecture)
 - [Quickstart](#quickstart)
 - [Install](#install)
+- [Three lines in the pipeline you already have](#three-lines-in-the-pipeline-you-already-have)
 - [Who buys this, and what it replaces](#who-buys-this-and-what-it-replaces)
 - [What is live and what is declared](#what-is-live-and-what-is-declared)
 - [Prior art, and what is not ours](#prior-art-and-what-is-not-ours)
@@ -258,6 +259,24 @@ elenchos assess your-org/your-service
 
 No runtime dependencies, deliberately. A tool that reads someone's supply chain should not arrive
 with twenty transitive packages of its own.
+
+## Three lines in the pipeline you already have
+
+```yaml
+- uses: upgradedev/elenchos@main
+  with:
+    fail-on-finding: "false"
+```
+
+The finding arrives in the run's job summary and as an annotation on the diff, which are pages the
+team already opens on a pull request they already read. It fires on every pull request without
+anyone asking for it.
+
+It defaults to not failing the build. A tool that reddens a team's pipeline on the day they try it
+gets uninstalled that afternoon, so gating is a decision they make later by flipping one input.
+
+This repository runs it on itself, on every pull request. The finding it reports is our own
+declared canary target.
 
 ## Who buys this, and what it replaces
 

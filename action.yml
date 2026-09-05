@@ -1,0 +1,40 @@
+name: "Elenchos"
+description: "Report which of your pipeline's steps name enforcement they do not apply."
+author: "upgradedev"
+
+branding:
+  icon: "alert-triangle"
+  color: "red"
+
+# Three lines in a workflow the team already has, reporting into the pull request they already
+# open. That is deliberate. A finding that only appears on a dashboard we built is a twelfth tab
+# nobody opens, and the buyer never sees it.
+
+inputs:
+  path:
+    description: "Directory holding the workflow files to read."
+    required: false
+    default: ".github/workflows"
+  fail-on-finding:
+    description: >
+      Fail the step when a control names enforcement the pipeline does not apply. Default false,
+      so adding this action cannot break anyone's build on the day they try it.
+    required: false
+    default: "false"
+
+outputs:
+  findings:
+    description: "How many steps name enforcement the pipeline does not apply."
+    value: ${{ steps.assess.outputs.findings }}
+
+runs:
+  using: composite
+  steps:
+    - name: Read the pipeline and write the summary
+      id: assess
+      shell: bash
+      env:
+        ELENCHOS_PATH: ${{ inputs.path }}
+        ELENCHOS_FAIL: ${{ inputs.fail-on-finding }}
+      run: |
+        python3 "${{ github.action_path }}/scripts/action_report.py"
