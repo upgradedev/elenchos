@@ -24,9 +24,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # Clean-room. Nothing from the day job reaches a public repository: no employer, no customer, no
 # tenant identifier, no internal document carried across as-is.
+# "archon" was missing from this list for four days while "arkon" sat in it, so the gate could not
+# see the transliteration anyone actually types. It found nothing because it was looking for the
+# wrong string, which is a check narrower than its name and the exact defect this repository sells.
+# Caught when a file copied from another project carried "archon-qwen-memoryagent" straight past it.
 FORBIDDEN = [
     "hedno", "deddie", "helios", "project_alice", "org_standards",
-    "arkon", "kerdon", "frontbox", "aicolab",
+    "archon", "arkon", "kerdon", "frontbox", "aicolab",
 ]
 
 # Other competitions must not appear in judge-facing files. Nebius and NVIDIA are this one's
@@ -87,7 +91,13 @@ def gate_cleanroom():
 
 
 def gate_no_other_contest():
-    return _scan(judge_facing(), OTHER_CONTESTS, "other competition")
+    """Every file, not only the judge-facing ones.
+
+    The repository is public. A competition name in a workflow comment is as readable as one in the
+    README, and scoping this to README and docs made the gate narrower than the rule it enforces.
+    """
+    paths = [p for p in files_to_search() if p.name != "gates.py"]
+    return _scan(paths, OTHER_CONTESTS, "other competition")
 
 
 def gate_style():
@@ -245,6 +255,43 @@ def gate_numbers_carry_their_source():
     return hits
 
 
+def gate_every_python_file_parses():
+    """A file that does not parse is not code, and no other gate here would notice.
+
+    Every content gate in this file reads text. All nine stayed green while a docstring in the
+    video generator was left unterminated by an automated edit, so the repository was green and
+    the script was dead. Cheapest possible check, and it closes that whole class.
+    """
+    import ast
+    hits = []
+    for path in sorted(ROOT.rglob("*.py")):
+        if any(part in SKIP_DIRS for part in path.relative_to(ROOT).parts):
+            continue
+        try:
+            ast.parse(path.read_text(encoding="utf-8", errors="replace"))
+        except SyntaxError as exc:
+            hits.append("%s:%s does not parse: %s" % (
+                path.relative_to(ROOT), exc.lineno, exc.msg))
+    return hits
+
+
+def gate_our_own_workflows_obey_our_own_rules():
+    """Rules 11 and 15 of our own rule pack, enforced on us.
+
+    We report other people's workflows for missing permissions and timeouts. A tool that cannot
+    pass its own audit is the finding, so this is not optional.
+    """
+    hits = []
+    for path in sorted((ROOT / ".github" / "workflows").glob("*.y*ml")):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        relative = path.relative_to(ROOT).as_posix()
+        if not re.search(r"(?m)^\s*permissions:", text):
+            hits.append("%s declares no permissions:" % relative)
+        if not re.search(r"(?m)^\s*timeout-minutes:", text):
+            hits.append("%s declares no timeout-minutes" % relative)
+    return hits
+
+
 def gate_source_file_length():
     """STANDARDS A1. No source file over 800 lines."""
     hits = []
@@ -264,6 +311,8 @@ GATES = [
     ("only-one-declared-theatre", gate_only_one_declared_theatre),
     ("surface-claims-are-backed", gate_surface_claims_are_backed),
     ("numbers-carry-their-source", gate_numbers_carry_their_source),
+    ("every-python-file-parses", gate_every_python_file_parses),
+    ("our-own-workflows-obey-our-own-rules", gate_our_own_workflows_obey_our_own_rules),
     ("source-file-length", gate_source_file_length),
 ]
 
@@ -305,6 +354,11 @@ def selftest():
         ("numbers-carry-their-source", "web/x.html",
          "<span>114ms TTFT</span><span>86.4 tok/s</span>",
          gate_numbers_carry_their_source),
+        ("every-python-file-parses", "broken.py", "def x(:" + chr(10),
+         gate_every_python_file_parses),
+        ("our-own-workflows-obey-our-own-rules", ".github/workflows/w.yml",
+         "on: push" + chr(10) + "jobs:" + chr(10) + "  a:" + chr(10) + "    steps: []" + chr(10),
+         gate_our_own_workflows_obey_our_own_rules),
     ]
     ok = True
     for name, relative, poison, gate in checks:

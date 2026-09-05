@@ -3,7 +3,7 @@
 
 Why this exists
 ---------------
-The July 2026 Archon entry recorded three CreateJobRequest calls that were ACCEPTED,
+An earlier entry in this workspace recorded three CreateJobRequest calls that were ACCEPTED,
 sat in PROVISIONING with zero instances, and terminated in ERROR after ~30 minutes with
 an empty JobStateDetails. That was a CPU preset. The cause was never established.
 
@@ -178,7 +178,7 @@ def create_and_watch(sdk, project_id: str, args: argparse.Namespace) -> dict:
         )
         return {"outcome": "create_rejected", "project": project_id, "error": str(exc)[:200]}
 
-    # The job id lives on the operation, not on job.metadata.id. Recorded fix from Archon.
+    # The job id lives on the operation, not on job.metadata.id. Recorded fix from an earlier entry.
     job_id = getattr(operation, "resource_id", None)
     log("created", project=project_id, job=job_name, job_id=job_id,
         platform=args.platform, preset=args.preset,

@@ -40,11 +40,11 @@ USAGE
 
 PROVENANCE
     Structure, three-state model, evidence primitives, readiness.json artifact:
-        repos/nebius/scripts/readiness.py (579 lines)
+        an earlier readiness gate in this workspace (579 lines)
     Explicit numeric weights per criterion, 95 percent gate threshold, the
     third "user-gated" status as a first-class value:
-        repos/archon-datahub/scripts/readiness.ts (2,110 lines)
-    Rejected as the base: repos/cockroachdb/scripts/readiness.ts, 10,092 lines,
+        a second one in this workspace (2,110 lines)
+    Rejected as the base: a third, 10,092 lines, with a measured zero
     verified zero fetch calls (grep -cE "fetch\\(|axios|http\\.get|https\\.get"
     returns 0). Its live probe lives in a separate scheduled workflow that
     cannot turn a pull request red.
@@ -286,8 +286,8 @@ def workflow_triggers_on_any_branch(relpath):
 
     Handles the three shapes that are all correct YAML: `on: [push, ...]`,
     `on: push`, and the block form at any indent. Calibrated against real files:
-    it passes qwen-memoryagent's ci.yml and this kit's own ci.yml, and fails
-    gcp, cockroachdb and archon-datahub, which pin push to a branch list.
+    it passes two real ci.yml files that fire on any branch, and fails three
+    that pin push to a branch list.
     """
     text = _read(relpath)
     if text is None:
