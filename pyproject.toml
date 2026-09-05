@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "elenchos"
+version = "0.2.0"
+description = "Your pipeline's green check is a claim, not a control."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+keywords = ["ci", "audit", "github-actions", "supply-chain", "governance"]
+
+# No runtime dependencies, on purpose. Reading someone's pipeline should not ask them to trust a
+# dependency tree, and a tool that audits supply chains carrying twenty transitive packages is
+# making the reader's problem worse. Everything the CLI needs is in the standard library.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov>=5", "PyYAML>=6"]
+
+[project.scripts]
+elenchos = "elenchos.cli:main"
+
+[project.urls]
+Homepage = "https://upgradedev.github.io/elenchos/"
+Source = "https://github.com/upgradedev/elenchos"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"

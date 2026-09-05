@@ -22,6 +22,8 @@ red.
 - [The numbers, and the commands that produced them](#the-numbers-and-the-commands-that-produced-them)
 - [Architecture](#architecture)
 - [Quickstart](#quickstart)
+- [Install](#install)
+- [Who buys this, and what it replaces](#who-buys-this-and-what-it-replaces)
 - [What is live and what is declared](#what-is-live-and-what-is-declared)
 - [Prior art, and what is not ours](#prior-art-and-what-is-not-ours)
 - [Safety](#safety)
@@ -246,6 +248,40 @@ cd killtest && python harness.py --producer oracle && python harness.py --produc
 Expected: `oracle: 20/20` then `template: 2/20`. About twenty seconds. Re-generating the model's
 answers instead of re-scoring them needs a Nebius key and
 `python producers/nemotron_fetch.py --mode body`.
+
+## Install
+
+```bash
+pip install -e .
+elenchos assess your-org/your-service
+```
+
+No runtime dependencies, deliberately. A tool that reads someone's supply chain should not arrive
+with twenty transitive packages of its own.
+
+## Who buys this, and what it replaces
+
+The buyer is the person who signs. Once a year Maximos attests that the security checks are in
+place, and at the last audit he was asked to prove it for one repository. What he had was a green
+tick and a screenshot.
+
+It replaces the week before an audit. Today that week is people opening pipelines by hand, reading
+YAML, and pasting screenshots of green runs into a document. A screenshot of a green run is exactly
+the artifact this tool exists to discredit, so the thing being replaced is not a competitor
+product. It is manual evidence gathering that produces evidence which does not hold.
+
+It does not replace a scanner. Snyk, SonarQube, CodeQL and gitleaks find defects in code. This
+answers a different question, which none of them asks: **is the check that was supposed to catch
+that defect actually able to fail?** They are inputs, not rivals.
+
+Why the question is getting worse rather than better: more pipeline code is being written by
+agents, and an agent that produces a step ending in `| head -n1 >/dev/null` produces a control that
+can never go red. We did not invent that example. Nemotron generated it, in our own measurement,
+for the rule about secret scanning.
+
+**What is not true yet, stated plainly.** There is no customer, no revenue and no pilot. This is a
+hackathon build with a working command, a real refutation and a measured base rate. Nobody has paid
+for it, and any number on this page that looks like traction does not exist.
 
 ## What is live and what is declared
 
