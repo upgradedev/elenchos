@@ -94,10 +94,13 @@ def test_no_findings_is_never_reported_as_a_clean_bill_of_health(forge_factory, 
     assert "reusable workflow" in out
 
 
-def test_a_repository_with_no_workflows_says_so(forge_factory, capsys):
+def test_a_repository_with_no_workflows_names_where_it_looked(forge_factory, capsys):
+    """Empty must not read as clean. It has to say where it looked and what that does not prove."""
     forge_factory({})
     assert cli.main(["assess", "someone/else"]) == 0
-    assert "nothing to read" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert ".github/workflows" in out
+    assert "not a statement that none exists elsewhere" in out
 
 
 def test_a_failed_read_is_not_reported_as_a_finding(forge_factory, capsys, monkeypatch):
