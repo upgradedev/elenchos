@@ -56,6 +56,27 @@ threshold of 14 that was written down first, while a fixed template scored 2. As
 YAML as well as the logic, the same model scored 10, 13 and 14, because five of twenty answers were
 not valid YAML. So the model writes the check and never the file around it.
 
+## Where each number in the description is checked
+
+A second person runs these and gets the same figures. A number that survives only as an assertion
+does not belong in the description.
+
+| Claim | Where it comes from | Command |
+|---|---|---|
+| 21 of 47, and 18 of 120 | the pre-registered base rate, threshold written before the count | recorded in the challenge notes, each finding carrying `owner/repo` and a line number |
+| 16, 14, 14 against a threshold of 14 | `killtest/PREREG_B.md`, written before the first call | `cd killtest && python harness.py --producer nemotron_b` |
+| the template scored 2 | `killtest/results/template.json`, all twenty outputs readable | `cd killtest && python harness.py --producer template` |
+| the oracle scored 20 of 20 | `killtest/producers/oracle/`, twenty hand-written checks | `cd killtest && python harness.py --producer oracle` |
+| the green run on a breaking commit | `web/evidence.json`, produced by the shipped code | `python scripts/prove_canary.py --repo upgradedev/elenchos` |
+| a step named Platinum Compliance Check that cannot fail | a third party repository, verified in the raw file | `python -m elenchos assess FaserF/hassio-addons` |
+| 1,879 ms first response | a live call on 2026-09-01, recorded in the challenge notes | `python killtest/producers/nemotron_fetch.py --health` |
+| the model writes shell and never YAML | `src/elenchos/provision/wrapper.py`, and the kill test imports it | `python -m pytest tests/unit/test_wrapper.py` |
+| removing the model stops the product | `tests/unit/test_sponsor_is_load_bearing.py` | `python -m pytest tests/unit/test_sponsor_is_load_bearing.py` |
+| the gates can fail | `scripts/gates.py`, every one broken on purpose once | `python scripts/gates.py --selftest` |
+
+Nothing in the description is rounded. Where a capability is not deployed, `README.md` says so in
+the sentence that names it, and `scripts/gates.py` fails the build if that stops being true.
+
 ## Video
 
 Not recorded. The first five seconds are the demo surface at 375 pixels, unedited.
