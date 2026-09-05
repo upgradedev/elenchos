@@ -24,6 +24,7 @@ import sys
 
 from elenchos.assess.reader import judge, read_controls
 from elenchos.forge.github import ForgeUnavailable, GitHubForge
+from elenchos.report import render
 
 
 def _make_output_safe() -> None:
@@ -43,7 +44,8 @@ def _make_output_safe() -> None:
                 pass
 
 
-def assess(repo: str, ref: str = "HEAD", as_json: bool = False) -> int:
+def assess(repo: str, ref: str = "HEAD", as_json: bool = False,
+           as_report: bool = False, read_at: str = "") -> int:
     _make_output_safe()
     # writable_repos is deliberately left empty. The adapter refuses every write before it opens a
     # socket, so this path cannot mutate anything even if a later edit tried to.
@@ -67,6 +69,11 @@ def assess(repo: str, ref: str = "HEAD", as_json: bool = False) -> int:
         found = read_controls(path, text)
         controls.extend(found)
         findings.extend(judge(found))
+
+    if as_report:
+        sys.stdout.write(render(repo, findings, workflows=len(workflows), steps=len(controls),
+                                read_at=read_at or _now()))
+        return 1 if findings else 0
 
     if as_json:
         json.dump({
@@ -109,7 +116,13 @@ def assess(repo: str, ref: str = "HEAD", as_json: bool = False) -> int:
     return 1
 
 
-def assess_org(owner: str, limit: int = 30, as_json: bool = False) -> int:
+def _now() -> str:
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+
+def assess_org(owner: str, limit: int = 30, as_json: bool = False,
+               as_report: bool = False, read_at: str = "") -> int:
     """Read every repository an owner has, and report the estate rather than one repo.
 
     This is the question the buyer actually asks. One repository is a curiosity; two hundred with
@@ -143,6 +156,13 @@ def assess_org(owner: str, limit: int = 30, as_json: bool = False) -> int:
         if findings:
             with_findings += 1
             rows.append((name, findings))
+
+    if as_report:
+        flat = [f for _, found in rows for f in found]
+        sys.stdout.write(render(owner, flat, workflows=with_workflows, steps=0,
+                                read_at=read_at or _now(), repositories=scanned,
+                                unreadable=unreadable))
+        return 1 if flat else 0
 
     if as_json:
         json.dump({
@@ -185,17 +205,21 @@ def main(argv=None) -> int:
     a.add_argument("repo", help="owner/name, for example pytorch/pytorch")
     a.add_argument("--ref", default="HEAD", help="branch, tag or SHA. Defaults to HEAD")
     a.add_argument("--json", action="store_true", dest="as_json")
+    a.add_argument("--report", action="store_true", dest="as_report",
+                   help="write a dated evidence pack an auditor can read.")
 
     o = sub.add_parser("estate", help="read every repository an owner has. Never writes.")
     o.add_argument("owner", help="a user or organisation, for example upgradedev")
     o.add_argument("--limit", type=int, default=30, help="how many repositories to read")
     o.add_argument("--json", action="store_true", dest="as_json")
+    o.add_argument("--report", action="store_true", dest="as_report",
+                   help="write a dated evidence pack an auditor can read.")
 
     args = parser.parse_args(argv)
     if args.command == "assess":
-        return assess(args.repo, args.ref, args.as_json)
+        return assess(args.repo, args.ref, args.as_json, args.as_report)
     if args.command == "estate":
-        return assess_org(args.owner, args.limit, args.as_json)
+        return assess_org(args.owner, args.limit, args.as_json, args.as_report)
     parser.error("unknown command")
     return 2
 
