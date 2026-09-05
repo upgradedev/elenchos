@@ -201,6 +201,50 @@ def gate_surface_claims_are_backed():
     return hits
 
 
+# A number with a unit reads as a measurement. If nobody measured it, it is decoration wearing a
+# lab coat, and on this entry that is the defect we sell.
+# No word-boundary escape in this pattern, deliberately. Three times a gate in this file
+# shipped with a literal 0x08 backspace where a boundary was intended, written through a
+# shell heredoc, and each time the result was a check that could not match anything. The
+# selftest caught all three, which is the argument for having it.
+MEASUREMENT_UNITS = re.compile(
+    r"(?<![\w.])\d[\d,.]*\s?(ms(?![\w])|tok/s|tokens/s|req/s|%|x faster)", re.I)
+
+# A number is allowed if something near it says where it came from.
+PROVENANCE_WORDS = [
+    "measured", "median", "on 2026-", "threshold", "of 20", "/ 20", "/20", "of 120", "/120",
+    "of 47", "/47", "recall", "baseline", "run ", "commit", "written down first", "three runs",
+    "pre-registered", "prereg", "estimate",
+]
+
+NUMBER_WINDOW = 200
+
+
+def gate_numbers_carry_their_source():
+    """Every measurement-shaped number on the judge-facing surface says where it came from.
+
+    Two fabricated statistics shipped to the live page before this gate existed: a stat box reading
+    "100% Cryptographically Sealed Provenance Hashes", and a header telemetry strip reading
+    "114ms TTFT" and "86.4 tok/s" next to a live-looking indicator. Both were hardcoded. Nobody
+    measured either.
+
+    The rule the workspace already has is that every number carries the command that produced it.
+    This is that rule, enforced on the one surface a judge actually reads.
+    """
+    hits = []
+    for path in sorted((ROOT / "web").rglob("*.html")):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        low = text.lower()
+        for match in MEASUREMENT_UNITS.finditer(text):
+            at = match.start()
+            window = low[max(0, at - NUMBER_WINDOW):at + NUMBER_WINDOW]
+            if not any(word in window for word in PROVENANCE_WORDS):
+                line = text[:at].count(chr(10)) + 1
+                hits.append("%s:%d %r has no source near it"
+                            % (path.relative_to(ROOT), line, match.group(0).strip()))
+    return hits
+
+
 def gate_source_file_length():
     """STANDARDS A1. No source file over 800 lines."""
     hits = []
@@ -219,6 +263,7 @@ GATES = [
     ("no-compliance-words", gate_no_compliance_words),
     ("only-one-declared-theatre", gate_only_one_declared_theatre),
     ("surface-claims-are-backed", gate_surface_claims_are_backed),
+    ("numbers-carry-their-source", gate_numbers_carry_their_source),
     ("source-file-length", gate_source_file_length),
 ]
 
@@ -257,6 +302,9 @@ def selftest():
         ("surface-claims-are-backed", "web/x.html",
          "<p>Runs in Token Factory Sandbox with full VM isolation.</p>",
          gate_surface_claims_are_backed),
+        ("numbers-carry-their-source", "web/x.html",
+         "<span>114ms TTFT</span><span>86.4 tok/s</span>",
+         gate_numbers_carry_their_source),
     ]
     ok = True
     for name, relative, poison, gate in checks:
