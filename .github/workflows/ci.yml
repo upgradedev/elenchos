@@ -36,6 +36,14 @@ jobs:
       - name: Run the gates
         run: python scripts/gates.py
 
+      # Elenchos, run on Elenchos, on every pull request, without anyone asking for it. The finding
+      # lands in this run's job summary, which is a page the team already opens, rather than on a
+      # dashboard of ours that nobody would.
+      - name: Elenchos
+        uses: ./
+        with:
+          fail-on-finding: "false"
+
   test:
     name: Tests
     runs-on: ubuntu-latest
