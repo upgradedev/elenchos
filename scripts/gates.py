@@ -167,6 +167,7 @@ def gate_only_one_declared_theatre():
 # Words that promise a running capability to whoever reads the surface. Each one must sit next to
 # a qualifier saying what is actually deployed, or the page is making a claim the code cannot back.
 CAPABILITY_TERMS = [
+    "calling nvidia/", "calling nemotron", "executing in token factory",
     "token factory sandbox", "microvm", "vm isolation", "sandbox execution",
     "cryptographically sealed", "tamper-proof", "tamper proof", "signed provenance",
     "air-gapped", "air gapped", "self-hosted", "zero data leakage",
@@ -193,7 +194,11 @@ def gate_surface_claims_are_backed():
     CLAIM_WINDOW characters. Crude, and it fails closed.
     """
     hits = []
-    for path in sorted((ROOT / "web").rglob("*.html")):
+    # HTML and JavaScript both. The first version read only the markup, and the sentence telling a
+    # visitor "Calling nemotron on Token Factory" was written by app.js, so the gate never saw the
+    # one claim that mattered most.
+    surfaces = sorted((ROOT / "web").rglob("*.html")) + sorted((ROOT / "web").rglob("*.js"))
+    for path in surfaces:
         text = path.read_text(encoding="utf-8", errors="replace")
         low = text.lower()
         for term in CAPABILITY_TERMS:
