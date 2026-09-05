@@ -206,6 +206,18 @@ A step named "Platinum Compliance Check" that cannot fail. Open
 [the file at line 388](https://github.com/FaserF/hassio-addons/blob/main/.github/workflows/orchestrator-ci.yaml#L388)
 and check it against the output before believing either of us.
 
+The buyer is asked to prove it, so give him something to hand over:
+
+```bash
+python -m elenchos assess your-org/your-service --report
+```
+
+A dated Markdown evidence pack: what was read, when, each finding with its file and line, and, in
+the same document rather than a footnote, what the reading cannot see. An auditor handed a clean
+report and not told its limits has been told something untrue by omission, so the limits are in
+every report including the empty one. It carries a content id, which lets a reader detect that a
+copy changed. It is not signed and it does not say it is.
+
 One repository is a curiosity. The buyer has two hundred, so read the estate:
 
 ```bash
