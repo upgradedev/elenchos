@@ -38,10 +38,19 @@ NEUTERING = [
      "the pipeline ends in a command that succeeds on empty input, so the exit code is always 0"),
 ]
 
+# Azure DevOps writes the same defect in a different alphabet. Its pipelines spell the neutering
+# `continueOnError: true`, in camel case, and name a step with `displayName:` rather than `name:`.
+# A reader that knows only GitHub's spelling reports every Azure pipeline as clean, which is the
+# silent-pass failure this project exists to name. Half the buyer's estate is on that forge.
+NEUTERING_AZURE = [
+    (re.compile(r"^\s*continueOnError:\s*(true|'true'|\"true\")\s*$"),
+     "continueOnError: true, so the step reports failure and the job stays green"),
+]
+
 # A step's name is always indented, because a step is always inside a list inside a job. A `name:`
 # at column zero is the workflow's own name, and counting it as a control inflates every number
 # that follows. Found by the sponsor swap test, which expected one step and got two.
-STEP_NAME = re.compile(r"^[ 	]+-?[ 	]*name:[ 	]*(.+?)[ 	]*$")
+STEP_NAME = re.compile(r"^[ 	]+-?[ 	]*(?:name|displayName):[ 	]*(.+?)[ 	]*$")
 SECURITY_WORD = re.compile(
     r"(?i)(secur|secret|scan|audit|vuln|sast|dast|codeql|trivy|gitleaks|trufflehog|lint|compliance)")
 
@@ -52,13 +61,25 @@ def _unquote(text: str) -> str:
     return text
 
 
-def read_controls(workflow_path: str, text: str) -> List[Control]:
+def patterns_for(dialect: str):
+    """GitHub and Azure DevOps spell the same defect differently, so the caller names the dialect.
+
+    Both lists are always searched. A repository that mixes the two, which a migrating team always
+    does, would otherwise have half its pipelines read as clean.
+    """
+    if dialect not in ("github", "azure-devops"):
+        raise ValueError("unknown pipeline dialect: %r" % dialect)
+    return NEUTERING + NEUTERING_AZURE
+
+
+def read_controls(workflow_path: str, text: str, dialect: str = "github") -> List[Control]:
     """Find every named step and note whether something neuters it.
 
     Line-oriented rather than YAML-parsed, and that is a real limitation: a step whose
     continue-on-error sits in an anchor or a reusable workflow is not seen. The edges we do not
     follow are printed rather than silently dropped.
     """
+    patterns = patterns_for(dialect)
     controls: List[Control] = []
     current_name = None
     current_line = 0
@@ -77,7 +98,7 @@ def read_controls(workflow_path: str, text: str) -> List[Control]:
         if current_name is None:
             continue
 
-        for pattern, reason in NEUTERING:
+        for pattern, reason in patterns:
             if pattern.search(line):
                 controls.append(Control(name=current_name,
                                         location=Location(workflow_path, number),

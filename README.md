@@ -218,6 +218,21 @@ report and not told its limits has been told something untrue by omission, so th
 every report including the empty one. It carries a content id, which lets a reader detect that a
 copy changed. It is not signed and it does not say it is.
 
+Half the buyer's estate is on another forge, so read that one too:
+
+```bash
+python -m elenchos assess payments --forge azure-devops --organisation acme --project platform
+```
+
+Azure DevOps spells the same defect differently. Its pipelines carry `continueOnError: true` in
+camel case and name a step with `displayName:`, so a reader that knows only GitHub's spelling
+reports every Azure pipeline as clean. That is the silent pass this project exists to name, and
+there is a test whose whole job is to prove the GitHub patterns alone would miss it.
+
+Both dialects are always searched, because a team migrating between forges has both spellings in
+one repository. The adapter has no write method at all: not a promise, an absence, and a test
+asserts it.
+
 One repository is a curiosity. The buyer has two hundred, so read the estate:
 
 ```bash
@@ -326,7 +341,8 @@ for it, and any number on this page that looks like traction does not exist.
 | PROVE, the canary and the receipt | live. [Run 33625228654](https://github.com/upgradedev/elenchos/actions/runs/33625228654) went green on `9762a80` |
 | WATCH, replay over existing history | **declared, not deployed** |
 | Tavily runtime citation | **declared, not deployed** |
-| Azure DevOps, GitLab, Bitbucket | **declared, not deployed** |
+| Azure DevOps, read only | live. Its pipelines spell the defect `continueOnError`, and a reader that knows only GitHub's spelling reports every one of them clean |
+| GitLab, Bitbucket | **declared, not deployed** |
 
 The demo surface renders a refutation only when one has been produced. Until then it says so in
 place of the panel, because a demo that invents its own evidence is the exact failure this project

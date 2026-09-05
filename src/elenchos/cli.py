@@ -45,11 +45,12 @@ def _make_output_safe() -> None:
 
 
 def assess(repo: str, ref: str = "HEAD", as_json: bool = False,
-           as_report: bool = False, read_at: str = "") -> int:
+           as_report: bool = False, read_at: str = "", dialect: str = "github",
+           forge=None) -> int:
     _make_output_safe()
     # writable_repos is deliberately left empty. The adapter refuses every write before it opens a
     # socket, so this path cannot mutate anything even if a later edit tried to.
-    forge = GitHubForge(writable_repos=())
+    forge = forge or GitHubForge(writable_repos=())
 
     try:
         workflows = forge.read_workflows(repo, ref)
@@ -60,13 +61,15 @@ def assess(repo: str, ref: str = "HEAD", as_json: bool = False,
         return 2
 
     if not workflows:
-        print("%s has no workflow files under .github/workflows, so there is nothing to read."
-              % repo)
+        searched = getattr(forge, "paths_searched", None)
+        where = ", ".join(searched()) if searched else ".github/workflows"
+        print("%s has no pipeline definition at any of: %s" % (repo, where))
+        print("That is where this looked. It is not a statement that none exists elsewhere.")
         return 0
 
     controls, findings = [], []
     for path, text in workflows:
-        found = read_controls(path, text)
+        found = read_controls(path, text, dialect=dialect)
         controls.extend(found)
         findings.extend(judge(found))
 
@@ -207,6 +210,10 @@ def main(argv=None) -> int:
     a.add_argument("--json", action="store_true", dest="as_json")
     a.add_argument("--report", action="store_true", dest="as_report",
                    help="write a dated evidence pack an auditor can read.")
+    a.add_argument("--forge", default="github", choices=["github", "azure-devops"],
+                   help="which forge to read. Azure DevOps needs --organisation and --project.")
+    a.add_argument("--organisation", default="", help="Azure DevOps organisation.")
+    a.add_argument("--project", default="", help="Azure DevOps project.")
 
     o = sub.add_parser("estate", help="read every repository an owner has. Never writes.")
     o.add_argument("owner", help="a user or organisation, for example upgradedev")
@@ -217,6 +224,13 @@ def main(argv=None) -> int:
 
     args = parser.parse_args(argv)
     if args.command == "assess":
+        if args.forge == "azure-devops":
+            if not args.organisation or not args.project:
+                parser.error("azure-devops needs --organisation and --project")
+            from elenchos.forge.azuredevops import AzureDevOpsForge
+            forge = AzureDevOpsForge(args.organisation, args.project)
+            return assess(args.repo, args.ref, args.as_json, args.as_report,
+                          dialect="azure-devops", forge=forge)
         return assess(args.repo, args.ref, args.as_json, args.as_report)
     if args.command == "estate":
         return assess_org(args.owner, args.limit, args.as_json, args.as_report)
